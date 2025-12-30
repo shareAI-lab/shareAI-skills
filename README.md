@@ -4,11 +4,15 @@ Knowledge packages that extend AI agent capabilities.
 
 [中文文档](./README_zh.md)
 
-## What are Skills?
-
-Skills are modular knowledge packages that give AI agents domain expertise on-demand. They follow the [Agent Skills Spec](https://github.com/anthropics/agent-skills) and work with Claude Code, Cursor, and other compatible agents.
+> Works with **[Kode CLI](https://github.com/anthropics/kode)**, **Claude Code**, **Cursor**, and any agent supporting the [Agent Skills Spec](https://github.com/anthropics/agent-skills).
 
 ## Installation
+
+### Kode CLI (Recommended)
+
+```bash
+kode plugins install https://github.com/shareAI-lab/shareAI-skills
+```
 
 ### Claude Code
 
@@ -30,9 +34,11 @@ Load `SKILL.md` files on-demand when the agent needs domain expertise.
 |-------|-------------|
 | [agent-builder](./skills/agent-builder/) | Design and build AI agents for any domain |
 
-## Skill Structure
+## What are Skills?
 
-Each skill follows this structure:
+Skills are modular knowledge packages that give AI agents domain expertise on-demand. They follow the [Agent Skills Spec](https://github.com/anthropics/agent-skills).
+
+## Skill Structure
 
 ```
 skill-name/
@@ -59,8 +65,11 @@ We welcome contributions! To add a new skill:
 
 ## Related
 
-- [mini-claude-code](https://github.com/shareAI-lab/mini-claude-code) - Learn how to build AI agents from scratch
-- [Agent Skills Spec](https://github.com/anthropics/agent-skills) - Official specification
+| Repository | Purpose |
+|------------|---------|
+| [Kode](https://github.com/anthropics/kode) | Full-featured open source agent CLI |
+| [mini-claude-code](https://github.com/shareAI-lab/mini-claude-code) | Learn how to build AI agents from scratch |
+| [Agent Skills Spec](https://github.com/anthropics/agent-skills) | Official specification |
 
 ## License
 

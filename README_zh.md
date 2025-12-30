@@ -4,11 +4,15 @@
 
 [English](./README.md)
 
-## 什么是 Skills？
-
-Skills 是模块化的知识包，为 AI Agent 按需提供领域专业知识。它们遵循 [Agent Skills Spec](https://github.com/anthropics/agent-skills)，可与 Claude Code、Cursor 等兼容的 Agent 配合使用。
+> 兼容 **[Kode CLI](https://github.com/anthropics/kode)**、**Claude Code**、**Cursor**，以及任何支持 [Agent Skills Spec](https://github.com/anthropics/agent-skills) 的 Agent。
 
 ## 安装
+
+### Kode CLI（推荐）
+
+```bash
+kode plugins install https://github.com/shareAI-lab/shareAI-skills
+```
 
 ### Claude Code
 
@@ -30,9 +34,11 @@ claude plugins install https://github.com/shareAI-lab/shareAI-skills
 |-------|------|
 | [agent-builder](./skills/agent-builder/) | 为任何领域设计和构建 AI Agent |
 
-## Skill 结构
+## 什么是 Skills？
 
-每个 skill 遵循以下结构：
+Skills 是模块化的知识包，为 AI Agent 按需提供领域专业知识。它们遵循 [Agent Skills Spec](https://github.com/anthropics/agent-skills)。
+
+## Skill 结构
 
 ```
 skill-name/
@@ -59,8 +65,11 @@ Skill 不是告诉 Agent 按步骤做什么，而是给 Agent 知识让它自己
 
 ## 相关
 
-- [mini-claude-code](https://github.com/shareAI-lab/mini-claude-code) - 从零学习如何构建 AI Agent
-- [Agent Skills Spec](https://github.com/anthropics/agent-skills) - 官方规范
+| 仓库 | 用途 |
+|------|------|
+| [Kode](https://github.com/anthropics/kode) | 全功能开源 Agent CLI |
+| [mini-claude-code](https://github.com/shareAI-lab/mini-claude-code) | 从零学习如何构建 AI Agent |
+| [Agent Skills Spec](https://github.com/anthropics/agent-skills) | 官方规范 |
 
 ## License
 
