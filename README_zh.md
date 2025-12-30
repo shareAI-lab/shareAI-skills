@@ -4,7 +4,7 @@
 
 [English](./README.md)
 
-> 兼容 **[Kode CLI](https://github.com/anthropics/kode)**、**Claude Code**、**Cursor**，以及任何支持 [Agent Skills Spec](https://github.com/anthropics/agent-skills) 的 Agent。
+> 兼容 **[Kode CLI](https://github.com/shareAI-lab/Kode)**、**Claude Code**、**Cursor**，以及任何支持 [Agent Skills Spec](https://github.com/anthropics/agent-skills) 的 Agent。
 
 ## 安装
 
@@ -67,7 +67,7 @@ Skill 不是告诉 Agent 按步骤做什么，而是给 Agent 知识让它自己
 
 | 仓库 | 用途 |
 |------|------|
-| [Kode](https://github.com/anthropics/kode) | 全功能开源 Agent CLI |
+| [Kode](https://github.com/shareAI-lab/Kode) | 全功能开源 Agent CLI |
 | [mini-claude-code](https://github.com/shareAI-lab/mini-claude-code) | 从零学习如何构建 AI Agent |
 | [Agent Skills Spec](https://github.com/anthropics/agent-skills) | 官方规范 |
 

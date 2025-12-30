@@ -4,7 +4,7 @@ Knowledge packages that extend AI agent capabilities.
 
 [中文文档](./README_zh.md)
 
-> Works with **[Kode CLI](https://github.com/anthropics/kode)**, **Claude Code**, **Cursor**, and any agent supporting the [Agent Skills Spec](https://github.com/anthropics/agent-skills).
+> Works with **[Kode CLI](https://github.com/shareAI-lab/Kode)**, **Claude Code**, **Cursor**, and any agent supporting the [Agent Skills Spec](https://github.com/anthropics/agent-skills).
 
 ## Installation
 
@@ -67,7 +67,7 @@ We welcome contributions! To add a new skill:
 
 | Repository | Purpose |
 |------------|---------|
-| [Kode](https://github.com/anthropics/kode) | Full-featured open source agent CLI |
+| [Kode](https://github.com/shareAI-lab/Kode) | Full-featured open source agent CLI |
 | [mini-claude-code](https://github.com/shareAI-lab/mini-claude-code) | Learn how to build AI agents from scratch |
 | [Agent Skills Spec](https://github.com/anthropics/agent-skills) | Official specification |
 
