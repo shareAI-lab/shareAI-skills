@@ -1,0 +1,16 @@
+{
+  "name": "shareAI-skills",
+  "description": "shareAI Lab's skills for AI agents - knowledge packages that extend agent capabilities",
+  "author": {
+    "name": "shareAI Lab",
+    "url": "https://github.com/shareAI-lab"
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/shareAI-lab/shareAI-skills"
+  },
+  "skills": [
+    "./skills/agent-builder"
+  ]
+}
