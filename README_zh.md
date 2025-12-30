@@ -68,7 +68,7 @@ Skill 不是告诉 Agent 按步骤做什么，而是给 Agent 知识让它自己
 | 仓库 | 用途 |
 |------|------|
 | [Kode](https://github.com/shareAI-lab/Kode) | 全功能开源 Agent CLI |
-| [mini-claude-code](https://github.com/shareAI-lab/mini-claude-code) | 从零学习如何构建 AI Agent |
+| [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) | 从零学习如何构建 AI Agent |
 | [Agent Skills Spec](https://github.com/anthropics/agent-skills) | 官方规范 |
 
 ## License

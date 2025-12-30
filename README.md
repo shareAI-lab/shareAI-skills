@@ -68,7 +68,7 @@ We welcome contributions! To add a new skill:
 | Repository | Purpose |
 |------------|---------|
 | [Kode](https://github.com/shareAI-lab/Kode) | Full-featured open source agent CLI |
-| [mini-claude-code](https://github.com/shareAI-lab/mini-claude-code) | Learn how to build AI agents from scratch |
+| [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) | Learn how to build AI agents from scratch |
 | [Agent Skills Spec](https://github.com/anthropics/agent-skills) | Official specification |
 
 ## License
