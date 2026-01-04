@@ -33,6 +33,22 @@ Load `SKILL.md` files on-demand when the agent needs domain expertise.
 | Skill | Description |
 |-------|-------------|
 | [agent-builder](./skills/agent-builder/) | Design and build AI agents for any domain |
+| [skill-judge](./skills/skill-judge/) | Evaluate Agent Skill quality across 6 dimensions |
+| [media-writer](./skills/media-writer/) | Adapt content for WeChat, HN, Reddit, Medium, Twitter, Dev.to, LinkedIn |
+| [vibe-coding](./skills/vibe-coding/) | Vibe-driven development with minimal specs |
+
+## How to Create Great Skills
+
+Creating a truly effective skill is an art. We've analyzed 17 official Anthropic skills and distilled the core principles:
+
+**Core Formula:**
+```
+Good Skill = Expert-only Knowledge - What Claude Already Knows
+```
+
+Read the full guide: **[How to Create Great Agent Skills](./docs/how-to-create-great-agent-skill.md)**
+
+Use the [skill-judge](./skills/skill-judge/) skill to evaluate your skill's quality with structured scoring across 6 dimensions.
 
 ## What are Skills?
 

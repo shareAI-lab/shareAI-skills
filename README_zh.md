@@ -33,6 +33,22 @@ claude plugins install https://github.com/shareAI-lab/shareAI-skills
 | Skill | 描述 |
 |-------|------|
 | [agent-builder](./skills/agent-builder/) | 为任何领域设计和构建 AI Agent |
+| [skill-judge](./skills/skill-judge/) | 多维度评估 Agent Skill 设计质量 |
+| [media-writer](./skills/media-writer/) | 适配各平台内容：微信、HN、Reddit、Medium、Twitter、Dev.to、LinkedIn |
+| [vibe-coding](./skills/vibe-coding/) | 氛围驱动开发，极简规格 |
+
+## 如何创建好的 Skill
+
+创建真正有效的 Skill 是一门艺术。我们分析了 17 个 Anthropic 官方 Skill，提炼出核心原则：
+
+**核心公式：**
+```
+好 Skill = 专家独有的知识 - Claude 已有的知识
+```
+
+阅读完整指南：**[How to Create Great Agent Skills](./docs/how-to-create-great-agent-skill.md)**（英文教学文档）
+
+使用 [skill-judge](./skills/skill-judge/) 对你的 Skill 进行 6 维度结构化评分。
 
 ## 什么是 Skills？
 
