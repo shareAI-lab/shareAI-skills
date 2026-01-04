@@ -53,9 +53,9 @@ Use the [skill-judge](./skills/skill-judge/) skill to evaluate your skill's qual
 | Dimension | Points | Focus |
 |-----------|--------|-------|
 | Knowledge Delta | 20 | Expert-only knowledge vs. what Claude already knows |
-| Mindset vs Mechanics | 15 | Thinking patterns vs. step-by-step procedures |
+| Mindset + Procedures | 15 | Thinking patterns + domain-specific workflows |
 | Anti-Pattern Quality | 15 | Specific NEVER lists with non-obvious reasons |
-| Specification Compliance | 15 | Valid frontmatter, comprehensive description |
+| Specification (esp. Description) | 15 | Description with WHAT, WHEN, and KEYWORDS |
 | Progressive Disclosure | 15 | Content layering, loading triggers |
 | Freedom Calibration | 15 | Specificity matched to task fragility |
 | Pattern Recognition | 10 | Follows established skill patterns |

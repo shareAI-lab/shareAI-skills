@@ -53,9 +53,9 @@ claude plugins install https://github.com/shareAI-lab/shareAI-skills
 | 维度 | 分值 | 关注点 |
 |------|------|--------|
 | 知识增量 | 20 | 专家独有知识 vs Claude 已知内容 |
-| 思维方式 vs 机械步骤 | 15 | 思考框架 vs 操作流程 |
+| 思维方式 + 领域流程 | 15 | 思考框架 + Claude 不知道的领域特定流程 |
 | 反模式质量 | 15 | 具体的 NEVER 清单及非显而易见的原因 |
-| 规范合规 | 15 | 有效的 frontmatter，完整的 description |
+| 规范合规（尤其是 description） | 15 | description 必须包含 WHAT、WHEN、KEYWORDS |
 | 渐进式披露 | 15 | 内容分层，加载触发机制 |
 | 自由度校准 | 15 | 具体程度与任务脆弱性匹配 |
 | 模式识别 | 10 | 遵循已验证的 Skill 设计模式 |

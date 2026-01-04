@@ -107,18 +107,36 @@ The most important dimension. Does the Skill add genuine expert knowledge?
 
 ---
 
-### D2: Mindset vs Mechanics (15 points)
+### D2: Mindset + Appropriate Procedures (15 points)
 
-Does the Skill transfer expert **thinking patterns** or just mechanical steps?
+Does the Skill transfer expert **thinking patterns** along with **necessary domain-specific procedures**?
 
-The difference between experts and novices isn't "knowing how to operate" — it's "how to think about the problem." A senior designer and a beginner both know CSS. But before writing a single line, the designer has already clarified aesthetic direction, user scenarios, and differentiation.
+The difference between experts and novices isn't "knowing how to operate" — it's "how to think about the problem." But thinking patterns alone aren't enough when Claude lacks domain-specific procedural knowledge.
+
+**Key distinction**:
+| Type | Example | Value |
+|------|---------|-------|
+| **Thinking patterns** | "Before designing, ask: What makes this memorable?" | High — shapes decision-making |
+| **Domain-specific procedures** | "OOXML workflow: unpack → edit XML → validate → pack" | High — Claude may not know this |
+| **Generic procedures** | "Step 1: Open file, Step 2: Edit, Step 3: Save" | Low — Claude already knows |
 
 | Score | Criteria |
 |-------|----------|
-| 0-3 | All Step 1, 2, 3 mechanical procedures — Claude can figure this out |
-| 4-7 | Some thinking frameworks mixed with mechanical steps |
-| 8-11 | Clear mental models, questions to ask before acting |
-| 12-15 | Transfers expert intuition — how to think, not just what to do |
+| 0-3 | Only generic procedures Claude already knows |
+| 4-7 | Has domain procedures but lacks thinking frameworks |
+| 8-11 | Good balance: thinking patterns + domain-specific workflows |
+| 12-15 | Expert-level: shapes thinking AND provides procedures Claude wouldn't know |
+
+**What counts as valuable procedures**:
+- Workflows Claude hasn't been trained on (new tools, proprietary systems)
+- Correct ordering that's non-obvious (e.g., "validate BEFORE packing, not after")
+- Critical steps that are easy to miss (e.g., "MUST recalculate formulas after editing")
+- Domain-specific sequences (e.g., MCP server's 4-phase development process)
+
+**What counts as redundant procedures**:
+- Generic file operations (open, read, write, save)
+- Standard programming patterns (loops, conditionals, error handling)
+- Common library usage that's well-documented
 
 **Expert thinking patterns look like**:
 ```markdown
@@ -128,7 +146,16 @@ Before [action], ask yourself:
 - **Differentiation**: What makes this solution memorable?
 ```
 
-**Mechanical steps look like**:
+**Valuable domain procedures look like**:
+```markdown
+### Redlining Workflow (Claude wouldn't know this sequence)
+1. Convert to markdown: `pandoc --track-changes=all`
+2. Map text to XML: grep for text in document.xml
+3. Implement changes in batches of 3-10
+4. Pack and verify: check ALL changes were applied
+```
+
+**Redundant generic procedures look like**:
 ```markdown
 Step 1: Open the file
 Step 2: Find the section
@@ -136,26 +163,11 @@ Step 3: Make the change
 Step 4: Save and test
 ```
 
-**The test**: Does the Skill tell Claude WHAT to think about, or just WHAT to do? Expert Skills shape thinking; mediocre Skills list procedures.
+**The test**:
+1. Does it tell Claude WHAT to think about? (thinking patterns)
+2. Does it tell Claude HOW to do things it wouldn't know? (domain procedures)
 
-**Examples from official Skills**:
-
-frontend-design (expert thinking):
-```markdown
-Before coding, understand the context and commit to a BOLD aesthetic direction:
-- Purpose: What problem does this interface solve? Who uses it?
-- Tone: Pick an extreme: brutally minimal, maximalist chaos, retro-futuristic...
-- Differentiation: What makes this UNFORGETTABLE?
-```
-
-Bad Skill (mechanical):
-```markdown
-Step 1: Understand requirements
-Step 2: Create wireframes
-Step 3: Choose colors
-Step 4: Write HTML
-Step 5: Add CSS
-```
+A good Skill provides both when needed.
 
 ---
 
@@ -194,24 +206,49 @@ Don't write bad code.
 
 ---
 
-### D4: Specification Compliance (15 points)
+### D4: Specification Compliance — Especially Description (15 points)
 
-Does the Skill follow official format requirements?
+Does the Skill follow official format requirements? **Special focus on description quality.**
 
 | Score | Criteria |
 |-------|----------|
 | 0-5 | Missing frontmatter or invalid format |
-| 6-10 | Has frontmatter but incomplete description |
-| 11-13 | Valid frontmatter, description lacks "when to use" triggers |
-| 14-15 | Perfect: name + comprehensive description with WHAT and WHEN |
+| 6-10 | Has frontmatter but description is vague or incomplete |
+| 11-13 | Valid frontmatter, description has WHAT but weak on WHEN |
+| 14-15 | Perfect: comprehensive description with WHAT, WHEN, and trigger keywords |
 
 **Frontmatter requirements**:
 - `name`: lowercase, alphanumeric + hyphens only, ≤64 characters
-- `description`: Must include BOTH what it does AND when to use it
+- `description`: **THE MOST CRITICAL FIELD** — determines if skill gets used at all
 
-**Why description matters**: Description is the ONLY part always visible to the Agent. The Agent decides whether to activate a Skill based on description. If description is too vague, the Skill won't trigger at the right time.
+---
 
-**Good description**:
+**Why description is THE MOST IMPORTANT field**:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  SKILL ACTIVATION FLOW                                              │
+│                                                                     │
+│  User Request → Agent sees ALL skill descriptions → Decides which  │
+│                 (only descriptions, not bodies!)     to activate    │
+│                                                                     │
+│  If description doesn't match → Skill NEVER gets loaded            │
+│  If description is vague → Skill might not trigger when it should  │
+│  If description lacks keywords → Skill is invisible to the Agent   │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**The brutal truth**: A Skill with perfect content but poor description is **useless** — it will never be activated. The description is the **only chance** to tell the Agent "use me in these situations."
+
+---
+
+**Description must answer THREE questions**:
+
+1. **WHAT**: What does this Skill do? (functionality)
+2. **WHEN**: In what situations should it be used? (trigger scenarios)
+3. **KEYWORDS**: What terms should trigger this Skill? (searchable terms)
+
+**Excellent description** (all three elements):
 ```yaml
 description: "Comprehensive document creation, editing, and analysis with support
 for tracked changes, comments, formatting preservation, and text extraction.
@@ -220,17 +257,36 @@ When Claude needs to work with professional documents (.docx files) for:
 (3) Working with tracked changes, (4) Adding comments, or any other document tasks"
 ```
 
-Features:
-- Describes functionality (what it does)
-- Lists trigger scenarios (when to use)
-- Includes keywords (.docx files, tracked changes)
+Analysis:
+- WHAT: creation, editing, analysis, tracked changes, comments
+- WHEN: "When Claude needs to work with... for: (1)... (2)... (3)..."
+- KEYWORDS: .docx files, tracked changes, professional documents
 
-**Bad description**:
+**Poor description** (missing elements):
 ```yaml
 description: "处理文档相关功能"
 ```
 
-Problem: Too vague, Agent doesn't know when to use it.
+Problems:
+- WHAT: vague ("文档相关功能" — what specifically?)
+- WHEN: missing (when should Agent use this?)
+- KEYWORDS: missing (no ".docx", no specific scenarios)
+
+**Another poor example**:
+```yaml
+description: "A helpful skill for various tasks"
+```
+
+This is useless — Agent has no idea when to activate it.
+
+---
+
+**Description quality checklist**:
+- [ ] Lists specific capabilities (not just "helps with X")
+- [ ] Includes explicit trigger scenarios ("Use when...", "When user asks for...")
+- [ ] Contains searchable keywords (file extensions, domain terms, action verbs)
+- [ ] Specific enough that Agent knows EXACTLY when to use it
+- [ ] Includes scenarios where this skill MUST be used (not just "can be used")
 
 ---
 
@@ -429,8 +485,9 @@ Consider edge cases.
 - **NEVER** skip mentally testing the decision trees — do they actually lead to correct choices?
 - **NEVER** forgive explaining basics with "but it provides helpful context"
 - **NEVER** overlook missing anti-patterns — if there's no NEVER list, that's a significant gap
-- **NEVER** assume mechanical steps are valuable — Claude can figure out Step 1, 2, 3
-- **NEVER** ignore the description field — it's the triggering mechanism
+- **NEVER** assume all procedures are valuable — distinguish domain-specific from generic
+- **NEVER** undervalue the description field — poor description = skill never gets used
+- **NEVER** put "when to use" info only in the body — Agent only sees description before loading
 
 ---
 
@@ -568,7 +625,20 @@ Fix: Specific NEVER list with concrete examples and non-obvious reasons
      "NEVER use X because [specific problem that takes experience to learn]"
 ```
 
-### Pattern 6: The Wrong Location
+### Pattern 6: The Invisible Skill
+```
+Symptom: Great content but skill rarely gets activated
+Root cause: Description is vague, missing keywords, or lacks trigger scenarios
+Fix: Description must answer WHAT, WHEN, and include KEYWORDS
+     "Use when..." + specific scenarios + searchable terms
+
+Example fix:
+BAD:  "Helps with document tasks"
+GOOD: "Create, edit, and analyze .docx files. Use when working with
+       Word documents, tracked changes, or professional document formatting."
+```
+
+### Pattern 7: The Wrong Location
 ```
 Symptom: "When to use this Skill" section in body, not in description
 Root cause: Misunderstanding of three-layer loading
@@ -576,7 +646,7 @@ Fix: Move all triggering information to description field
      Body is only loaded AFTER triggering decision is made
 ```
 
-### Pattern 7: The Over-Engineered
+### Pattern 8: The Over-Engineered
 ```
 Symptom: README.md, CHANGELOG.md, INSTALLATION_GUIDE.md, CONTRIBUTING.md
 Root cause: Treating Skill like a software project
@@ -584,7 +654,7 @@ Fix: Delete all auxiliary files. Only include what Agent needs for the task.
      No documentation about the Skill itself.
 ```
 
-### Pattern 8: The Freedom Mismatch
+### Pattern 9: The Freedom Mismatch
 ```
 Symptom: Rigid scripts for creative tasks, vague guidance for fragile operations
 Root cause: Not considering task fragility
@@ -608,20 +678,24 @@ Fix: High freedom for creative (principles, not steps)
 │    [ ] Has trade-offs only experts would know                           │
 │    [ ] Has edge cases from real-world experience                        │
 │                                                                         │
-│  MINDSET:                                                               │
-│    [ ] Transfers thinking patterns, not just procedures                 │
+│  MINDSET + PROCEDURES:                                                  │
+│    [ ] Transfers thinking patterns (how to think about problems)        │
 │    [ ] Has "Before doing X, ask yourself..." frameworks                 │
-│    [ ] Shapes HOW to think, not just WHAT to do                         │
+│    [ ] Includes domain-specific procedures Claude wouldn't know         │
+│    [ ] Distinguishes valuable procedures from generic ones              │
 │                                                                         │
 │  ANTI-PATTERNS:                                                         │
 │    [ ] Has explicit NEVER list                                          │
 │    [ ] Anti-patterns are specific, not vague                            │
 │    [ ] Includes WHY (non-obvious reasons)                               │
 │                                                                         │
-│  SPECIFICATION:                                                         │
+│  SPECIFICATION (description is critical!):                              │
 │    [ ] Valid YAML frontmatter                                           │
 │    [ ] name: lowercase, ≤64 chars                                       │
-│    [ ] description: includes WHAT and WHEN to use                       │
+│    [ ] description answers: WHAT does it do?                            │
+│    [ ] description answers: WHEN should it be used?                     │
+│    [ ] description contains trigger KEYWORDS                            │
+│    [ ] description is specific enough for Agent to know when to use     │
 │                                                                         │
 │  STRUCTURE:                                                             │
 │    [ ] SKILL.md < 500 lines (ideal < 300)                               │
