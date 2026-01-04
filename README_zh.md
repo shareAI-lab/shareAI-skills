@@ -32,9 +32,9 @@ claude plugins install https://github.com/shareAI-lab/shareAI-skills
 
 | Skill | 描述 |
 |-------|------|
-| [agent-builder](./skills/agent-builder/) | 为任何领域设计和构建 AI Agent |
-| [skill-judge](./skills/skill-judge/) | 多维度评估 Agent Skill 设计质量 |
+| [skill-judge](./skills/skill-judge/) | 8维度评估 Agent Skill 设计质量（120分制） |
 | [media-writer](./skills/media-writer/) | 适配各平台内容：微信、HN、Reddit、Medium、Twitter、Dev.to、LinkedIn |
+| [agent-builder](./skills/agent-builder/) | 为任何领域设计和构建 AI Agent |
 | [vibe-coding](./skills/vibe-coding/) | 氛围驱动开发，极简规格 |
 
 ## 如何创建好的 Skill
@@ -48,7 +48,18 @@ claude plugins install https://github.com/shareAI-lab/shareAI-skills
 
 阅读完整指南：**[How to Create Great Agent Skills](./docs/how-to-create-great-agent-skill.md)**（英文教学文档）
 
-使用 [skill-judge](./skills/skill-judge/) 对你的 Skill 进行 6 维度结构化评分。
+使用 [skill-judge](./skills/skill-judge/) 对你的 Skill 进行 8 维度结构化评分：
+
+| 维度 | 分值 | 关注点 |
+|------|------|--------|
+| 知识增量 | 20 | 专家独有知识 vs Claude 已知内容 |
+| 思维方式 vs 机械步骤 | 15 | 思考框架 vs 操作流程 |
+| 反模式质量 | 15 | 具体的 NEVER 清单及非显而易见的原因 |
+| 规范合规 | 15 | 有效的 frontmatter，完整的 description |
+| 渐进式披露 | 15 | 内容分层，加载触发机制 |
+| 自由度校准 | 15 | 具体程度与任务脆弱性匹配 |
+| 模式识别 | 10 | 遵循已验证的 Skill 设计模式 |
+| 实用性 | 15 | 决策树、可运行示例、边缘情况覆盖 |
 
 ## 什么是 Skills？
 
