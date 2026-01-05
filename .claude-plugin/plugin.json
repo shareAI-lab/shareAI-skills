@@ -11,6 +11,9 @@
     "homepage": "https://github.com/shareAI-lab/shareAI-skills"
   },
   "skills": [
-    "./skills/agent-builder"
+    "./skills/agent-builder",
+    "./skills/media-writer",
+    "./skills/skill-judge",
+    "./skills/vibe-coding"
   ]
 }
