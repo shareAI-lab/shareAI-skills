@@ -4,29 +4,23 @@ Knowledge packages that extend AI agent capabilities.
 
 [中文文档](./README_zh.md)
 
-> Works with **[Kode CLI](https://github.com/shareAI-lab/Kode)**, **Claude Code**, **Cursor**, and any agent supporting the [Agent Skills Spec](https://github.com/anthropics/agent-skills).
+[![skills.sh](https://skills.sh/b/shareai-lab/shareai-skills)](https://skills.sh/shareai-lab/shareai-skills)
+
+> Works with **[Kode CLI](https://github.com/shareAI-lab/Kode-CLI)**, **Claude Code**, **Codex**, **Cursor**, and any agent supporting the [Agent Skills specification](https://agentskills.io/specification).
 
 ## Installation
 
-### Kode CLI (Recommended)
-
 ```bash
-kode plugins install https://github.com/shareAI-lab/shareAI-skills
+npx skills add shareai-lab/shareai-skills
 ```
 
-### Claude Code
+Install one skill:
 
 ```bash
-claude plugins install https://github.com/shareAI-lab/shareAI-skills
+npx skills add shareai-lab/shareai-skills --skill extract-agent-sessions
 ```
 
-### Cursor
-
-Copy the `skills/` directory to your Cursor skills folder.
-
-### Other Agents
-
-Load `SKILL.md` files on-demand when the agent needs domain expertise.
+Browse the collection on [skills.sh](https://skills.sh/shareai-lab/shareai-skills).
 
 ## Available Skills
 
@@ -36,6 +30,7 @@ Load `SKILL.md` files on-demand when the agent needs domain expertise.
 | [media-writer](./skills/media-writer/) | Adapt content for WeChat, HN, Reddit, Medium, Twitter, Dev.to, LinkedIn |
 | [agent-builder](./skills/agent-builder/) | Design and build AI agents for any domain |
 | [vibe-coding](./skills/vibe-coding/) | Vibe-driven development with minimal specs |
+| [extract-agent-sessions](./skills/extract-agent-sessions/) | Recover recent local agent conversations on Linux/macOS without tool, reasoning, or subagent noise |
 
 ## How to Create Great Skills
 
@@ -63,7 +58,7 @@ Use the [skill-judge](./skills/skill-judge/) skill to evaluate your skill's qual
 
 ## What are Skills?
 
-Skills are modular knowledge packages that give AI agents domain expertise on-demand. They follow the [Agent Skills Spec](https://github.com/anthropics/agent-skills).
+Skills are modular knowledge packages that give AI agents domain expertise on-demand. They follow the [Agent Skills specification](https://agentskills.io/specification).
 
 ## Skill Structure
 
@@ -94,9 +89,9 @@ We welcome contributions! To add a new skill:
 
 | Repository | Purpose |
 |------------|---------|
-| [Kode](https://github.com/shareAI-lab/Kode) | Full-featured open source agent CLI |
+| [Kode](https://github.com/shareAI-lab/Kode-CLI) | Full-featured open source agent CLI |
 | [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) | Learn how to build AI agents from scratch |
-| [Agent Skills Spec](https://github.com/anthropics/agent-skills) | Official specification |
+| [Agent Skills specification](https://agentskills.io/specification) | Open specification |
 
 ## License
 

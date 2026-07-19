@@ -4,29 +4,23 @@
 
 [English](./README.md)
 
-> 兼容 **[Kode CLI](https://github.com/shareAI-lab/Kode)**、**Claude Code**、**Cursor**，以及任何支持 [Agent Skills Spec](https://github.com/anthropics/agent-skills) 的 Agent。
+[![skills.sh](https://skills.sh/b/shareai-lab/shareai-skills)](https://skills.sh/shareai-lab/shareai-skills)
+
+> 兼容 **[Kode CLI](https://github.com/shareAI-lab/Kode-CLI)**、**Claude Code**、**Codex**、**Cursor**，以及任何支持 [Agent Skills 规范](https://agentskills.io/specification) 的 Agent。
 
 ## 安装
 
-### Kode CLI（推荐）
-
 ```bash
-kode plugins install https://github.com/shareAI-lab/shareAI-skills
+npx skills add shareai-lab/shareai-skills
 ```
 
-### Claude Code
+安装单个 Skill：
 
 ```bash
-claude plugins install https://github.com/shareAI-lab/shareAI-skills
+npx skills add shareai-lab/shareai-skills --skill extract-agent-sessions
 ```
 
-### Cursor
-
-将 `skills/` 目录复制到你的 Cursor skills 文件夹。
-
-### 其他 Agent
-
-当 Agent 需要领域专业知识时，按需加载 `SKILL.md` 文件。
+在 [skills.sh](https://skills.sh/shareai-lab/shareai-skills) 浏览全部 Skill。
 
 ## 可用 Skills
 
@@ -36,6 +30,7 @@ claude plugins install https://github.com/shareAI-lab/shareAI-skills
 | [media-writer](./skills/media-writer/) | 适配各平台内容：微信、HN、Reddit、Medium、Twitter、Dev.to、LinkedIn |
 | [agent-builder](./skills/agent-builder/) | 为任何领域设计和构建 AI Agent |
 | [vibe-coding](./skills/vibe-coding/) | 氛围驱动开发，极简规格 |
+| [extract-agent-sessions](./skills/extract-agent-sessions/) | 在 Linux/macOS 恢复近期本地 Agent 对话，排除工具、推理和子代理噪声 |
 
 ## 如何创建好的 Skill
 
@@ -63,7 +58,7 @@ claude plugins install https://github.com/shareAI-lab/shareAI-skills
 
 ## 什么是 Skills？
 
-Skills 是模块化的知识包，为 AI Agent 按需提供领域专业知识。它们遵循 [Agent Skills Spec](https://github.com/anthropics/agent-skills)。
+Skills 是模块化的知识包，为 AI Agent 按需提供领域专业知识。它们遵循 [Agent Skills 规范](https://agentskills.io/specification)。
 
 ## Skill 结构
 
@@ -94,9 +89,9 @@ Skill 不是告诉 Agent 按步骤做什么，而是给 Agent 知识让它自己
 
 | 仓库 | 用途 |
 |------|------|
-| [Kode](https://github.com/shareAI-lab/Kode) | 全功能开源 Agent CLI |
+| [Kode](https://github.com/shareAI-lab/Kode-CLI) | 全功能开源 Agent CLI |
 | [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) | 从零学习如何构建 AI Agent |
-| [Agent Skills Spec](https://github.com/anthropics/agent-skills) | 官方规范 |
+| [Agent Skills 规范](https://agentskills.io/specification) | 开放规范 |
 
 ## License
 
