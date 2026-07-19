@@ -10,62 +10,17 @@ Knowledge packages that extend AI agent capabilities.
 
 ## Installation
 
-### skills CLI (Recommended)
-
-Use Vercel's open-source [`skills` CLI](https://github.com/vercel-labs/skills) to
-discover the collection, select skills, and install them for supported agents:
-
 ```bash
 npx skills add shareai-lab/shareai-skills
 ```
 
-In a regular terminal this starts the guided installation flow. In an
-agent-controlled shell, the CLI may detect the current agent and select
-non-interactive defaults; pass explicit `--skill` and `--agent` values for
-predictable automation.
-
-The current CLI release requires Node.js 22.20 or later. Project-local installation
-is the default; add `--global` (`-g`) to make a skill available across projects.
-
-### Common commands
+Install one skill:
 
 ```bash
-# Preview the skills without installing
-npx skills add shareai-lab/shareai-skills --list
-
-# Install one skill globally for Codex
-npx skills add shareai-lab/shareai-skills \
-  --skill extract-agent-sessions --agent codex --global
-
-# Install every skill into the current project for Kode and Claude Code
-npx skills add shareai-lab/shareai-skills \
-  --skill '*' --agent kode claude-code
+npx skills add shareai-lab/shareai-skills --skill extract-agent-sessions
 ```
 
-Supported target names include `kode`, `claude-code`, `codex`, and `cursor`. Add
-`--yes` for non-interactive installation or `--copy` when symlinks are unsuitable.
-
-> `--all` means every skill for every agent known to the CLI. To install every
-> skill for only selected agents, use `--skill '*' --agent ...` as shown above.
-
-### Manage installed skills
-
-```bash
-# List project-local installations
-npx skills list
-
-# Update installed skills
-npx skills update
-
-# Remove one skill from Codex
-npx skills remove extract-agent-sessions --agent codex
-```
-
-The CLI reports anonymous installation telemetry for the skills.sh leaderboard.
-Set `DISABLE_TELEMETRY=1` or `DO_NOT_TRACK=1` to opt out. See the
-[official CLI reference](https://github.com/vercel-labs/skills#readme) for every
-agent target and option, or browse this collection on
-[skills.sh](https://skills.sh/shareai-lab/shareai-skills).
+Browse the collection on [skills.sh](https://skills.sh/shareai-lab/shareai-skills).
 
 ## Available Skills
 
