@@ -36,6 +36,7 @@ claude plugins install https://github.com/shareAI-lab/shareAI-skills
 | [media-writer](./skills/media-writer/) | 适配各平台内容：微信、HN、Reddit、Medium、Twitter、Dev.to、LinkedIn |
 | [agent-builder](./skills/agent-builder/) | 为任何领域设计和构建 AI Agent |
 | [vibe-coding](./skills/vibe-coding/) | 氛围驱动开发，极简规格 |
+| [extract-agent-sessions](./skills/extract-agent-sessions/) | 在 Linux/macOS 恢复近期本地 Agent 对话，排除工具、推理和子代理噪声 |
 
 ## 如何创建好的 Skill
 

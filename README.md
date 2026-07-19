@@ -36,6 +36,7 @@ Load `SKILL.md` files on-demand when the agent needs domain expertise.
 | [media-writer](./skills/media-writer/) | Adapt content for WeChat, HN, Reddit, Medium, Twitter, Dev.to, LinkedIn |
 | [agent-builder](./skills/agent-builder/) | Design and build AI agents for any domain |
 | [vibe-coding](./skills/vibe-coding/) | Vibe-driven development with minimal specs |
+| [extract-agent-sessions](./skills/extract-agent-sessions/) | Recover recent local agent conversations on Linux/macOS without tool, reasoning, or subagent noise |
 
 ## How to Create Great Skills
 
