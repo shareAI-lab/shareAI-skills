@@ -4,29 +4,65 @@
 
 [English](./README.md)
 
-> 兼容 **[Kode CLI](https://github.com/shareAI-lab/Kode)**、**Claude Code**、**Cursor**，以及任何支持 [Agent Skills Spec](https://github.com/anthropics/agent-skills) 的 Agent。
+[![skills.sh](https://skills.sh/b/shareai-lab/shareai-skills)](https://skills.sh/shareai-lab/shareai-skills)
+
+> 兼容 **[Kode CLI](https://github.com/shareAI-lab/Kode-CLI)**、**Claude Code**、**Codex**、**Cursor**，以及任何支持 [Agent Skills 规范](https://agentskills.io/specification) 的 Agent。
 
 ## 安装
 
-### Kode CLI（推荐）
+### skills CLI（推荐）
+
+使用 Vercel 开源的 [`skills` CLI](https://github.com/vercel-labs/skills) 浏览本仓库、选择 Skill，并安装到受支持的 Agent：
 
 ```bash
-kode plugins install https://github.com/shareAI-lab/shareAI-skills
+npx skills add shareai-lab/shareai-skills
 ```
 
-### Claude Code
+在普通终端中，这会进入引导式安装流程。在 Agent 控制的 Shell 中，CLI 可能检测到
+当前 Agent 并改用非交互默认值；自动化场景应显式传入 `--skill` 和 `--agent`，
+避免安装范围不明确。
+
+当前 CLI 版本要求 Node.js 22.20 或更高版本。默认安装到当前项目；添加
+`--global`（`-g`）可让 Skill 在所有项目中使用。
+
+### 常用命令
 
 ```bash
-claude plugins install https://github.com/shareAI-lab/shareAI-skills
+# 只查看可用 Skill，不安装
+npx skills add shareai-lab/shareai-skills --list
+
+# 将一个 Skill 全局安装到 Codex
+npx skills add shareai-lab/shareai-skills \
+  --skill extract-agent-sessions --agent codex --global
+
+# 将本仓库全部 Skill 安装到当前项目的 Kode 与 Claude Code
+npx skills add shareai-lab/shareai-skills \
+  --skill '*' --agent kode claude-code
 ```
 
-### Cursor
+支持的目标名称包括 `kode`、`claude-code`、`codex` 和 `cursor`。自动化安装可添加
+`--yes` 跳过确认；无法使用符号链接时可添加 `--copy`。
 
-将 `skills/` 目录复制到你的 Cursor skills 文件夹。
+> `--all` 表示把所有 Skill 安装到 CLI 已知的所有 Agent。只想安装到指定 Agent
+> 时，应使用上面展示的 `--skill '*' --agent ...`。
 
-### 其他 Agent
+### 管理已安装的 Skill
 
-当 Agent 需要领域专业知识时，按需加载 `SKILL.md` 文件。
+```bash
+# 查看当前项目安装的 Skill
+npx skills list
+
+# 更新已安装的 Skill
+npx skills update
+
+# 从 Codex 中卸载一个 Skill
+npx skills remove extract-agent-sessions --agent codex
+```
+
+CLI 会上报匿名安装遥测，用于 skills.sh 排行榜。设置 `DISABLE_TELEMETRY=1` 或
+`DO_NOT_TRACK=1` 可以关闭。所有 Agent 目标与参数参见
+[官方 CLI 文档](https://github.com/vercel-labs/skills#readme)，也可以在
+[skills.sh](https://skills.sh/shareai-lab/shareai-skills) 浏览本合集。
 
 ## 可用 Skills
 
@@ -64,7 +100,7 @@ claude plugins install https://github.com/shareAI-lab/shareAI-skills
 
 ## 什么是 Skills？
 
-Skills 是模块化的知识包，为 AI Agent 按需提供领域专业知识。它们遵循 [Agent Skills Spec](https://github.com/anthropics/agent-skills)。
+Skills 是模块化的知识包，为 AI Agent 按需提供领域专业知识。它们遵循 [Agent Skills 规范](https://agentskills.io/specification)。
 
 ## Skill 结构
 
@@ -95,9 +131,9 @@ Skill 不是告诉 Agent 按步骤做什么，而是给 Agent 知识让它自己
 
 | 仓库 | 用途 |
 |------|------|
-| [Kode](https://github.com/shareAI-lab/Kode) | 全功能开源 Agent CLI |
+| [Kode](https://github.com/shareAI-lab/Kode-CLI) | 全功能开源 Agent CLI |
 | [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) | 从零学习如何构建 AI Agent |
-| [Agent Skills Spec](https://github.com/anthropics/agent-skills) | 官方规范 |
+| [Agent Skills 规范](https://agentskills.io/specification) | 开放规范 |
 
 ## License
 

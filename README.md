@@ -4,29 +4,68 @@ Knowledge packages that extend AI agent capabilities.
 
 [中文文档](./README_zh.md)
 
-> Works with **[Kode CLI](https://github.com/shareAI-lab/Kode)**, **Claude Code**, **Cursor**, and any agent supporting the [Agent Skills Spec](https://github.com/anthropics/agent-skills).
+[![skills.sh](https://skills.sh/b/shareai-lab/shareai-skills)](https://skills.sh/shareai-lab/shareai-skills)
+
+> Works with **[Kode CLI](https://github.com/shareAI-lab/Kode-CLI)**, **Claude Code**, **Codex**, **Cursor**, and any agent supporting the [Agent Skills specification](https://agentskills.io/specification).
 
 ## Installation
 
-### Kode CLI (Recommended)
+### skills CLI (Recommended)
+
+Use Vercel's open-source [`skills` CLI](https://github.com/vercel-labs/skills) to
+discover the collection, select skills, and install them for supported agents:
 
 ```bash
-kode plugins install https://github.com/shareAI-lab/shareAI-skills
+npx skills add shareai-lab/shareai-skills
 ```
 
-### Claude Code
+In a regular terminal this starts the guided installation flow. In an
+agent-controlled shell, the CLI may detect the current agent and select
+non-interactive defaults; pass explicit `--skill` and `--agent` values for
+predictable automation.
+
+The current CLI release requires Node.js 22.20 or later. Project-local installation
+is the default; add `--global` (`-g`) to make a skill available across projects.
+
+### Common commands
 
 ```bash
-claude plugins install https://github.com/shareAI-lab/shareAI-skills
+# Preview the skills without installing
+npx skills add shareai-lab/shareai-skills --list
+
+# Install one skill globally for Codex
+npx skills add shareai-lab/shareai-skills \
+  --skill extract-agent-sessions --agent codex --global
+
+# Install every skill into the current project for Kode and Claude Code
+npx skills add shareai-lab/shareai-skills \
+  --skill '*' --agent kode claude-code
 ```
 
-### Cursor
+Supported target names include `kode`, `claude-code`, `codex`, and `cursor`. Add
+`--yes` for non-interactive installation or `--copy` when symlinks are unsuitable.
 
-Copy the `skills/` directory to your Cursor skills folder.
+> `--all` means every skill for every agent known to the CLI. To install every
+> skill for only selected agents, use `--skill '*' --agent ...` as shown above.
 
-### Other Agents
+### Manage installed skills
 
-Load `SKILL.md` files on-demand when the agent needs domain expertise.
+```bash
+# List project-local installations
+npx skills list
+
+# Update installed skills
+npx skills update
+
+# Remove one skill from Codex
+npx skills remove extract-agent-sessions --agent codex
+```
+
+The CLI reports anonymous installation telemetry for the skills.sh leaderboard.
+Set `DISABLE_TELEMETRY=1` or `DO_NOT_TRACK=1` to opt out. See the
+[official CLI reference](https://github.com/vercel-labs/skills#readme) for every
+agent target and option, or browse this collection on
+[skills.sh](https://skills.sh/shareai-lab/shareai-skills).
 
 ## Available Skills
 
@@ -64,7 +103,7 @@ Use the [skill-judge](./skills/skill-judge/) skill to evaluate your skill's qual
 
 ## What are Skills?
 
-Skills are modular knowledge packages that give AI agents domain expertise on-demand. They follow the [Agent Skills Spec](https://github.com/anthropics/agent-skills).
+Skills are modular knowledge packages that give AI agents domain expertise on-demand. They follow the [Agent Skills specification](https://agentskills.io/specification).
 
 ## Skill Structure
 
@@ -95,9 +134,9 @@ We welcome contributions! To add a new skill:
 
 | Repository | Purpose |
 |------------|---------|
-| [Kode](https://github.com/shareAI-lab/Kode) | Full-featured open source agent CLI |
+| [Kode](https://github.com/shareAI-lab/Kode-CLI) | Full-featured open source agent CLI |
 | [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) | Learn how to build AI agents from scratch |
-| [Agent Skills Spec](https://github.com/anthropics/agent-skills) | Official specification |
+| [Agent Skills specification](https://agentskills.io/specification) | Open specification |
 
 ## License
 
