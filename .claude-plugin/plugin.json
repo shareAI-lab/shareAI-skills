@@ -12,6 +12,7 @@
   },
   "skills": [
     "./skills/agent-builder",
+    "./skills/extract-agent-sessions",
     "./skills/media-writer",
     "./skills/skill-judge",
     "./skills/vibe-coding"

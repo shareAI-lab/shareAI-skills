@@ -16,6 +16,7 @@ JSONL or install software without permission.
 - [Fingerprint the schema](#fingerprint-structure-without-content)
 - [Recover a tree branch](#build-a-tree-ancestry-without-bodies)
 - [Project visible text](#project-visible-text-privately)
+- [Query a relational SQLite store](#query-a-relational-sqlite-store-read-only)
 - [Detect concurrent writes](#detect-an-active-write)
 
 ## Safe setup
@@ -425,6 +426,143 @@ jq -nc '
     | if $message.phase? == "final_answer" then .final_answers += 1 else . end
   )
 ' "$extract_dir/visible.jsonl"
+```
+
+## Query a relational SQLite store read-only
+
+`jq` cannot read SQLite. Use an installed read-only client: `node:sqlite` on
+Node 22+, or `sqlite3` with a `mode=ro` URI. Do not install software, attach
+databases, write, or touch credential tables (`account`, `account_state`,
+`control_account`, `credential`) or `auth.json`. The bundled SQLite may reject
+double-quoted string literals, so quote SQL strings with single quotes; the
+heredoc form below keeps that safe. Node prints an experimental-SQLite warning
+on stderr; leave it visible rather than suppressing stderr wholesale.
+
+Inventory candidates without exposing IDs or titles:
+
+```bash
+db="$agent_home/.local/share/opencode/opencode.db"
+[ -f "$db" ] && [ ! -L "$db" ] || { printf 'No relational store\n' >&2; exit 2; }
+
+node - "$db" "$window_start_ms" "$window_end_ms" \
+  "$extract_dir/relational-map.jsonl" <<'EOF' \
+  >"$extract_dir/relational-inventory.tsv"
+const fs = require("node:fs");
+const { DatabaseSync } = require("node:sqlite");
+const [dbPath, startMs, endMs, mapPath] = process.argv.slice(2);
+const db = new DatabaseSync(dbPath, { readOnly: true });
+const rows = db.prepare(
+  "SELECT id, parent_id, time_updated, time_archived FROM session " +
+  "WHERE time_updated >= ? AND time_updated <= ? ORDER BY time_updated DESC"
+).all(Number(startMs), Number(endMs));
+let i = 0;
+for (const r of rows) {
+  i += 1;
+  const alias = "S" + i;
+  fs.appendFileSync(mapPath, JSON.stringify({
+    alias, source: "relational", private_id: r.id,
+    recent_input_s: Math.floor(r.time_updated / 1000),
+  }) + "\n");
+  console.log([
+    alias,
+    r.parent_id ? "child" : "root",
+    new Date(r.time_updated).toISOString(),
+    r.time_archived ? "archived" : "active",
+  ].join("\t"));
+}
+db.close();
+EOF
+
+cat "$extract_dir/relational-inventory.tsv"
+```
+
+Fingerprint structure without content (key names and enums only):
+
+```bash
+node - "$db" <<'EOF'
+const { DatabaseSync } = require("node:sqlite");
+const db = new DatabaseSync(process.argv[2], { readOnly: true });
+const roles = new Set(), keySets = new Set(), partTypes = new Set();
+for (const r of db.prepare("SELECT data FROM message LIMIT 200").all()) {
+  try {
+    const d = JSON.parse(r.data);
+    roles.add(typeof d.role === "string" ? d.role : "unknown");
+    keySets.add(Object.keys(d).sort().join(","));
+  } catch { keySets.add("unparsed"); }
+}
+for (const p of db.prepare("SELECT data FROM part LIMIT 500").all()) {
+  try {
+    const t = JSON.parse(p.data).type;
+    partTypes.add(typeof t === "string" ? t : "unknown");
+  } catch { partTypes.add("unparsed"); }
+}
+console.log("message roles:", [...roles].join("|"));
+console.log("message key sets:", [...keySets].join("  "));
+console.log("part types:", [...partTypes].join("|"));
+db.close();
+EOF
+```
+
+Stop unless roles stay within `user|assistant` and part types match the
+documented set. After the user selects an alias, project the visible timeline
+for that one session:
+
+```bash
+node - "$db" "$session_id" <<'EOF' >"$extract_dir/visible.jsonl"
+const { DatabaseSync } = require("node:sqlite");
+const db = new DatabaseSync(process.argv[2], { readOnly: true });
+const ses = process.argv[3];
+const marker = db.prepare("SELECT revert FROM session WHERE id = ?").get(ses);
+let cut = null;
+if (marker && marker.revert) {
+  try { cut = JSON.parse(marker.revert).messageID ?? null; } catch {}
+}
+const rows = db.prepare(
+  "SELECT m.id mid, m.time_created t, " +
+  "json_extract(m.data, '$.role') role, " +
+  "json_extract(m.data, '$.summary') summary, " +
+  "json_extract(p.data, '$.type') ptype, " +
+  "json_extract(p.data, '$.synthetic') synthetic, " +
+  "json_extract(p.data, '$.ignored') ignored, " +
+  "json_extract(p.data, '$.text') text " +
+  "FROM message m JOIN part p ON p.message_id = m.id " +
+  "WHERE m.session_id = ? " +
+  "AND NOT EXISTS (SELECT 1 FROM part p2 WHERE p2.message_id = m.id " +
+  "  AND json_extract(p2.data, '$.type') = 'compaction') " +
+  "ORDER BY m.time_created, m.id, p.id"
+).all(ses);
+for (const r of rows) {
+  if (r.ptype !== "text" || r.synthetic || r.ignored) continue;
+  if (r.summary) continue; // compaction output
+  if (typeof r.text !== "string" || r.text.length === 0) continue;
+  console.log(JSON.stringify({
+    role: r.role === "user" ? "human" : r.role,
+    timestamp_ms: r.t,
+    reverted: cut !== null && r.mid >= cut,
+    text: r.text,
+  }));
+}
+db.close();
+EOF
+```
+
+Preserve truncation placeholders inside tool previews as-is; the externalized
+`tool-output/` files they reference expire on a retention sweep. Detect
+concurrent writes with row counts instead of file identity — WAL sidecars
+change while any client runs, and the extracting agent may itself be writing
+this store. Capture before extraction, re-run after, and retry once if it
+moved:
+
+```bash
+node - "$db" "$session_id" <<'EOF'
+const { DatabaseSync } = require("node:sqlite");
+const db = new DatabaseSync(process.argv[2], { readOnly: true });
+const r = db.prepare(
+  "SELECT count(*) n, max(time_updated) t FROM message WHERE session_id = ?"
+).get(process.argv[3]);
+console.log(r.n + "\t" + (r.t ?? 0));
+db.close();
+EOF
 ```
 
 ## Detect an active write

@@ -1,6 +1,6 @@
 ---
 name: extract-agent-sessions
-description: Recover, export, or summarize recent human and assistant conversations from local agent session stores while excluding tool calls, reasoning, system injection, copied parent history, and subagent noise. Use for recent-session inventories, clean conversation recovery, or topic summaries from tree-shaped `.claude` and rollout-shaped `.codex` JSONL stores on Linux or macOS.
+description: Recover, export, or summarize recent human and assistant conversations from local agent session stores while excluding tool calls, reasoning, system injection, copied parent history, and subagent noise. Use for recent-session inventories, clean conversation recovery, or topic summaries from tree-shaped `.claude` JSONL stores, rollout-shaped `.codex` JSONL stores, and relational-shaped opencode SQLite stores on Linux or macOS.
 ---
 
 # Extract Agent Sessions
@@ -31,6 +31,11 @@ from the current filesystem and shell capabilities.
 - Never inspect authentication files, credential stores, environment snapshots,
   shell history, debug logs, telemetry, crash dumps, clipboard data, or browser
   storage for this task.
+- A relational store can mix conversations and credentials inside one database
+  file. Query only the session, message, and part tables plus structural
+  metadata; never read credential-bearing tables such as `account`,
+  `account_state`, `control_account`, or `credential`, and never `SELECT *`
+  from a table you have not fingerprinted.
 
 ## Output modes
 
@@ -54,6 +59,10 @@ This version supports Linux and macOS hosts:
 
 - Read [references/posix-shell.md](references/posix-shell.md) and compose commands
   for the shell and utilities actually present.
+- JSONL families need a streaming JSON tool such as `jq`. The relational family
+  needs a read-only SQLite client instead (`node:sqlite` on Node 22+, or
+  `sqlite3` opened with a `mode=ro` URI); open read-only and expect WAL churn
+  from a live client.
 - Under WSL, treat the Linux distribution as a separate environment and inspect it
   only when the agent client ran there. Native Windows session stores are outside
   this version's supported scope.
@@ -82,6 +91,11 @@ anonymous aliases and metadata only.
 History is a discovery index, not canonical conversation text. It can contain slash
 commands, local shell commands, or abbreviated pasted content.
 
+For the relational family, the `session` table is the discovery index: select
+identity, lineage, timestamp, and state columns only, and keep `title` and
+`directory` private. Its state directory keeps a raw typed-input history file;
+avoid it, because it holds prompt text without reliable session mapping.
+
 ### 3. Resolve and prove root identity
 
 Resolve transcripts only for selected candidates. Constrain every path to an
@@ -92,12 +106,19 @@ every `subagents/` descendant. For rollout-shaped stores, inspect the first
 projected `session_meta` before reading later records; reject explicit subagents
 before they can contribute copied parent history.
 
+For relational stores, accept sessions whose parent link is NULL as roots and
+exclude subagent sessions with a non-NULL parent link, resolving nesting
+recursively. Forked sessions duplicate an ancestor's messages under fresh IDs
+with lineage recorded only in a naming convention; treat them as independent
+roots and report possible duplication instead of merging.
+
 ### 4. Fingerprint the schema without content
 
-Project only key names, value types, role/type enums, content-block type names, and
-counts. Do not print IDs, paths, timestamps, or text values. Collapse unrecognized
-enum strings to an `unknown-string` marker, then compare the fingerprint to the
-observed patterns in the reference.
+Project only key names, column names, value types, role/type enums,
+content-block or part type names, and counts. Do not print IDs, paths,
+timestamps, or text values. Collapse unrecognized enum strings to an
+`unknown-string` marker, then compare the fingerprint to the observed patterns
+in the reference.
 
 If required identity, parent-link, human, or assistant fields are absent or have an
 unknown combination, stop content extraction and report schema drift. Do not guess
@@ -113,6 +134,11 @@ sibling branches.
 For a rollout-shaped transcript, preserve canonical human messages and assistant
 output text. Preserve visible progress and final text in private-full mode, but do
 not duplicate mirror events. Use lifecycle records only for state.
+
+For a relational transcript, join messages to parts in stored order and keep
+only allow-listed visible text parts. Honor the revert marker by labeling rows
+at or beyond it as reverted, and read only the canonical message and part
+tables; event logs and projection tables duplicate the same content.
 
 Store attachment presence and counts by default. Preserve local attachment paths or
 data only when the user explicitly requests a private full export.
@@ -132,6 +158,11 @@ Compare source identity, size, and modification time before and after extraction
 If the source changed, discard the artifact and retry once after it settles. Treat
 a malformed middle record as corruption; retry an incomplete last line only when
 the source was actively changing.
+
+For a live SQLite store, compare the selected session's row count and maximum
+update timestamp before and after extraction instead of file identity; WAL
+sidecars change constantly, and the extraction may itself run inside the agent
+writing the store, so re-check or exclude the currently active session.
 
 Report aliases, exact UTC window, root-session count, command-only exclusions,
 subagent exclusions, state, schema warnings, branch/compact ambiguity, and missing
