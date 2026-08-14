@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Agent Scaffold Script - Create a new agent project with best practices.
+Agent Scaffold Script - Create a small, inspectable agent project.
 
 Usage:
-    python init_agent.py <agent-name> [--level 0-4] [--path <output-dir>]
+    python init_agent.py <agent-name> [--level 0-1] [--path <output-dir>]
 
 Examples:
     python init_agent.py my-agent                 # Level 1 (4 tools)
     python init_agent.py my-agent --level 0      # Minimal (bash only)
-    python init_agent.py my-agent --level 2      # With TodoWrite
     python init_agent.py my-agent --path ./bots  # Custom output directory
 """
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -20,16 +20,17 @@ from pathlib import Path
 TEMPLATES = {
     0: '''#!/usr/bin/env python3
 """
-Level 0 Agent - Bash is All You Need (~50 lines)
+Level 0 Agent - Bash is All You Need (~70 lines)
 
 Core insight: One tool (bash) can do everything.
-Subagents via self-recursion: python {name}.py "subtask"
+Run one task directly: python {name}.py "task"
 """
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
 import subprocess
 import os
+import sys
 
 load_dotenv()
 
@@ -42,7 +43,7 @@ MODEL = os.getenv("MODEL_NAME", "claude-sonnet-4-20250514")
 SYSTEM = """You are a coding agent. Use bash for everything:
 - Read: cat, grep, find, ls
 - Write: echo 'content' > file
-- Subagent: python {name}.py "subtask"
+- Run another isolated task only when the user asks: python {name}.py "task"
 """
 
 TOOL = [{{
@@ -51,7 +52,25 @@ TOOL = [{{
     "input_schema": {{"type": "object", "properties": {{"command": {{"type": "string"}}}}, "required": ["command"]}}
 }}]
 
-def run(prompt, history=[]):
+def run_shell(command):
+    """Require approval for arbitrary shell execution unless explicitly opted in."""
+    if os.getenv("AGENT_ALLOW_SHELL") != "1":
+        if not sys.stdin.isatty():
+            return "Error: Shell execution needs an interactive approval or AGENT_ALLOW_SHELL=1"
+        answer = input(f"Allow shell command? [y/N] {{command}}\\n> ").strip().lower()
+        if answer not in ("y", "yes"):
+            return "Error: Shell command declined"
+    try:
+        out = subprocess.run(command, shell=True, cwd=os.getcwd(), capture_output=True, text=True, timeout=60)
+        return (out.stdout + out.stderr).strip() or "(empty)"
+    except subprocess.TimeoutExpired:
+        return "Error: Timeout (60s)"
+    except Exception as e:
+        return f"Error: {{e}}"
+
+def run(prompt, history=None):
+    if history is None:
+        history = []
     history.append({{"role": "user", "content": prompt}})
     while True:
         r = client.messages.create(model=MODEL, system=SYSTEM, messages=history, tools=TOOL, max_tokens=8000)
@@ -62,19 +81,18 @@ def run(prompt, history=[]):
         for b in r.content:
             if b.type == "tool_use":
                 print(f"> {{b.input['command']}}")
-                try:
-                    out = subprocess.run(b.input["command"], shell=True, capture_output=True, text=True, timeout=60)
-                    output = (out.stdout + out.stderr).strip() or "(empty)"
-                except Exception as e:
-                    output = f"Error: {{e}}"
+                output = run_shell(b.input["command"])
                 results.append({{"type": "tool_result", "tool_use_id": b.id, "content": output[:50000]}})
         history.append({{"role": "user", "content": results}})
 
 if __name__ == "__main__":
-    h = []
-    print("{name} - Level 0 Agent\\nType 'q' to quit.\\n")
-    while (q := input(">> ").strip()) not in ("q", "quit", ""):
-        print(run(q, h), "\\n")
+    if len(sys.argv) > 1:
+        print(run(" ".join(sys.argv[1:])))
+    else:
+        h = []
+        print("{name} - Level 0 Agent\\nType 'q' to quit.\\n")
+        while (q := input(">> ").strip()) not in ("q", "quit", ""):
+            print(run(q, h), "\\n")
 ''',
 
     1: '''#!/usr/bin/env python3
@@ -90,6 +108,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import subprocess
 import os
+import sys
 
 load_dotenv()
 
@@ -129,11 +148,15 @@ def safe_path(p: str) -> Path:
 def execute(name: str, args: dict) -> str:
     """Execute a tool and return result."""
     if name == "bash":
-        dangerous = ["rm -rf /", "sudo", "shutdown", "> /dev/"]
-        if any(d in args["command"] for d in dangerous):
-            return "Error: Dangerous command blocked"
+        command = args["command"]
+        if os.getenv("AGENT_ALLOW_SHELL") != "1":
+            if not sys.stdin.isatty():
+                return "Error: Shell execution needs an interactive approval or AGENT_ALLOW_SHELL=1"
+            answer = input(f"Allow shell command? [y/N] {{command}}\\n> ").strip().lower()
+            if answer not in ("y", "yes"):
+                return "Error: Shell command declined"
         try:
-            r = subprocess.run(args["command"], shell=True, cwd=WORKDIR, capture_output=True, text=True, timeout=60)
+            r = subprocess.run(command, shell=True, cwd=WORKDIR, capture_output=True, text=True, timeout=60)
             return (r.stdout + r.stderr).strip()[:50000] or "(empty)"
         except subprocess.TimeoutExpired:
             return "Error: Timeout (60s)"
@@ -193,17 +216,20 @@ def agent(prompt: str, history: list = None) -> str:
         history.append({{"role": "user", "content": results}})
 
 if __name__ == "__main__":
-    print(f"{name} - Level 1 Agent at {{WORKDIR}}")
-    print("Type 'q' to quit.\\n")
-    h = []
-    while True:
-        try:
-            query = input(">> ").strip()
-        except (EOFError, KeyboardInterrupt):
-            break
-        if query in ("q", "quit", "exit", ""):
-            break
-        print(agent(query, h), "\\n")
+    if len(sys.argv) > 1:
+        print(agent(" ".join(sys.argv[1:])))
+    else:
+        print(f"{name} - Level 1 Agent at {{WORKDIR}}")
+        print("Type 'q' to quit.\\n")
+        h = []
+        while True:
+            try:
+                query = input(">> ").strip()
+            except (EOFError, KeyboardInterrupt):
+                break
+            if query in ("q", "quit", "exit", ""):
+                break
+            print(agent(query, h), "\\n")
 ''',
 }
 
@@ -217,15 +243,22 @@ MODEL_NAME=claude-sonnet-4-20250514
 def create_agent(name: str, level: int, output_dir: Path):
     """Create a new agent project."""
     # Validate level
-    if level not in TEMPLATES and level not in (2, 3, 4):
-        print(f"Error: Level {level} not yet implemented in scaffold.")
+    if level not in TEMPLATES:
+        print(f"Error: Unsupported level {level}.")
         print("Available levels: 0 (minimal), 1 (4 tools)")
-        print("For levels 2-4, copy from mini-claude-code repository.")
         sys.exit(1)
 
-    # Create output directory
+    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]*", name):
+        print("Error: Name must start with a letter and contain only letters, numbers, '-' or '_'.")
+        sys.exit(1)
+
+    # Refuse ambiguous targets and protect existing projects from overwrite.
+    output_dir = output_dir.expanduser().resolve()
     agent_dir = output_dir / name
-    agent_dir.mkdir(parents=True, exist_ok=True)
+    if agent_dir.exists():
+        print(f"Error: Target already exists: {agent_dir}")
+        sys.exit(1)
+    agent_dir.mkdir(parents=True)
 
     # Write agent file
     agent_file = agent_dir / f"{name}.py"
@@ -250,6 +283,8 @@ def create_agent(name: str, level: int, output_dir: Path):
     print(f"  3. Edit .env with your API key")
     print(f"  4. pip install anthropic python-dotenv")
     print(f"  5. python {name}.py")
+    print("     Shell commands ask for approval by default.")
+    print("     Set AGENT_ALLOW_SHELL=1 only inside an appropriately isolated environment.")
 
 
 def main():
@@ -258,15 +293,12 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Levels:
-  0  Minimal (~50 lines) - Single bash tool, self-recursion for subagents
+  0  Minimal (~70 lines) - Single bash tool, interactive command approval
   1  Basic (~200 lines)  - 4 core tools: bash, read, write, edit
-  2  Todo (~300 lines)   - + TodoWrite for structured planning
-  3  Subagent (~450)     - + Task tool for context isolation
-  4  Skills (~550)       - + Skill tool for domain expertise
         """
     )
     parser.add_argument("name", help="Name of the agent to create")
-    parser.add_argument("--level", type=int, default=1, choices=[0, 1, 2, 3, 4],
+    parser.add_argument("--level", type=int, default=1, choices=[0, 1],
                        help="Complexity level (default: 1)")
     parser.add_argument("--path", type=Path, default=Path.cwd(),
                        help="Output directory (default: current directory)")

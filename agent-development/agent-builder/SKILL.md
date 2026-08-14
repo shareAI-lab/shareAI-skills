@@ -5,7 +5,7 @@ description: |
   (1) ask to "create an agent", "build an assistant", or "design an AI system"
   (2) want to understand agent architecture, agentic patterns, or autonomous AI
   (3) need help with capabilities, subagents, planning, or skill mechanisms
-  (4) ask about Claude Code, Cursor, or similar agent internals
+  (4) ask about AI coding agents, agent runtimes, or similar internals
   (5) want to build agents for business, research, creative, or operational tasks
   Keywords: agent, assistant, autonomous, workflow, tool use, multi-step, orchestration
 ---
@@ -13,6 +13,10 @@ description: |
 # Agent Builder
 
 Build AI agents for any domain - customer service, research, operations, creative work, or specialized business processes.
+
+## Applicability
+
+Treat the architecture and orchestration guidance as provider-agnostic. The bundled Python starter code currently uses the Anthropic SDK and an Anthropic model configuration; adapt that implementation layer when using another provider. Do not mistake the example client for a required agent architecture.
 
 ## The Core Philosophy
 
@@ -103,18 +107,19 @@ The pattern is universal. Only the capabilities change.
 | Front-loaded knowledge | Context bloat | Load on-demand |
 | Micromanagement | Undercuts intelligence | Trust the model |
 
-## Resources
+## Resource Routing
 
-**Philosophy & Theory**:
-- `references/agent-philosophy.md` - Deep dive into why agents work
+Load only what the current task needs:
 
-**Implementation**:
-- `references/minimal-agent.py` - Complete working agent (~80 lines)
-- `references/tool-templates.py` - Capability definitions
-- `references/subagent-pattern.py` - Context isolation
+| User need | Resource | Do not load when |
+|-----------|----------|------------------|
+| Understand or debate the architecture | `references/agent-philosophy.md` | The user only needs runnable starter code |
+| Inspect the smallest complete loop | `references/minimal-agent.py` | The task is conceptual or provider-neutral |
+| Add or adapt individual capabilities | `references/tool-templates.py` | No implementation is requested |
+| Design context-isolated child agents | `references/subagent-pattern.py` | A single-agent loop is sufficient |
+| Generate a local Python starter project | `scripts/init_agent.py` | The user asked only for design advice |
 
-**Scaffolding**:
-- `scripts/init_agent.py` - Generate new agent projects
+The Python resources are learning-oriented examples, not a security boundary. Their shell capability requires user approval by default; production systems still need isolation, least privilege, audit logs, and policy appropriate to their threat model.
 
 ## The Agent Mindset
 

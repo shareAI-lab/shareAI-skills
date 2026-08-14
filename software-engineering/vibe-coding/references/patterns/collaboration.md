@@ -280,7 +280,7 @@ While AI executes Task A:
 ### Context Documents
 
 Maintain persistent context:
-- CLAUDE.md for project knowledge
+- AGENTS.md for project knowledge
 - Architecture decision records
 - Coding conventions document
 
@@ -326,7 +326,7 @@ Session 4: AI works semi-autonomously on known patterns
 ## Collaboration Checklist
 
 ### Starting a Session
-- [ ] Context is loaded (CLAUDE.md, relevant files)
+- [ ] Context is loaded (AGENTS.md, relevant files)
 - [ ] Goal is clear
 - [ ] Priorities are set
 - [ ] Constraints are known

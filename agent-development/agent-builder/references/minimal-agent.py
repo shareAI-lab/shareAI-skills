@@ -15,11 +15,20 @@ from anthropic import Anthropic
 from pathlib import Path
 import subprocess
 import os
+import sys
 
 # Configuration
 client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 MODEL = os.getenv("MODEL_NAME", "claude-sonnet-4-20250514")
 WORKDIR = Path.cwd()
+
+
+def safe_path(path: str) -> Path:
+    """Resolve a file path inside the current workspace."""
+    resolved = (WORKDIR / path).resolve()
+    if not resolved.is_relative_to(WORKDIR):
+        raise ValueError(f"Path escapes workspace: {path}")
+    return resolved
 
 # System prompt - keep it simple
 SYSTEM = f"""You are a coding agent at {WORKDIR}.
@@ -67,9 +76,16 @@ TOOLS = [
 def execute_tool(name: str, args: dict) -> str:
     """Execute a tool and return result."""
     if name == "bash":
+        command = args["command"]
+        if os.getenv("AGENT_ALLOW_SHELL") != "1":
+            if not sys.stdin.isatty():
+                return "Error: Shell execution needs an interactive approval or AGENT_ALLOW_SHELL=1"
+            answer = input(f"Allow shell command? [y/N] {command}\n> ").strip().lower()
+            if answer not in ("y", "yes"):
+                return "Error: Shell command declined"
         try:
             r = subprocess.run(
-                args["command"], shell=True, cwd=WORKDIR,
+                command, shell=True, cwd=WORKDIR,
                 capture_output=True, text=True, timeout=60
             )
             return (r.stdout + r.stderr).strip() or "(empty)"
@@ -78,13 +94,13 @@ def execute_tool(name: str, args: dict) -> str:
 
     if name == "read_file":
         try:
-            return (WORKDIR / args["path"]).read_text()[:50000]
+            return safe_path(args["path"]).read_text()[:50000]
         except Exception as e:
             return f"Error: {e}"
 
     if name == "write_file":
         try:
-            p = WORKDIR / args["path"]
+            p = safe_path(args["path"])
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(args["content"])
             return f"Wrote {len(args['content'])} bytes to {args['path']}"
