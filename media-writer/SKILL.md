@@ -32,7 +32,7 @@ Identify target platform from user input, then load ONLY that guide:
 
 | User says... | Platform | Load | Do NOT Load |
 |--------------|----------|------|-------------|
-| "公众号", "微信", "WeChat" | WeChat | `references/wechat.md` | All others |
+| "WeChat", "WeChat Official Account" | WeChat | `references/wechat.md` | All others |
 | "HN", "Hacker News" | Hacker News | `references/hackernews.md` | All others |
 | "Reddit", "r/", "subreddit" | Reddit | `references/reddit.md` | All others |
 | "Medium" | Medium | `references/medium.md` | All others |

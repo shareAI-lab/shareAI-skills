@@ -264,11 +264,11 @@ Analysis:
 
 **Poor description** (missing elements):
 ```yaml
-description: "处理文档相关功能"
+description: "Handle document-related tasks"
 ```
 
 Problems:
-- WHAT: vague ("文档相关功能" — what specifically?)
+- WHAT: vague ("document-related tasks" — what specifically?)
 - WHEN: missing (when should Agent use this?)
 - KEYWORDS: missing (no ".docx", no specific scenarios)
 

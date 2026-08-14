@@ -1,4 +1,4 @@
 interface:
   display_name: "Boss Meet"
-  short_description: "帮助老板设计高带宽会议、直接反馈员工并持续推进真实工作与决策"
+  short_description: "Run high-bandwidth meetings and advance real work and decisions"
   default_prompt: "Use $boss-meet to prepare or review this meeting, improve its decision value, and give direct but constructive employee feedback."

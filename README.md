@@ -1,14 +1,20 @@
 # Lab Skills
 
-Skills distilled from the Lab's real work and collaboration practices. The parts that may generalize beyond our context are shared for reference, discussion, and continued improvement.
-
-[中文文档](./README_zh.md)
+Skills distilled from the Lab's real work and collaboration practices. Potentially generalizable parts are shared for reference, discussion, and continued improvement.
 
 [![skills.sh](https://skills.sh/b/shareai-lab/lab-skills)](https://skills.sh/shareai-lab/lab-skills)
 
-> Works with **[Kode CLI](https://github.com/shareAI-lab/Kode-CLI)**, **Claude Code**, **Codex**, **Cursor**, and any agent supporting the [Agent Skills specification](https://agentskills.io/specification).
+> Compatible with **[Kode CLI](https://github.com/shareAI-lab/Kode-CLI)**, **Claude Code**, **Codex**, **Cursor**, and any agent that supports the [Agent Skills specification](https://agentskills.io/specification).
+
+## Purpose
+
+This is a skills-only repository. It does not ship product-specific plugin manifests or runtime integration metadata.
+
+These skills come from practice, not from a claim of universal correctness. Use them as working references, adapt them to local context, and improve them when real usage reveals better approaches.
 
 ## Installation
+
+Install the collection:
 
 ```bash
 npx skills add shareai-lab/lab-skills
@@ -24,87 +30,68 @@ Browse the collection on [skills.sh](https://skills.sh/shareai-lab/lab-skills).
 
 ## Available Skills
 
-| Skill | Description |
-|-------|-------------|
-| [skill-judge](./skills/skill-judge/) | Evaluate Agent Skill quality across 8 dimensions (120-point system) |
-| [media-writer](./skills/media-writer/) | Adapt content for WeChat, HN, Reddit, Medium, Twitter, Dev.to, LinkedIn |
-| [agent-builder](./skills/agent-builder/) | Design and build AI agents for any domain |
-| [vibe-coding](./skills/vibe-coding/) | Vibe-driven development with minimal specs |
-| [extract-agent-sessions](./skills/extract-agent-sessions/) | Recover recent local agent conversations on Linux/macOS without tool, reasoning, or subagent noise |
-| [meet-work](./skills/team-meet/meet-work/) | Turn recent meetings into better work, delivery reviews, and high-bandwidth employee reports |
-| [boss-meet](./skills/team-meet/boss-meet/) | Help managers run decision-oriented meetings and give direct, constructive feedback |
+| Skill | Purpose |
+|-------|---------|
+| [agent-builder](./agent-builder/) | Design and build AI agents for a specific domain or workflow |
+| [extract-agent-sessions](./extract-agent-sessions/) | Recover clean recent conversations from local agent session stores |
+| [media-writer](./media-writer/) | Adapt content to the culture and expectations of each publishing platform |
+| [skill-judge](./skill-judge/) | Evaluate and improve Agent Skill design quality |
+| [boss-meet](./boss-meet/) | Help managers run decision-oriented meetings and give direct, constructive feedback |
+| [meet-work](./meet-work/) | Turn recent meetings into better work, delivery reviews, and high-bandwidth updates |
+| [vibe-coding](./vibe-coding/) | Turn an AI agent into a disciplined software development partner |
 
-## Repository Scope and Maintenance
+## Repository Layout
 
-This is a skills-only repository. It does not ship product-specific plugin manifests or runtime integration metadata.
+Every skill directory lives at the repository root so standard installers can discover the complete collection without special flags.
 
-Skills here are maintained working assets, not frozen snapshots:
-
-- Real usage, failure cases, and changing workflows should drive improvements.
-- Existing skills should be refined when their guidance becomes ambiguous, incomplete, or outdated.
-- Skills that no longer provide reliable value or meet the current quality bar should be replaced or removed.
-- Contributions may add, improve, consolidate, or retire skills as the collection evolves.
-
-## How to Create Great Skills
-
-Creating a truly effective skill is an art. We've analyzed 17 official Anthropic skills and distilled the core principles:
-
-**Core Formula:**
-```
-Good Skill = Expert-only Knowledge - What Claude Already Knows
+```text
+lab-skills/
+├── agent-builder/
+├── boss-meet/
+├── extract-agent-sessions/
+├── media-writer/
+├── meet-work/
+├── skill-judge/
+└── vibe-coding/
 ```
 
-Read the full guide: **[How to Create Great Agent Skills](./docs/how-to-create-great-agent-skill.md)**
+Each skill is self-contained:
 
-Use the [skill-judge](./skills/skill-judge/) skill to evaluate your skill's quality with structured scoring across 8 dimensions:
-
-| Dimension | Points | Focus |
-|-----------|--------|-------|
-| Knowledge Delta | 20 | Expert-only knowledge vs. what Claude already knows |
-| Mindset + Procedures | 15 | Thinking patterns + domain-specific workflows |
-| Anti-Pattern Quality | 15 | Specific NEVER lists with non-obvious reasons |
-| Specification (esp. Description) | 15 | Description with WHAT, WHEN, and KEYWORDS |
-| Progressive Disclosure | 15 | Content layering, loading triggers |
-| Freedom Calibration | 15 | Specificity matched to task fragility |
-| Pattern Recognition | 10 | Follows established skill patterns |
-| Practical Usability | 15 | Decision trees, working examples, edge cases |
-
-## What are Skills?
-
-Skills are modular knowledge packages that give AI agents domain expertise on-demand. They follow the [Agent Skills specification](https://agentskills.io/specification).
-
-## Skill Structure
-
-```
+```text
 skill-name/
-├── SKILL.md              # Core instructions (required)
-├── references/           # Detailed documentation (optional)
-├── scripts/              # Executable code (optional)
-└── assets/               # Templates and resources (optional)
+├── SKILL.md              # Required instructions and trigger metadata
+├── references/           # Optional detailed knowledge
+├── scripts/              # Optional deterministic helpers
+├── assets/               # Optional output resources
+└── agents/               # Optional agent-facing metadata
 ```
 
-## Philosophy
+## Maintenance
 
-> **Skills are knowledge, not code.**
+Skills are maintained working assets, not frozen snapshots:
 
-A skill doesn't tell the agent what to do step-by-step. It gives the agent the knowledge to figure out what to do. The model is smart - your job is to inform it, not constrain it.
+- Improve them when real usage exposes gaps, ambiguity, or inefficient behavior.
+- Keep guidance aligned with current tools, workflows, and quality standards.
+- Consolidate overlapping skills when a simpler structure serves users better.
+- Replace or remove skills that no longer provide reliable value.
 
 ## Contributing
 
-We welcome contributions! To add a new skill:
+Contributions may add, improve, consolidate, or retire skills.
 
-1. Create a directory under `skills/`
-2. Add a `SKILL.md` with YAML frontmatter (name, description)
-3. Include any necessary references, scripts, or assets
-4. Submit a PR
+1. Start from a concrete use case or observed failure.
+2. Add a self-contained skill directory at the repository root.
+3. Include a valid `SKILL.md` with `name` and `description` frontmatter.
+4. Add only the references, scripts, assets, or agent metadata required by the skill.
+5. Validate the skill and submit a pull request that explains the practical evidence behind the change.
 
-## Related
+## Related Projects
 
-| Repository | Purpose |
-|------------|---------|
-| [Kode](https://github.com/shareAI-lab/Kode-CLI) | Full-featured open source agent CLI |
-| [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) | Learn how to build AI agents from scratch |
-| [Agent Skills specification](https://agentskills.io/specification) | Open specification |
+| Project | Purpose |
+|---------|---------|
+| [Kode](https://github.com/shareAI-lab/Kode-CLI) | Open-source agent CLI |
+| [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) | Learn how to build an agent from first principles |
+| [Agent Skills specification](https://agentskills.io/specification) | Open skill format specification |
 
 ## License
 
