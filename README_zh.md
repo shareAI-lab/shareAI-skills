@@ -1,26 +1,26 @@
-# shareAI Skills
+# Lab Skills
 
-扩展 AI Agent 能力的知识包。
+从 Lab 内部真实工作与协作实践中沉淀的 Skill 集合。其中可能具备普适性的部分开放出来，供参考、交流与持续改进。
 
 [English](./README.md)
 
-[![skills.sh](https://skills.sh/b/shareai-lab/shareai-skills)](https://skills.sh/shareai-lab/shareai-skills)
+[![skills.sh](https://skills.sh/b/shareai-lab/lab-skills)](https://skills.sh/shareai-lab/lab-skills)
 
 > 兼容 **[Kode CLI](https://github.com/shareAI-lab/Kode-CLI)**、**Claude Code**、**Codex**、**Cursor**，以及任何支持 [Agent Skills 规范](https://agentskills.io/specification) 的 Agent。
 
 ## 安装
 
 ```bash
-npx skills add shareai-lab/shareai-skills
+npx skills add shareai-lab/lab-skills
 ```
 
 安装单个 Skill：
 
 ```bash
-npx skills add shareai-lab/shareai-skills --skill extract-agent-sessions
+npx skills add shareai-lab/lab-skills --skill extract-agent-sessions
 ```
 
-在 [skills.sh](https://skills.sh/shareai-lab/shareai-skills) 浏览全部 Skill。
+在 [skills.sh](https://skills.sh/shareai-lab/lab-skills) 浏览全部 Skill。
 
 ## 可用 Skills
 
@@ -33,6 +33,17 @@ npx skills add shareai-lab/shareai-skills --skill extract-agent-sessions
 | [extract-agent-sessions](./skills/extract-agent-sessions/) | 在 Linux/macOS 恢复近期本地 Agent 对话，排除工具、推理和子代理噪声 |
 | [meet-work](./skills/team-meet/meet-work/) | 将近期会议转化为更高质量的工作、交付检查和员工汇报 |
 | [boss-meet](./skills/team-meet/boss-meet/) | 帮助管理者召开面向决策的高带宽会议并给出直接、有效的反馈 |
+
+## 仓库定位与维护原则
+
+这是一个纯 Skills 仓库，不包含面向特定产品的插件清单或运行时集成元数据。
+
+这里的 Skill 是需要持续维护的工作资产，不是一次完成后永久不变的静态内容：
+
+- 根据真实使用效果、失败案例和工作方式的变化持续迭代。
+- 当现有指导变得模糊、不完整或过时时，及时修正和升级。
+- 对实际价值不足或已经达不到当前质量标准的 Skill，进行替换或删除。
+- 随着仓库演进，可以新增、改进、合并或淘汰 Skill。
 
 ## 如何创建好的 Skill
 

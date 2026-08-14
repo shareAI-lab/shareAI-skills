@@ -883,7 +883,7 @@ Skill 设计的核心理念是**按需加载上下文**——把详细知识存�
 
 怎么知道你写的 Skill 好不好？
 
-我们在 [shareAI-skills](https://github.com/shareAI-lab/shareAI-skills) 仓库创建了一个 **skill-judge** Skill，专门用于多维度评估 Agent Skill 的设计质量。
+我们在 [lab-skills](https://github.com/shareAI-lab/lab-skills) 仓库创建了一个 **skill-judge** Skill，专门用于多维度评估 Agent Skill 的设计质量。
 
 ### 评估维度
 
@@ -910,7 +910,7 @@ Skill 设计的核心理念是**按需加载上下文**——把详细知识存�
 - 具体问题指出
 - 改进建议
 
-仓库地址：**https://github.com/shareAI-lab/shareAI-skills**
+仓库地址：**https://github.com/shareAI-lab/lab-skills**
 
 ---
 
@@ -951,6 +951,6 @@ Skill 设计的核心理念是**按需加载上下文**——把详细知识存�
 ---
 
 **相关链接**：
-- shareAI-skills 仓库：https://github.com/shareAI-lab/shareAI-skills
-- skill-judge 评估工具：https://github.com/shareAI-lab/shareAI-skills/tree/main/skills/skill-judge
+- lab-skills 仓库：https://github.com/shareAI-lab/lab-skills
+- skill-judge 评估工具：https://github.com/shareAI-lab/lab-skills/tree/main/skills/skill-judge
 - Kode（开源 Claude Code）：https://github.com/shareAI-lab/Kode

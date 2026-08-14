@@ -1,26 +1,26 @@
-# shareAI Skills
+# Lab Skills
 
-Knowledge packages that extend AI agent capabilities.
+Skills distilled from the Lab's real work and collaboration practices. The parts that may generalize beyond our context are shared for reference, discussion, and continued improvement.
 
 [中文文档](./README_zh.md)
 
-[![skills.sh](https://skills.sh/b/shareai-lab/shareai-skills)](https://skills.sh/shareai-lab/shareai-skills)
+[![skills.sh](https://skills.sh/b/shareai-lab/lab-skills)](https://skills.sh/shareai-lab/lab-skills)
 
 > Works with **[Kode CLI](https://github.com/shareAI-lab/Kode-CLI)**, **Claude Code**, **Codex**, **Cursor**, and any agent supporting the [Agent Skills specification](https://agentskills.io/specification).
 
 ## Installation
 
 ```bash
-npx skills add shareai-lab/shareai-skills
+npx skills add shareai-lab/lab-skills
 ```
 
 Install one skill:
 
 ```bash
-npx skills add shareai-lab/shareai-skills --skill extract-agent-sessions
+npx skills add shareai-lab/lab-skills --skill extract-agent-sessions
 ```
 
-Browse the collection on [skills.sh](https://skills.sh/shareai-lab/shareai-skills).
+Browse the collection on [skills.sh](https://skills.sh/shareai-lab/lab-skills).
 
 ## Available Skills
 
@@ -33,6 +33,17 @@ Browse the collection on [skills.sh](https://skills.sh/shareai-lab/shareai-skill
 | [extract-agent-sessions](./skills/extract-agent-sessions/) | Recover recent local agent conversations on Linux/macOS without tool, reasoning, or subagent noise |
 | [meet-work](./skills/team-meet/meet-work/) | Turn recent meetings into better work, delivery reviews, and high-bandwidth employee reports |
 | [boss-meet](./skills/team-meet/boss-meet/) | Help managers run decision-oriented meetings and give direct, constructive feedback |
+
+## Repository Scope and Maintenance
+
+This is a skills-only repository. It does not ship product-specific plugin manifests or runtime integration metadata.
+
+Skills here are maintained working assets, not frozen snapshots:
+
+- Real usage, failure cases, and changing workflows should drive improvements.
+- Existing skills should be refined when their guidance becomes ambiguous, incomplete, or outdated.
+- Skills that no longer provide reliable value or meet the current quality bar should be replaced or removed.
+- Contributions may add, improve, consolidate, or retire skills as the collection evolves.
 
 ## How to Create Great Skills
 

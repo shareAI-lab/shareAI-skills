@@ -449,6 +449,6 @@ Good Skill = Expert-only Knowledge - What Claude Already Knows
 ---
 
 **Related:**
-- [shareAI-skills repository](https://github.com/shareAI-lab/shareAI-skills)
+- [lab-skills repository](https://github.com/shareAI-lab/lab-skills)
 - [skill-judge evaluation tool](../skills/skill-judge/)
 - [Kode CLI](https://github.com/shareAI-lab/Kode)
