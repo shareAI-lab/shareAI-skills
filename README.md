@@ -1,64 +1,75 @@
 # Lab Skills
 
-Skills distilled from the Lab's real work and collaboration practices. Potentially generalizable parts are shared for reference, discussion, and continued improvement.
+Skills distilled from the Lab's real work and collaboration practices. Potentially reusable parts are shared for reference, discussion, adaptation, and continued improvement.
 
-[![skills.sh](https://skills.sh/b/shareai-lab/lab-skills)](https://skills.sh/shareai-lab/lab-skills)
+Designed for AI coding agents and other systems that support the [Agent Skills specification](https://agentskills.io/specification).
 
-> Compatible with **[Kode CLI](https://github.com/shareAI-lab/Kode-CLI)**, **Claude Code**, **Codex**, **Cursor**, and any agent that supports the [Agent Skills specification](https://agentskills.io/specification).
+## Scope
 
-## Purpose
+This is a skills-only repository. It does not ship product-specific plugin manifests, runtime integration metadata, tutorials, or general articles.
 
-This is a skills-only repository. It does not ship product-specific plugin manifests or runtime integration metadata.
+The collection is practice-derived, not a universal standard. Each skill has a different portability boundary:
 
-These skills come from practice, not from a claim of universal correctness. Use them as working references, adapt them to local context, and improve them when real usage reveals better approaches.
+- **Opinionated**: broadly reusable while encoding strong assumptions about quality or method.
+- **Tool-specific**: reusable only where the named tools, storage formats, or platforms apply.
+- **Lab-oriented**: shaped by the Lab's work, collaboration style, and outcome-driven goals; adapt before using it as guidance for another organization.
 
 ## Installation
 
-Install the collection:
+Preview the available skills without installing them:
 
 ```bash
-npx skills add shareai-lab/lab-skills
+npx skills add shareai-lab/lab-skills --list
+```
+
+Install all skills non-interactively for the detected agent environment:
+
+```bash
+npx skills add shareai-lab/lab-skills --skill '*' -y
 ```
 
 Install one skill:
 
 ```bash
-npx skills add shareai-lab/lab-skills --skill extract-agent-sessions
+npx skills add shareai-lab/lab-skills --skill meet-work
 ```
 
-Browse the collection on [skills.sh](https://skills.sh/shareai-lab/lab-skills).
+## Skill Catalog
 
-## Available Skills
+| Scenario | Skill | Applicability | Purpose |
+|----------|-------|---------------|---------|
+| Agent development | [agent-builder](./agent-development/agent-builder/) | Opinionated | Design and build AI agents; bundled starter code currently uses the Anthropic Python SDK |
+| Agent development | [skill-judge](./agent-development/skill-judge/) | Opinionated | Evaluate and improve Agent Skill design quality with a practice-derived rubric |
+| Agent operations | [extract-agent-sessions](./agent-operations/extract-agent-sessions/) | Tool-specific | Recover clean conversations from supported local agent session stores |
+| Content and publishing | [media-writer](./content-publishing/media-writer/) | Tool-specific | Adapt content to the culture and expectations of supported publishing platforms |
+| Software engineering | [vibe-coding](./software-engineering/vibe-coding/) | Opinionated | Turn an AI agent into a disciplined software development partner |
+| Team collaboration and communication | [boss-meet](./team-collaboration/boss-meet/) | Lab-oriented | Help managers run decision-oriented meetings and give direct, constructive feedback |
+| Team collaboration and communication | [meet-work](./team-collaboration/meet-work/) | Lab-oriented | Turn recent meetings into better work, delivery reviews, decisions, and high-bandwidth updates |
 
-| Skill | Purpose |
-|-------|---------|
-| [agent-builder](./agent-builder/) | Design and build AI agents for a specific domain or workflow |
-| [extract-agent-sessions](./extract-agent-sessions/) | Recover clean recent conversations from local agent session stores |
-| [media-writer](./media-writer/) | Adapt content to the culture and expectations of each publishing platform |
-| [skill-judge](./skill-judge/) | Evaluate and improve Agent Skill design quality |
-| [boss-meet](./boss-meet/) | Help managers run decision-oriented meetings and give direct, constructive feedback |
-| [meet-work](./meet-work/) | Turn recent meetings into better work, delivery reviews, and high-bandwidth updates |
-| [vibe-coding](./vibe-coding/) | Turn an AI agent into a disciplined software development partner |
+## Repository Structure
 
-## Repository Layout
-
-Every skill directory lives at the repository root so standard installers can discover the complete collection without special flags.
+Scenario directories form the first level. Self-contained skill directories form the second level.
 
 ```text
 lab-skills/
-├── agent-builder/
-├── boss-meet/
-├── extract-agent-sessions/
-├── media-writer/
-├── meet-work/
-├── skill-judge/
-└── vibe-coding/
+├── agent-development/
+│   ├── agent-builder/
+│   └── skill-judge/
+├── agent-operations/
+│   └── extract-agent-sessions/
+├── content-publishing/
+│   └── media-writer/
+├── software-engineering/
+│   └── vibe-coding/
+└── team-collaboration/
+    ├── boss-meet/
+    └── meet-work/
 ```
 
-Each skill is self-contained:
+Scenario directories are navigation boundaries only and do not contain a `SKILL.md`. Every actual skill remains self-contained:
 
 ```text
-skill-name/
+scenario/skill-name/
 ├── SKILL.md              # Required instructions and trigger metadata
 ├── references/           # Optional detailed knowledge
 ├── scripts/              # Optional deterministic helpers
@@ -66,32 +77,34 @@ skill-name/
 └── agents/               # Optional agent-facing metadata
 ```
 
+Use an existing scenario when its work context genuinely fits. Create a new scenario only when it represents a stable, reusable area of work rather than a temporary topic or ownership label.
+
+## Lab-Oriented Guidance
+
+The skills under `team-collaboration/` reflect the Lab's emphasis on substantive work, clear decisions, delivery readiness, high-bandwidth communication, and explicit ownership. They are intended to improve work through meetings, not to prescribe a universal management culture.
+
+When applying them elsewhere, preserve the reasoning but reconsider assumptions about hierarchy, feedback style, meeting cadence, decision rights, and what counts as a ready deliverable.
+
 ## Maintenance
 
 Skills are maintained working assets, not frozen snapshots:
 
 - Improve them when real usage exposes gaps, ambiguity, or inefficient behavior.
 - Keep guidance aligned with current tools, workflows, and quality standards.
-- Consolidate overlapping skills when a simpler structure serves users better.
+- Consolidate overlapping skills when a simpler boundary serves users better.
+- Reclassify a skill when its actual use no longer matches its scenario.
 - Replace or remove skills that no longer provide reliable value.
 
 ## Contributing
 
-Contributions may add, improve, consolidate, or retire skills.
+Contributions may add, improve, move, consolidate, or retire skills.
 
 1. Start from a concrete use case or observed failure.
-2. Add a self-contained skill directory at the repository root.
-3. Include a valid `SKILL.md` with `name` and `description` frontmatter.
-4. Add only the references, scripts, assets, or agent metadata required by the skill.
-5. Validate the skill and submit a pull request that explains the practical evidence behind the change.
-
-## Related Projects
-
-| Project | Purpose |
-|---------|---------|
-| [Kode](https://github.com/shareAI-lab/Kode-CLI) | Open-source agent CLI |
-| [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) | Learn how to build an agent from first principles |
-| [Agent Skills specification](https://agentskills.io/specification) | Open skill format specification |
+2. Select the scenario that matches the work context rather than the author or implementation technology.
+3. Add a self-contained skill directory with a valid `SKILL.md` containing `name` and `description` frontmatter.
+4. Include only the references, scripts, assets, or agent metadata required by the skill.
+5. Validate default repository discovery as well as the individual skill.
+6. Explain the practical evidence, intended applicability, and non-goals in the pull request.
 
 ## License
 

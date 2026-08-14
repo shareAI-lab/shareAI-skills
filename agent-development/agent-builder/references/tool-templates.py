@@ -7,7 +7,9 @@ Each tool needs:
 """
 
 from pathlib import Path
+import os
 import subprocess
+import sys
 
 WORKDIR = Path.cwd()
 
@@ -151,16 +153,19 @@ def safe_path(p: str) -> Path:
 
 def run_bash(command: str) -> str:
     """
-    Execute shell command with safety checks.
+    Execute a shell command with an explicit user-approval boundary.
 
-    Safety features:
-    - Blocks obviously dangerous commands
+    Operational limits (not a security sandbox):
+    - Requires approval unless AGENT_ALLOW_SHELL=1
     - 60 second timeout
     - Output truncated to 50KB
     """
-    dangerous = ["rm -rf /", "sudo", "shutdown", "reboot", "> /dev/"]
-    if any(d in command for d in dangerous):
-        return "Error: Dangerous command blocked"
+    if os.getenv("AGENT_ALLOW_SHELL") != "1":
+        if not sys.stdin.isatty():
+            return "Error: Shell execution needs an interactive approval or AGENT_ALLOW_SHELL=1"
+        answer = input(f"Allow shell command? [y/N] {command}\n> ").strip().lower()
+        if answer not in ("y", "yes"):
+            return "Error: Shell command declined"
 
     try:
         result = subprocess.run(

@@ -1,11 +1,15 @@
 ---
 name: meet-work
-description: "Turn the latest meeting or several days of transcripts, minutes, and work notes into a simple work-and-communication aid: review the previous work and its real problems, infer manager expectations, identify what to do next, improve work efficiency, judge whether current output is ready, and prepare a high-bandwidth meeting that advances conclusions and decisions. Use after meetings, during work, before reviews, or when recent meetings feel repetitive, low-value, or unproductive. Perform semantic review from source evidence; never rely on keyword scripts or mandatory formats."
+description: "Turn recent meetings, transcripts, minutes, and work notes into a simple aid for Lab-oriented team collaboration and communication: review previous work, infer expectations, identify what to do next, improve work efficiency, judge delivery readiness, and prepare a high-bandwidth update that advances conclusions and decisions. Use after meetings, during work, before reviews, or when discussions feel repetitive or low-value. Perform semantic review from source evidence; never rely on keyword scripts or mandatory formats."
 ---
 
 # Meet Work
 
 Help the user do the work, not maintain a process system. Keep the default interaction simple.
+
+## Applicability
+
+Use this as Lab-oriented work guidance for teams that value substantive progress, explicit expectations, delivery readiness, and decision-focused communication. It is not a universal model of employee performance or meeting culture. When applying it elsewhere, adapt the assumptions about reporting lines, work cadence, acceptable evidence, and what a meeting is expected to accomplish.
 
 ## Choose the immediate need
 
