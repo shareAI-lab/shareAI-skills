@@ -1,0 +1,4 @@
+interface:
+  display_name: "Meet Work"
+  short_description: "复盘最近工作与会议问题，拆解下一步并准备高质量汇报"
+  default_prompt: "Use $meet-work to review my recent meetings and previous work, identify what should change, and prepare a high-bandwidth next meeting."
