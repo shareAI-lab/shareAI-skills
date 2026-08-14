@@ -31,6 +31,8 @@ npx skills add shareai-lab/shareai-skills --skill extract-agent-sessions
 | [agent-builder](./skills/agent-builder/) | 为任何领域设计和构建 AI Agent |
 | [vibe-coding](./skills/vibe-coding/) | 氛围驱动开发，极简规格 |
 | [extract-agent-sessions](./skills/extract-agent-sessions/) | 在 Linux/macOS 恢复近期本地 Agent 对话，排除工具、推理和子代理噪声 |
+| [meet-work](./skills/team-meet/meet-work/) | 将近期会议转化为更高质量的工作、交付检查和员工汇报 |
+| [boss-meet](./skills/team-meet/boss-meet/) | 帮助管理者召开面向决策的高带宽会议并给出直接、有效的反馈 |
 
 ## 如何创建好的 Skill
 

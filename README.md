@@ -31,6 +31,8 @@ Browse the collection on [skills.sh](https://skills.sh/shareai-lab/shareai-skill
 | [agent-builder](./skills/agent-builder/) | Design and build AI agents for any domain |
 | [vibe-coding](./skills/vibe-coding/) | Vibe-driven development with minimal specs |
 | [extract-agent-sessions](./skills/extract-agent-sessions/) | Recover recent local agent conversations on Linux/macOS without tool, reasoning, or subagent noise |
+| [meet-work](./skills/team-meet/meet-work/) | Turn recent meetings into better work, delivery reviews, and high-bandwidth employee reports |
+| [boss-meet](./skills/team-meet/boss-meet/) | Help managers run decision-oriented meetings and give direct, constructive feedback |
 
 ## How to Create Great Skills
 
