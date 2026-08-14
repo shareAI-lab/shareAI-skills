@@ -1,26 +1,26 @@
-# shareAI Skills
+# Lab Skills
 
-Knowledge packages that extend AI agent capabilities.
+Skills distilled from the Lab's real work and collaboration practices. The parts that may generalize beyond our context are shared for reference, discussion, and continued improvement.
 
 [中文文档](./README_zh.md)
 
-[![skills.sh](https://skills.sh/b/shareai-lab/shareai-skills)](https://skills.sh/shareai-lab/shareai-skills)
+[![skills.sh](https://skills.sh/b/shareai-lab/lab-skills)](https://skills.sh/shareai-lab/lab-skills)
 
 > Works with **[Kode CLI](https://github.com/shareAI-lab/Kode-CLI)**, **Claude Code**, **Codex**, **Cursor**, and any agent supporting the [Agent Skills specification](https://agentskills.io/specification).
 
 ## Installation
 
 ```bash
-npx skills add shareai-lab/shareai-skills
+npx skills add shareai-lab/lab-skills
 ```
 
 Install one skill:
 
 ```bash
-npx skills add shareai-lab/shareai-skills --skill extract-agent-sessions
+npx skills add shareai-lab/lab-skills --skill extract-agent-sessions
 ```
 
-Browse the collection on [skills.sh](https://skills.sh/shareai-lab/shareai-skills).
+Browse the collection on [skills.sh](https://skills.sh/shareai-lab/lab-skills).
 
 ## Available Skills
 

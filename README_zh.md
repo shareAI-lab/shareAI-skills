@@ -1,26 +1,26 @@
-# shareAI Skills
+# Lab Skills
 
-扩展 AI Agent 能力的知识包。
+从 Lab 内部真实工作与协作实践中沉淀的 Skill 集合。其中可能具备普适性的部分开放出来，供参考、交流与持续改进。
 
 [English](./README.md)
 
-[![skills.sh](https://skills.sh/b/shareai-lab/shareai-skills)](https://skills.sh/shareai-lab/shareai-skills)
+[![skills.sh](https://skills.sh/b/shareai-lab/lab-skills)](https://skills.sh/shareai-lab/lab-skills)
 
 > 兼容 **[Kode CLI](https://github.com/shareAI-lab/Kode-CLI)**、**Claude Code**、**Codex**、**Cursor**，以及任何支持 [Agent Skills 规范](https://agentskills.io/specification) 的 Agent。
 
 ## 安装
 
 ```bash
-npx skills add shareai-lab/shareai-skills
+npx skills add shareai-lab/lab-skills
 ```
 
 安装单个 Skill：
 
 ```bash
-npx skills add shareai-lab/shareai-skills --skill extract-agent-sessions
+npx skills add shareai-lab/lab-skills --skill extract-agent-sessions
 ```
 
-在 [skills.sh](https://skills.sh/shareai-lab/shareai-skills) 浏览全部 Skill。
+在 [skills.sh](https://skills.sh/shareai-lab/lab-skills) 浏览全部 Skill。
 
 ## 可用 Skills
 
