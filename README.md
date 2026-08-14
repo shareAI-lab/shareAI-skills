@@ -34,6 +34,17 @@ Browse the collection on [skills.sh](https://skills.sh/shareai-lab/shareai-skill
 | [meet-work](./skills/team-meet/meet-work/) | Turn recent meetings into better work, delivery reviews, and high-bandwidth employee reports |
 | [boss-meet](./skills/team-meet/boss-meet/) | Help managers run decision-oriented meetings and give direct, constructive feedback |
 
+## Repository Scope and Maintenance
+
+This is a skills-only repository. It does not ship product-specific plugin manifests or runtime integration metadata.
+
+Skills here are maintained working assets, not frozen snapshots:
+
+- Real usage, failure cases, and changing workflows should drive improvements.
+- Existing skills should be refined when their guidance becomes ambiguous, incomplete, or outdated.
+- Skills that no longer provide reliable value or meet the current quality bar should be replaced or removed.
+- Contributions may add, improve, consolidate, or retire skills as the collection evolves.
+
 ## How to Create Great Skills
 
 Creating a truly effective skill is an art. We've analyzed 17 official Anthropic skills and distilled the core principles:

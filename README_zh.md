@@ -34,6 +34,17 @@ npx skills add shareai-lab/shareai-skills --skill extract-agent-sessions
 | [meet-work](./skills/team-meet/meet-work/) | 将近期会议转化为更高质量的工作、交付检查和员工汇报 |
 | [boss-meet](./skills/team-meet/boss-meet/) | 帮助管理者召开面向决策的高带宽会议并给出直接、有效的反馈 |
 
+## 仓库定位与维护原则
+
+这是一个纯 Skills 仓库，不包含面向特定产品的插件清单或运行时集成元数据。
+
+这里的 Skill 是需要持续维护的工作资产，不是一次完成后永久不变的静态内容：
+
+- 根据真实使用效果、失败案例和工作方式的变化持续迭代。
+- 当现有指导变得模糊、不完整或过时时，及时修正和升级。
+- 对实际价值不足或已经达不到当前质量标准的 Skill，进行替换或删除。
+- 随着仓库演进，可以新增、改进、合并或淘汰 Skill。
+
 ## 如何创建好的 Skill
 
 创建真正有效的 Skill 是一门艺术。我们分析了 17 个 Anthropic 官方 Skill，提炼出核心原则：
