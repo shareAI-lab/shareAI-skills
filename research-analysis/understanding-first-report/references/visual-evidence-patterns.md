@@ -2,6 +2,20 @@
 
 Load this file for technical, architectural, or research reporting.
 
+## What the visuals serve
+
+Visual style is not the main product. It supports a clear line of thought.
+
+```text
+1. re-synthesize the problem space
+2. find the core conflict and useful insight
+3. choose a professional report order
+4. calibrate evidence and uncertainty
+5. use Markdown UI to make the thinking easy to follow
+```
+
+When a visual choice competes with problem clarity or report order, prefer clarity and order. A plain diagram that reveals the real relation is more valuable than a beautiful diagram around weak thinking.
+
 ## Use several small visuals, not one overloaded picture
 
 For a substantive report, prefer two or three compact diagrams that answer different questions:
@@ -14,9 +28,9 @@ Use only one when another diagram would repeat the same edge. One visual should 
 
 Avoid more than three consecutive nodes on one axis. For larger relationships, use a two-dimensional map, grouped regions, hub-and-spoke layout, parallel lanes, or multiple diagrams.
 
-Do not put a separate fenced `↓` between ordinary report blocks. Markdown already reads downward. Arrows belong inside one semantic diagram.
+Separate fenced `↓` blocks between ordinary report sections are usually unnecessary. Markdown already reads downward; arrows work best inside one semantic diagram.
 
-Do not use Markdown tables. For exact mappings, use an aligned text block, paired bullets, or a mapping diagram.
+This style usually reads better without Markdown tables. For exact mappings, consider an aligned text block, paired bullets, or a mapping diagram.
 
 ## Markdown block palette
 
@@ -69,7 +83,7 @@ RUN_STARTED -> MESSAGE_DELTA* -> RUN_FINISHED
 
 Use neighboring blocks to distinguish present fact from proposed design. Keep provenance labels directly above both blocks.
 
-Visual variety is useful only when block semantics stay stable. Do not use five different callout styles for the same kind of claim.
+Visual variety works best when block semantics stay stable. Reusing one callout style for one kind of claim is often clearer than inventing many styles.
 
 ## Syntax-highlighted pseudocode palette
 
@@ -120,7 +134,7 @@ ownership:
 
 Use JSON for payloads and schemas. Use `diff` for a visual before/after. Use `bash` for commands. Keep `text` for diagrams, mappings, logs, constraints, and exact output.
 
-Do not select a language merely because its colors look attractive. The grammar must help the reader understand the construct.
+Choose a language because its grammar helps explain the construct, not only because its colors look attractive.
 
 ## Emoji as semantic navigation
 
@@ -151,7 +165,7 @@ Useful recurring meanings include:
 - ✅ action, acceptance, or completion;
 - 🧩 ownership boundary or composition.
 
-The symbol and nearby words should agree. Do not use the same emoji for several unrelated meanings in one report.
+The symbol and nearby words should agree. A stable meaning for each emoji usually makes the report easier to scan.
 
 Emoji also works in scannable bullets:
 
@@ -375,7 +389,7 @@ Keep the syntax simple:
 - add blank lines around quotes, lists, and fenced blocks;
 - use a longer outer fence when demonstrating inner fences.
 
-Quotes add warmth and voice. Use them for the user's words, one short source statement, or a key human observation. Do not turn every paragraph into a quote.
+Quotes add warmth and voice. They work well for the user's words, one short source statement, or a key human observation; ordinary prose should still carry most of the report.
 
 ## Problem-geometry pattern
 
@@ -396,6 +410,215 @@ Use this before the verdict when several surface questions point to one underlyi
 
 Replace every label with the user's actual objects and axes. The geometry should show which questions are siblings, which are dependencies, and which only look related because two layers share vocabulary.
 
+## Clue hierarchy pattern
+
+Before adding evidence, make the question order visible.
+
+```text
+User's words
+
+┌────────────────┐      ┌────────────────┐
+│ Explicit ask A │      │ Explicit ask B │
+└────────┬───────┘      └────────┬───────┘
+         └───────────┬───────────┘
+                     ▼
+            ┌────────────────┐
+            │ Main question  │
+            │ core need      │
+            └───────┬────────┘
+                    │
+       ┌────────────┴────────────┐
+       ▼                         ▼
+┌──────────────┐          ┌──────────────┐
+│ Support      │          │ Constraints  │
+│ how / why    │          │ limits / risk│
+└──────────────┘          └──────────────┘
+```
+
+Use three content lanes:
+
+- **Main line**: what must be decided and why it matters;
+- **Support line**: mechanism, facts, and main risk;
+- **Detail line**: versions, edge cases, extra examples, and secondary sources.
+
+The main line should be readable on its own. Support should explain it. Detail should never interrupt it.
+
+Use this short opening pattern:
+
+```markdown
+## 🧭 问题回顾
+
+> 用户原话，或超过 500 字后的忠实压缩。
+
+### 用户的问题
+
+- 🎯 **主问题**：最终需要做什么选择？
+- ⚙️ **支撑问题**：系统实际怎样运行？
+- ⚠️ **约束**：哪些风险和边界不能忽略？
+
+### 核心需求
+
+这几个问题最终指向同一个需求：……
+```
+
+After this opening, reveal information by importance:
+
+```text
+FIRST SCREEN                     SUPPORT
+┌────────────────────┐          ┌────────────────────┐
+│ ask · core need    │          │ mechanism · facts  │
+│ conflict · verdict │          │ risk · insight     │
+└──────────┬─────────┘          └──────────┬─────────┘
+           └─────────────┬────────────────┘
+                         ▼
+                  ┌────────────┐
+                  │ next action│
+                  └────────────┘
+
+DETAIL LANE
+versions · history · extra examples
+only when they change the choice
+```
+
+State the main question early when possible, so the reader does not have to discover it by reading every section. Return to it through new evidence rather than repeated wording.
+
+## High-dimensional question-space projection
+
+Complex multi-turn questions often live on several axes at once. The useful work is to project that space into a small map the reader can hold.
+
+```text
+Questions                         Axes
+
+Q1 hosting ───────────────┐       layer
+Q2 session owner ─────────┼────>  owner
+Q3 protocol support ──────┤       state
+Q4 current vs planned ────┘       time
+
+Relations
+
+Q2 blocks Q1
+Q3 supports Q1
+Q4 changes how Q3 should be read
+```
+
+A useful synthesis often does three things:
+
+- **Cluster** questions that share one axis or decision;
+- **Connect** questions that depend on or block each other;
+- **Distill** the central need that explains why the cluster matters.
+
+The displayed map can be much smaller than the internal analysis. Show the axes and edges that change understanding or action.
+
+Use a simple center map when many questions point to one deeper need:
+
+```text
+┌──────────────┐      ┌──────────────┐
+│ Deployment   │      │ SDK support  │
+└──────┬───────┘      └──────┬───────┘
+       │                     │
+       └──────────┬──────────┘
+                  ▼
+          ┌──────────────┐
+          │ Deeper need  │
+          │ clear owner  │
+          └──────┬───────┘
+                 │
+       ┌─────────┴─────────┐
+       ▼                   ▼
+┌──────────────┐    ┌──────────────┐
+│ Session      │    │ Business fact│
+└──────────────┘    └──────────────┘
+```
+
+## Long-run context re-entry pattern
+
+Use this after long research, background work, many tool calls, or a large time gap.
+
+```text
+Earlier turns                     Current turn
+┌────────────────────┐          ┌────────────────────┐
+│ original goal      │          │ latest request     │
+│ added questions    │          │ current constraint │
+│ accepted choices   │          │ needed decision    │
+└──────────┬─────────┘          └──────────┬─────────┘
+           └─────────────┬─────────────────┘
+                         ▼
+                ┌──────────────────┐
+                │ Current problem  │
+                │ scope that matters│
+                └────────┬─────────┘
+                         │
+              ┌──────────┴──────────┐
+              ▼                     ▼
+       what is known          what remains open
+```
+
+Open with a short human reminder:
+
+> **Where we left off**
+> You first asked …
+> Later, we added …
+> This update focuses on …
+
+Keep earlier turns that change the current meaning, scope, owner, or success check. A short decision record is usually more useful than replaying the transcript.
+
+## Research-status panel
+
+Stable status words can make different levels of certainty visible without making every item look equally complete.
+
+```markdown
+### 🔎 当前调研状态
+
+- ✅ **已查清**：有源码、官方资料、测试或直接观察支持。
+- 🟡 **部分清楚**：主路径已知，但关键场景还没验证。
+- ❓ **仍待确认**：证据不足，暂时不能下结论。
+- 💡 **当前推断**：由已验证事实推导，不是直接实现事实。
+- ⚠️ **存在冲突**：来源、版本或目标之间不一致。
+- 🕰️ **可能过期**：旧资料可能已经变化。
+```
+
+Connect status to the decision:
+
+```text
+✅ Clear facts             🟡 Partial / ❓ Open
+┌──────────────────┐      ┌──────────────────┐
+│ safe to decide   │      │ blocks decision │
+└────────┬─────────┘      └────────┬─────────┘
+         │                         │
+         ▼                         ▼
+  current verdict            smallest next check
+```
+
+When evidence is weak, use warm but firm language:
+
+> 目前还不能可靠下结论。缺的是多实例恢复路径的验证。
+>
+> 先补这一项，拆不拆新服务就会清楚很多。
+
+## Leader-update board
+
+A boss or decision group should see the state of the decision, not the diary of the work.
+
+```text
+┌──────────────────────┐      ┌──────────────────────┐
+│ 🧭 Context           │      │ 🔎 Current status    │
+│ goal · scope · asks  │      │ clear · open · risk  │
+└──────────┬───────────┘      └──────────┬───────────┘
+           └──────────────┬──────────────┘
+                          ▼
+                 ┌──────────────────┐
+                 │ 🎯 Decision      │
+                 │ what can be done │
+                 └────────┬─────────┘
+                          │
+             ┌────────────┴────────────┐
+             ▼                         ▼
+      ⚙ Why it works             ✅ Next action
+      mechanism · facts          owner · check · result
+```
+
+For leader updates, starting with the problem and current decision state is usually stronger than starting with `I searched`, `I read`, or a tool timeline. Mention the work process when it affects trust, coverage, or a blocker.
+
 The same geometry may use richer framing when the extra structure improves scanning:
 
 ```text
@@ -409,7 +632,7 @@ The same geometry may use richer framing when the extra structure improves scann
 │                                        │
 │ transport ─ deployment ─ state ─ UI   │
 └──────────────────┬─────────────────────┘
-                   │ must be separated
+                   │ split these axes
                    ▼
 ╔════════════ REAL DECISION ═════════════╗
 ║ Which layer owns each responsibility? ║
@@ -461,7 +684,7 @@ Use parallel lanes when several owners act at the same time:
 
 ## Spatial composition and breathing room
 
-Use whitespace to make ownership and direction visible. Do not pack every node against its neighbor.
+Use whitespace to make ownership and direction visible. Separated nodes are often easier to read than tightly packed ones.
 
 Prefer separated blocks:
 
@@ -521,7 +744,7 @@ Use two-dimensional composition when several report elements relate to one cente
 
 A block-heavy report still needs short prose between blocks. One or two sentences should explain why the next visual matters.
 
-The page itself may interleave blocks, but do not draw arrows between every section. Use headings and whitespace to carry reading order.
+The page itself may interleave blocks. Headings and whitespace usually carry reading order better than arrows between every section.
 
 ## Mechanism-flow pattern
 
@@ -595,7 +818,7 @@ Keep this for exact repeated mappings. If the list does not change the decision,
 
 A diagram edge is a claim. Keep factual edges traceable to citations near the visual. Mark synthesized edges as `recommended`, `inferred`, or `application-owned` when the project does not ship them.
 
-Never mix current implementation, roadmap, and recommendation in one unlabeled flow.
+Label current implementation, roadmap, and recommendation when they appear in the same flow.
 
 ## Insight block
 
@@ -634,7 +857,7 @@ Good insight types include:
 - failure trigger;
 - condition that would reverse the recommendation.
 
-Do not force a surprising claim. A simple, well-supported answer is better than fake depth.
+Avoid forcing a surprising claim. A simple, well-supported answer is better than fake depth.
 
 ## Code provenance
 
@@ -693,7 +916,7 @@ Reveal complexity in this order:
                     action
 ```
 
-Do not lead with methodology, a glossary, or a vendor catalog. Define a new term beside the first diagram edge or code relationship that depends on it.
+Methodology, glossaries, and vendor catalogs are usually better after the reader knows the real question. Define a new term near the first claim that depends on it.
 
 ## Density and rhythm gate
 
@@ -779,7 +1002,7 @@ When embedding fenced blocks inside this Markdown example, use a longer outer fe
 - Use short headings and generous blank lines.
 - Use `##` for the main report path, `###` for decision-bearing subsections, and `####` sparingly.
 - Use CommonMark `-` bullets actively for parallel information, with no more than one nested bullet level in normal chat.
-- Do not use Markdown tables.
+- Prefer other visual forms over Markdown tables for this reporting style.
 - Avoid deeply nested bullets and wall-to-wall bold text.
 - Keep diagrams in fenced `text` blocks and code in language-tagged fences.
 - Use syntax-highlighted `ts`, `python`, `yaml`, `json`, `diff`, or `bash` fences for pseudocode whenever the grammar truthfully fits; reserve `text` for visual and literal material.
@@ -788,17 +1011,19 @@ When embedding fenced blocks inside this Markdown example, use a longer outer fe
 - Actively alternate prose, callouts, diagrams, exact blocks, and code when each form improves comprehension.
 - Unicode single-line, double-line, rounded, and tree characters are allowed. Keep alignment correct in a monospace fence.
 - Use a small, consistent emoji vocabulary in headings and bullet leads when it improves navigation or warmth.
-- A visually elaborate frame must have a short interior. Dense prose inside a fancy box is harder to read than ordinary prose.
+- A visually elaborate frame works best with a short interior. Dense prose inside a fancy box is harder to read than ordinary prose.
 - Give peer blocks horizontal space, phases vertical space, and the whole diagram enough room to breathe.
 - Keep one visual axis to roughly three sequential nodes; recompose longer structures into regions or another diagram.
-- Do not add standalone arrow fences between normal headings, prose, lists, and code blocks.
-- Preserve clickable links in normal Markdown or blockquotes; do not hide useful citations in code fences.
+- Standalone arrow fences between normal headings, prose, lists, and code blocks usually add little.
+- Keep useful citations clickable in normal Markdown or blockquotes rather than hiding them in code fences.
 - Keep paragraphs short, lists clustered, and sections visibly separated; the main path should fit a two- to three-minute read.
 - Prefer simple English from common code, issue, PR, log, and API vocabulary. Use plain Chinese around exact project terms.
 - Keep the voice calm and warm across the whole report. Connect short sentences into small natural paragraphs instead of writing in telegram fragments.
 - Bold only short plain-text phrases. Keep punctuation, emoji, links, and code outside the emphasis markers.
 - Use normal prose, intermittent bold, and occasional blockquotes together so the page feels human rather than mechanically highlighted.
 - Make the core conflict visible and add one grounded insight when it changes how the reader should think or act.
+- Quote or compress the ask, list and rank the user's questions, then keep one main clue visible through verdict, evidence, and action.
+- After long-running work, restore the relevant multi-turn context and show research status before asking the reader to accept a verdict.
 
 ## Visual failure checks
 
@@ -821,4 +1046,9 @@ When embedding fenced blocks inside this Markdown example, use a longer outer fe
 - Cold commands, empty praise, and scripted empathy all weaken trust; use direct but kind engineering language.
 - Bold punctuation, emoji inside emphasis, unbalanced markers, and deep Markdown nesting can render differently across clients.
 - Attractive Markdown without a clear conflict, mechanism, or useful insight is decoration rather than a report.
+- A flat question list with no main question forces the reader to do the prioritization work.
+- Secondary detail that appears before the core need breaks the progressive reading path.
+- A long-running report that remembers only the latest message can answer the wrong scope with perfect confidence.
+- A smooth answer that hides open or stale evidence is less useful than a clear partial result.
+- A chronological work diary makes leaders spend attention before they know what decision is needed.
 - A long mapping inventory belongs outside the three-minute path unless it decides the architecture.
