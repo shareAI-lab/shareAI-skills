@@ -90,8 +90,8 @@ Design and build AI agents. The bundled starter code currently uses the Anthropi
 **Example**
 
 ```text
-Use $agent-builder to design a customer-support agent that can
-search policy, inspect orders, and escalate refunds.
+/agent-builder design a customer-support agent that can search
+policy, inspect orders, and escalate refunds.
 ```
 
 #### [skill-judge](./agent-development/skill-judge/)
@@ -106,26 +106,27 @@ Evaluate and improve Agent Skill packages with a practice-derived diagnostic rub
 **Example**
 
 ```text
-Use $skill-judge to review this Skill package and give me the
-three highest-impact improvements.
+/skill-judge review this Skill package and give me the three
+highest-impact improvements.
 ```
 
 ### Agent operations
 
 #### [extract-agent-sessions](./agent-operations/extract-agent-sessions/)
 
-Recover clean human-visible conversations from supported Claude Code, Codex, opencode, and Grok Build session stores.
+Review and synthesize recent human-visible conversations from supported Claude Code, Codex, opencode, and Grok Build session stores.
 
 **Recommended scenarios**
 
-- Reconstruct recent root conversations from local session stores.
-- Exclude tool calls, reasoning, system injection, copied history, and subagent noise before summarizing.
+- Review what you have been working on across recent conversations.
+- Summarize recurring questions, decisions, progress, and unresolved work.
+- Surface new cross-session patterns, insights, and high-value next actions.
 
 **Example**
 
 ```text
-Use $extract-agent-sessions to summarize my root Codex and
-Claude Code conversations from the last three days.
+/extract-agent-sessions review my recent Codex and Claude Code
+conversations, summarize my work, and surface new insights.
 ```
 
 ### Content and publishing
@@ -142,8 +143,8 @@ Adapt technical content to the culture and expectations of supported publishing 
 **Example**
 
 ```text
-Use $media-writer to turn this architecture note into a
-Hacker News launch post without marketing language.
+/media-writer turn this architecture note into a Hacker News
+launch post without marketing language.
 ```
 
 ### Research and analysis
@@ -161,8 +162,8 @@ Clarify broad system questions before investigating architecture through source,
 **Example**
 
 ```text
-Use $deep-architecture-research to clarify and compare how these
-agent runtimes own sessions, memory, workspaces, and deployment.
+/deep-architecture-research clarify and compare how these agent
+runtimes own sessions, memory, workspaces, and deployment.
 ```
 
 #### [understanding-first-report](./research-analysis/understanding-first-report/)
@@ -177,8 +178,8 @@ Turn complex technical work into a verdict-first brief with truthful diagrams, c
 **Example**
 
 ```text
-Use $understanding-first-report to explain this research to a
-human architect in under 3,000 Chinese characters.
+/understanding-first-report explain this research to a human
+architect in under 3,000 Chinese characters.
 ```
 
 The two Skills work well together, but each remains independently usable.
@@ -198,8 +199,8 @@ Turn an AI agent into a disciplined software development partner with transparen
 **Example**
 
 ```text
-Use $vibe-coding to add this feature to the existing service,
-follow its conventions, and verify the real integration path.
+/vibe-coding add this feature to the existing service, follow
+its conventions, and verify the real integration path.
 ```
 
 ### Team collaboration and communication
@@ -217,8 +218,8 @@ Help leaders and managers prepare, run, and review high-bandwidth meetings that 
 **Example**
 
 ```text
-Use $meeting-coach-leader to review this meeting transcript and
-design a shorter follow-up that reaches a decision.
+/meeting-coach-leader review this meeting transcript and design
+a shorter follow-up that reaches a decision.
 ```
 
 #### [meeting-coach-worker](./team-collaboration/meeting-coach-worker/)
@@ -234,8 +235,8 @@ Help workers turn meetings, feedback, and work notes into better execution and s
 **Example**
 
 ```text
-Use $meeting-coach-worker to tell me what my manager expects,
-what is missing from my work, and how to report it next time.
+/meeting-coach-worker tell me what my manager expects, what is
+missing from my work, and how to report it next time.
 ```
 
 ## Team Collaboration Guidance
