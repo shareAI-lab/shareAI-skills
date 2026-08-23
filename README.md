@@ -119,18 +119,18 @@ runtimes own sessions, memory, workspaces, and deployment.
 
 #### [understanding-first-report](./research-analysis/understanding-first-report/)
 
-Turn complex technical work into a warm, question-first, self-contained brief with clear Markdown, useful diagrams, sourced code, and one grounded insight.
+Re-synthesize long-running or multi-turn technical work into a clear problem space, deeper insight, and professional update. Restore relevant context, show what is known or still open, then present the decision in an attention-friendly order.
 
 **Recommended scenarios**
 
-- Reconstruct a long or tangled request into the real decision, core conflict, and problem shape.
-- Explain research or architecture with short prose, simple developer words, useful diagrams, sourced code, clear risk, and one practical next step.
+- Reconnect earlier questions, scope changes, and accepted choices after extended agent work.
+- Map the question set, find the deeper need or conflict, calibrate answer readiness, and report the result in a clear decision order.
 
 **Example**
 
 ```text
-/understanding-first-report restate the real question, show the
-core conflict and mechanism, then give one grounded insight and next step.
+/understanding-first-report reconnect the earlier questions, map the
+problem space, show what is known or open, then give the insight and next step.
 ```
 
 The two Skills work well together, but each remains independently usable.

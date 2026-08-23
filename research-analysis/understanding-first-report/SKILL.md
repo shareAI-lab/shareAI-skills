@@ -1,6 +1,6 @@
 ---
 name: understanding-first-report
-description: Turn research, architecture analysis, reviews, decisions, explanations, and status into a warm, clear, self-contained senior brief that reconstructs the real question, exposes the core contradiction, explains the mechanism with clean Markdown and sourced code, adds a useful insight, and ends with a practical next step.
+description: Re-synthesize long-running or multi-turn research, agent work, architecture questions, reviews, decisions, and status into a clear problem space, deeper insight, and professional report. Use after extended work to reconnect earlier questions, find their core need and conflict, calibrate what is known or still open, then present the result in an attention-friendly order with warm language, clean Markdown, sourced code, and a practical next step.
 ---
 
 # Understanding First Report
@@ -9,25 +9,40 @@ Outsource the work, not the reader's understanding. Brief a human architect as a
 
 ## North star
 
-The report should feel warm, look clear, find the real conflict, and help the reader think better.
+The primary job is to re-synthesize the user's problem and produce a useful insight. The second job is to report that thinking in a professional order. Evidence status, warmth, and Markdown UI support those jobs.
 
 ```text
-┌────────────────┐       ┌────────────────┐
-│ Warm and human │       │ Clear Markdown │
-│ easy to trust  │       │ easy to scan   │
-└────────┬───────┘       └────────┬───────┘
-         └────────────┬───────────┘
-                      │
-             ┌────────▼────────┐
-             │ Core conflict   │
-             │ real mechanism  │
-             └──────┬────┬─────┘
-                    │    │
-                    ▼    ▼
-                insight  action
+PRIMARY
+┌────────────────────┐      ┌────────────────────┐
+│ Re-synthesize      │      │ Find deeper insight│
+│ the problem space  │      │ and core conflict  │
+└──────────┬─────────┘      └──────────┬─────────┘
+           └──────────────┬─────────────┘
+                          ▼
+SECOND
+                 ┌──────────────────┐
+                 │ Report in a clear│
+                 │ decision order   │
+                 └────────┬─────────┘
+                          │
+             ┌────────────┴────────────┐
+             ▼                         ▼
+      evidence status             warm Markdown
+      known · open                easy to follow
 ```
 
-Every substantive report should create thinking value, not only summarize material. Do at least one of these when the evidence supports it:
+## Priority order
+
+When choices compete, prefer this order:
+
+1. **Problem re-synthesis and insight**: restore the relevant questions, map their relations, and find the deeper need or conflict.
+2. **Reporting order and attention**: help the reader enter the problem, understand the judgment, and stay oriented.
+3. **Evidence readiness**: show what is clear, partial, inferred, conflicting, or open.
+4. **Presentation style**: use warmth, headings, diagrams, emoji, code, and whitespace to support the thinking.
+
+A beautiful report cannot rescue weak problem understanding. A deep analysis that is badly ordered may never reach the reader. The skill should protect both, in that order.
+
+When the evidence supports it, a substantive report can create thinking value beyond summary. Useful moves include:
 
 - reveal the hidden owner or source of truth;
 - separate two mixed axes, such as protocol and deployment;
@@ -44,22 +59,84 @@ summary  = what the sources say
 insight  = why those facts change the choice
 ```
 
-Keep the insight grounded. Label inference and uncertainty. Do not manufacture novelty when the evidence only supports a straightforward answer.
+Prefer grounded insight. Label inference and uncertainty. When the answer is straightforward, clarity is more valuable than forced novelty.
 
-## Attention contract
+## Three reporting instincts
 
-- Make the chat answer self-contained. Never make the user open an artifact to learn the conclusion or mechanism.
-- Aim for a three-minute read. Prefer five sections or fewer; use a sixth only when omitting it would create confusion.
+These are thinking habits rather than mandatory sections.
+
+### 1. Re-enter and re-synthesize the problem space
+
+After extended work or a multi-turn thread, the strong default is to help the user return to the problem before presenting the result. A very short or urgent status request may need less context.
+
+Pause and ask:
+
+- What did the user originally want to understand or decide?
+- Which earlier questions still change today's answer?
+- What scope, assumptions, or accepted choices changed along the way?
+- How do the questions relate: overlap, dependency, conflict, sequence, or replacement?
+- What more basic need sits at the center of the question set?
+
+When the question set is complex, think across useful axes rather than treating it as a flat list:
+
+```text
+problem space
+
+object · layer · owner · state
+time · scenario · evidence · decision
+
+relations
+
+depends on · conflicts with · overlaps
+refines · replaces · blocks · enables
+```
+
+The goal is not to display every dimension. It is to find the few dimensions that reveal the real shape of the problem, then turn that shape into a deeper insight or clearer decision.
+
+### 2. Protect the decision-maker's attention
+
+A professional update helps the listener answer five questions with little effort:
+
+```text
+Why are we here?        What is known now?
+          \              /
+           \            /
+            What can we decide?
+             /          \
+            /            \
+      Why is it true?    What happens next?
+```
+
+The exact section order can vary. Keep the frame, current status, decision, reason, and next step easy to find. Work history is supporting context, not the main story.
+
+### 3. Calibrate answer readiness
+
+Before writing a smooth conclusion, ask whether the evidence is ready for that conclusion.
+
+```text
+main question
+   ├─ enough direct evidence    -> answer with limits
+   ├─ only part is clear        -> split ready vs open
+   ├─ sources conflict          -> show the conflict
+   └─ decisive path unchecked   -> name the next check
+```
+
+Useful distinctions include verified fact, partial coverage, open question, inference, conflict, and possibly stale evidence. Use only the labels that help the reader understand the current state.
+
+## Guiding preferences
+
+- Prefer a self-contained chat answer so the user can understand the conclusion and mechanism without opening another file.
+- Aim for a two- to three-minute main path when the material allows it. Add length when accuracy or safety needs it.
 - Match the user's language. Use plain words first and define unavoidable technical terms at first use.
-- Do not use Markdown tables. Use short bullets, aligned text mappings, diagrams, or compact subsections instead.
-- Actively use Markdown heading levels and `-` bullet lists to make the report navigable. Headings carry the argument hierarchy; bullets carry parallel facts, boundaries, and consequences.
-- For a substantive technical or research report, actively use two or three small box-line diagrams when they reveal different relationships. One is enough only when another would add no understanding.
-- Use verified code and clearly labeled pseudocode when implementation relationships matter. Do not add code to non-code decisions merely to decorate the report.
-- Actively interleave useful Markdown blocks throughout the report. Text, a key judgment, a constraint, pseudocode, exact output, and a source link may each deserve their own block when that makes scanning easier.
-- Allow controlled visual flair: Unicode frames, double-line verdict boxes, trees, lanes, timelines, callouts, and state diagrams are welcome. Every flourish must still encode hierarchy, relationship, status, or emphasis.
-- Use emoji as a semantic navigation layer when it fits the user's tone. Prefer a small consistent vocabulary attached to headings, callouts, and bold bullet leads; do not scatter unrelated emoji through every sentence.
+- Prefer short bullets, aligned mappings, diagrams, or compact subsections over Markdown tables.
+- Use heading levels and `-` bullets when they help the reader see the argument and sibling points.
+- In technical or research reports, consider a few small box-line diagrams when they reveal different relationships. One good diagram may be enough.
+- Use verified code and clearly labeled pseudocode when implementation relationships matter. Skip code when it would only decorate the answer.
+- Interleave useful Markdown blocks when they improve scanning. A key judgment, constraint, pseudocode, exact output, or source link may deserve its own block.
+- Allow controlled visual flair: Unicode frames, double-line verdict boxes, trees, lanes, timelines, callouts, and state diagrams are welcome. The best flourishes encode hierarchy, relationship, status, or emphasis.
+- Use emoji as a semantic navigation layer when it fits the user's tone. A small, consistent vocabulary usually reads better than many unrelated symbols.
 - Avoid long one-direction visual chains. When a relationship has more than three sequential nodes, group it into regions, wrap it into two dimensions, use a hub-and-spoke layout, or split it into two diagrams.
-- Do not place a standalone `↓` block between ordinary Markdown sections. Document order already provides vertical flow; arrows belong inside a diagram where they name a real relationship.
+- Standalone `↓` blocks between ordinary sections usually add little; document order already provides vertical flow.
 
 ## Density budget
 
@@ -85,32 +162,37 @@ vendor inventory
    -> edge cases that do not change the choice
    -> implementation detail that can wait
 
-NEVER cut first:
+PROTECT WHEN POSSIBLE:
    user question -> real decision -> mechanism
    -> decisive evidence -> risk -> next action
 ```
 
 The target feel is a strong startup architecture brief: sharp context, visible mechanism, named owner, real judgment, and an executable next step—without academic ceremony or corporate padding.
 
-## 1. Reconstruct the question before reporting
+## 1. Reconstruct and rank the question before reporting
 
-Begin with a short **Question review** section before the verdict.
+A short **Question review** before the verdict is usually helpful, especially after long or multi-turn work. A useful shape is:
 
-1. **Original ask**
+1. **Quote the original ask**
    - If the user's question is 500 Chinese characters or fewer, reproduce it verbatim in a blockquote or compact quote block so it is visually distinct from the answer.
-   - If it is longer, do not dump it back at the user. Say that the original is long, then give a faithful compressed restatement that preserves every decision-bearing ask, named object, constraint, and requested output.
-   - For follow-up reports, quote only the current decision-bearing request, not the entire conversation.
-2. **What the user is really trying to determine**
-   - Restate the decision in one or two plain sentences.
-   - Name the satisfaction test: what must become clear, work, stop being awkward, or become safe enough to choose.
-3. **Problem geometry**
-   - Map the important objects as nodes and their dependencies, ownership, sequence, or conflicts as edges.
-   - Expose the orthogonal dimensions that are easy to mix together: for example protocol vs deployment, runtime vs product, identity vs state, current implementation vs plan, or local path vs hosted path.
-   - Show scenarios or time only when they change the answer.
-4. **Deeper question**
-   - Identify the more fundamental issue behind the surface questions: the stable subject, source of truth, ownership boundary, missing contract, or irreducible trade-off.
+   - If it is longer, say that the original is long and skip the full quote. Preserve the exact decision-bearing phrases in the next summary.
+   - For follow-up reports, quote only the current request, not the entire conversation.
+2. **Give a faithful short summary**
+   - Restate the request in one or two warm, plain sentences.
+   - Preserve named systems, constraints, expected output, and the decision the user must make.
+3. **List the user's questions**
+   - Separate explicit questions from inferred ones.
+   - Group duplicates and closely related questions.
+   - Mark each item as `main question`, `support question`, or `constraint` when priority is not obvious.
+4. **State the core need**
+   - Explain what the user is really trying to understand, choose, fix, or make safe.
+   - Name the success test: what must become clear or work before the answer is useful.
+5. **Map the problem shape and deeper issue**
+   - Map the important objects as nodes and their dependency, ownership, sequence, or conflict as edges.
+   - Expose mixed axes such as protocol vs deployment, runtime vs product, identity vs state, or current implementation vs plan.
+   - Identify the more basic issue behind the surface questions: main owner, source of truth, missing rule, broken boundary, or hard trade-off.
 
-Use explicit labels such as `explicit`, `inferred`, and `unresolved` when intent is not directly stated. Do not psychoanalyze the user or invent hidden motives. If an uncertain inference would materially change the answer, state the fork instead of silently choosing.
+Labels such as `explicit`, `inferred`, and `unresolved` can help when intent is not directly stated. Avoid inventing hidden motives. If an uncertain inference would change the answer, show the fork.
 
 Use a compact problem map when the question has several related parts:
 
@@ -127,6 +209,147 @@ Use a compact problem map when the question has several related parts:
 
 Replace the generic labels with the user's actual systems and relationships. The diagram is not a research plan; it should reveal why the question has its current shape.
 
+## Clue hierarchy and progressive reveal
+
+Look for one main clue that can organize the report. Other material can support it, limit it, or move into a detail lane.
+
+```text
+┌──────────────────┐        ┌──────────────────┐
+│ User question 1  │        │ User question 2  │
+└─────────┬────────┘        └─────────┬────────┘
+          └────────────┬──────────────┘
+                       ▼
+              ┌──────────────────┐
+              │ Core need        │
+              │ main question    │
+              └────────┬─────────┘
+                       │
+          ┌────────────┴────────────┐
+          ▼                         ▼
+   support clues               constraints
+   mechanism · facts           risk · limits
+```
+
+Use three levels:
+
+- **Main line**: the real question, core conflict, verdict, and next action;
+- **Support line**: mechanism, decisive evidence, and main risk;
+- **Detail line**: versions, secondary sources, edge cases, and optional examples.
+
+Ideally, the main line remains understandable without the detail line. Support clues answer `why is the verdict true?` or `how does it work?`. Details that do not change the decision, risk, or action can usually move out of the main path.
+
+Reveal information in a clear order:
+
+```yaml
+# PSEUDOCODE
+report:
+  first_screen:
+    - user_ask
+    - question_summary
+    - question_list
+    - core_need
+
+  main_line:
+    - core_conflict
+    - verdict
+    - mechanism
+
+  support:
+    - key_evidence
+    - main_risk
+    - useful_insight
+
+  finish:
+    - next_action
+```
+
+Use short signposts to keep the clue visible: `先说主线`、`这几个问题其实指向同一个需求`、`为什么这样判断`、`这意味着`、`最后落到行动上`. Use them naturally, not as a fixed template.
+
+## Long-run re-entry
+
+When research, tool work, or background agents have taken a long time, consider the next reply a context re-entry. The user may no longer remember the full ask, and the latest message may not contain the whole scope.
+
+Useful context to recover includes:
+
+- the original user ask;
+- earlier questions that still affect the current decision;
+- later scope changes and corrections;
+- choices the user already accepted or rejected;
+- promised outputs and success checks;
+- current evidence, files, code, and test results;
+- the latest user message.
+
+Rather than replaying the whole conversation, compress the relevant parts into a short decision record:
+
+```yaml
+# PSEUDOCODE
+context_reentry:
+  original_goal: what_started_the_work
+  added_questions: what_changed_the_scope
+  accepted_choices: what_is_already_decided
+  current_question: what_needs_an_answer_now
+  open_items: what_is_still_unresolved
+```
+
+When older and newer requests differ, it helps to say so. The latest request is usually current, while older context may still matter when it changes meaning, constraints, or ownership.
+
+If conversation context is missing, compacted, or uncertain, mention the gap instead of guessing at continuity.
+
+Use a short re-entry block near the top:
+
+> **Where we left off**
+> The original goal was …
+> Later, the scope added …
+> This report now answers …
+
+The re-entry is most useful when it helps the user return to the work in seconds without becoming a meeting transcript.
+
+## Research status and answer readiness
+
+Before giving a final judgment, it often helps to separate what is known from what is not.
+
+- ✅ **Clear**: verified by source, code, test, or direct observation;
+- 🟡 **Partial**: some evidence exists, but an important path or case is not checked;
+- ❓ **Open**: not researched enough to support a conclusion;
+- 💡 **Inference**: a reasoned result from verified facts, not a direct implementation fact;
+- ⚠️ **Conflict**: sources, versions, code paths, or user goals disagree;
+- 🕰️ **May be stale**: older evidence that could have changed.
+
+Use this compact status shape when several questions remain:
+
+```markdown
+### 当前调研状态
+
+- ✅ **已查清**：核心调用路径和 state owner。
+- 🟡 **部分清楚**：断线恢复只验证了单实例。
+- ❓ **仍待确认**：多实例下的 event replay。
+- 💡 **当前判断**：先不拆新的 store。
+```
+
+If a main question is not ready, avoid forcing an answer from weak evidence. Consider:
+
+- say `目前还不能可靠下结论`;
+- explain which missing fact blocks the decision;
+- state the smallest next check;
+- answer the parts that are ready;
+- keep assumptions visible.
+
+Keep uncertainty visible. A professional report makes the decision boundary clear without making the writing feel defensive.
+
+## Professional update order
+
+For a leader, boss, or decision group, a useful top-down update often includes:
+
+- **Context return**: what problem and earlier decisions matter now;
+- **Question map**: main question, support questions, and constraints;
+- **Current status**: clear, partial, open, inferred, or conflicting;
+- **Verdict**: what can be decided now, with confidence and limits;
+- **Mechanism**: why the result is true;
+- **Risk and blocker**: what may change or stop the plan;
+- **Next action**: owner, check, and expected result.
+
+This order often protects attention well. It gives the listener the frame before detail, the answer before work logs, and the remaining uncertainty before commitment. Adapt it when another order serves the decision better.
+
 ## 2. Give the verdict and main contradiction
 
 After the question review, lead the report itself with:
@@ -136,7 +359,7 @@ After the question review, lead the report itself with:
 - the main contradiction: why the obvious or fashionable answer is incomplete;
 - the boundary that resolves the contradiction.
 
-Do not make the reader infer a choice from a vendor list, feature inventory, or chronology. Prefer one recommendation. Include alternatives only when they materially change the decision.
+Avoid making the reader infer a choice from a vendor list, feature inventory, or chronology. One recommendation is often clearer; include alternatives when they materially change the decision.
 
 Give the central judgment its own compact callout or verdict box when doing so makes the first screen easier to scan:
 
@@ -149,7 +372,7 @@ Give the central judgment its own compact callout or verdict box when doing so m
 
 ## 3. Explain the mechanism visibly
 
-**MANDATORY FOR TECHNICAL OR RESEARCH REPORTS — READ ENTIRE FILE**: Read [references/visual-evidence-patterns.md](references/visual-evidence-patterns.md). Do not load it for trivial acknowledgements or literal-output tasks.
+For technical or research reports where visuals, code, or evidence layout matter, read [references/visual-evidence-patterns.md](references/visual-evidence-patterns.md). It is usually unnecessary for a trivial acknowledgment or literal-output task.
 
 For substantive architecture reports, normally use:
 
@@ -157,7 +380,7 @@ For substantive architecture reports, normally use:
 - one **mechanism or ownership diagram** showing how the recommended system actually works;
 - optionally one **lifecycle or decision diagram** when pause/resume, retry, migration, failure, or staged adoption is central.
 
-Each diagram must answer a different question and replace prose. Do not use Mermaid.
+Each diagram is most useful when it answers a different question and replaces prose. Prefer box-line diagrams over Mermaid for this style.
 
 Prefer spatial composition over a single long axis:
 
@@ -188,7 +411,7 @@ Choose the closest visual grammar:
 - `diff` for before/after decisions or proposed changes;
 - `bash` for exact or proposed command sequences.
 
-Do not choose a misleading language solely for color. Syntax highlighting should reinforce meaning.
+Choose a language tag that matches the idea rather than selecting one only for color. Syntax highlighting should reinforce meaning.
 
 Use concrete code proactively when it reveals the real call relationship, state boundary, or event flow more clearly than prose:
 
@@ -238,7 +461,7 @@ The reader should know what to do next without reconstructing tasks from the res
 
 Use this order unless the task genuinely needs another:
 
-1. **Question review** — original or faithful compressed ask, real question, geometry, deeper issue.
+1. **Question review** — original ask, short summary, question list, core need, problem shape.
 2. **Verdict** — direct answer, confidence, main contradiction, boundary.
 3. **Mechanism** — useful diagrams plus verified code and/or labeled pseudocode.
 4. **Decisive evidence and risk** — only what supports, challenges, or could invalidate the choice.
@@ -250,7 +473,7 @@ This is a reading path, not five equally long chapters. The question review and 
 
 Use headings as navigation, not decoration:
 
-- In chat, normally begin major sections with `##`; do not add a redundant `#` title above the answer.
+- In chat, major sections can usually begin with `##`; a separate `#` title is often unnecessary.
 - Use `###` for a decision-bearing subsection inside one major section.
 - Use `####` only when a dense technical section genuinely needs one more level. Avoid deeper headings.
 - Keep headings short and concrete: `## Verdict`, `### Session owner`, `### Why the obvious path fails`.
@@ -263,7 +486,7 @@ Use CommonMark `-` bullets actively for sibling points:
 - nest at most two bullet levels in normal chat; if a third level seems necessary, promote the parent idea to a heading or diagram;
 - use numbered lists only for real sequence, ranking, or an ordered procedure;
 - use task checkboxes only for actual status or selectable work, not as decorative bullets;
-- do not turn every sentence into a bullet. Alternate headings, short prose, bullets, callouts, diagrams, and code so the report keeps rhythm.
+- avoid turning every sentence into a bullet. Headings, short prose, callouts, diagrams, and code can create a more natural rhythm.
 
 Preferred visual hierarchy:
 
@@ -295,15 +518,15 @@ Preferred visual hierarchy:
 
 ## Self-contained reporting and artifacts
 
-- Do not create a new document merely because the report is substantive.
+- A substantive report does not automatically need a new document.
 - Create or update an artifact only when the user requests it, an upstream workflow requires it, or the evidence is too deep or long to preserve responsibly in chat.
-- Subagents may create scratch or intermediate evidence files when their workflow permits, but do not expose a pile of notes as the deliverable.
-- If a durable artifact exists, treat it as an appendix. The chat must still contain the question model, verdict, mechanism, decisive evidence, risk, and action.
-- Never end with “read the document for details” as a substitute for reporting the result.
+- Subagents may create scratch or intermediate evidence files when useful; the final answer is usually better as a synthesis than a pile of notes.
+- If a durable file exists, it can act as an appendix while the chat still carries the main question, verdict, mechanism, evidence, risk, and action.
+- Avoid ending with “read the document for details” in place of a real report.
 
 ## Safe emphasis and Markdown parsing
 
-Use emphasis as a warm reading cue. Mix normal prose, short bold phrases, quotes, and blocks. Do not make every line bold.
+Use emphasis as a warm reading cue. Mix normal prose, short bold phrases, quotes, and blocks. Avoid making every line bold.
 
 Bold only the plain words that need emphasis. Keep punctuation, emoji, links, and inline code outside the `**` markers:
 
@@ -320,8 +543,8 @@ Follow these parser-safe rules:
 
 - put `：`, `:`, `。`, `,`, `；`, and other edge punctuation outside bold markers;
 - place emoji before the bold phrase, not inside it;
-- do not bold an entire paragraph or a long sentence;
-- do not wrap `inline code`, links, or file paths inside bold unless the renderer is known to support the nesting;
+- prefer not to bold an entire paragraph or a long sentence;
+- keep `inline code`, links, and file paths outside bold unless the renderer is known to support the nesting;
 - avoid nested emphasis such as bold inside links or italic inside bold;
 - open and close emphasis on the same line;
 - leave blank lines before and after headings, lists, blockquotes, and fenced blocks;
@@ -466,7 +689,7 @@ Translate those qualities into reporting behavior:
 
 - **Intent before literalism**: Answer the decision the user is actually trying to make, while preserving explicit constraints.
 - **Natural integration**: Connect ideas in a coherent narrative instead of emitting a mechanical checklist of everything found.
-- **Proportional warmth**: Acknowledge stakes, frustration, or uncertainty briefly and sincerely; do not perform empathy or turn a technical report into counseling language.
+- **Proportional warmth**: Acknowledge stakes, frustration, or uncertainty briefly and sincerely; avoid performed empathy or counseling language in ordinary technical work.
 - **Nuance without fog**: Recognize implicit expectations and trade-offs, then state the boundary plainly.
 - **Situational depth**: Be concise when the user needs orientation; expand only where mechanism, evidence, or risk changes the choice.
 - **Aesthetic intuition**: Vary sentence length, use clean transitions, and choose visually balanced headings, blocks, and diagrams.
@@ -483,7 +706,7 @@ Show the mechanism.
 Stop when the decision is clear.
 ```
 
-Do not imitate a historical model's personality as theater. Preserve the qualities that improve human collaboration while keeping the report source-grounded and technically exact.
+Focus on the qualities that improve human collaboration rather than imitating a historical model's personality as theater.
 
 ## Emoji grammar
 
@@ -502,57 +725,47 @@ Use emoji mainly in `##` or `###` headings, callout labels, and bold bullet lead
 
 Avoid emoji inside fixed-width box diagrams unless alignment has been visually checked: emoji display width varies across renderers and can break borders. Do not alter exact code, commands, logs, quotations, paths, schemas, or machine-readable output by inserting emoji.
 
-## Hard failures
+## Common failure patterns
 
-- **NEVER skip the question review on a substantive report.** A correct answer to a misframed question is still failure.
-- **NEVER quote more than 500 Chinese characters merely to prove the prompt was read.** Compress faithfully instead.
-- **NEVER make the reader infer the conclusion from a vendor catalog or feature inventory.**
-- **NEVER deliver a beautiful but shallow summary.** Add a grounded insight that changes understanding, or state plainly that the answer is straightforward.
-- **NEVER use Markdown tables in the user-facing report.**
-- **NEVER flatten a substantive report into one heading followed by a long wall of content.** Use meaningful `##` and `###` structure.
-- **NEVER make the reader cross three dense prose paragraphs before reaching a visual anchor or the next decision-bearing heading.**
-- **NEVER repeat the same conclusion in the opening, mechanism, evidence, and closing.** State it once; add new information thereafter.
-- **NEVER create a six-level heading tree or deeply nested bullet maze.** Promote complex nesting into a diagram or a new subsection.
-- **NEVER present plausible pseudocode as an official API.** Provenance is part of the example.
-- **NEVER leave architecture pseudocode in an unstyled `text` fence when a truthful syntax-highlighted language can express it more clearly.**
-- **NEVER use long sentences to hide several independent claims.** Split the logic into sentences, bullets, blocks, or diagrams.
-- **NEVER turn short writing into telegram language.** Connect related sentences and keep paragraphs human.
-- **NEVER use fake praise or scripted empathy as warmth.** Show care through attention, clarity, and useful action.
-- **NEVER include edge punctuation or emoji inside bold markers.** Bold the words; keep symbols outside.
-- **NEVER rely on fragile nested Markdown.** Prefer simple, balanced markers that common renderers parse consistently.
-- **NEVER use advanced English merely to sound architectural.** Prefer simple developer words or plain Chinese.
-- **NEVER rename an exact API, code symbol, command, protocol field, or official project term for simplicity.** Explain it instead.
-- **NEVER confuse visual flair with semantic value.** Every border, icon, arrow, or label must improve hierarchy, emphasis, navigation, or relationship clarity.
-- **NEVER chain every report block with repeated downward arrows.** Use headings and whitespace for reading order; use arrows only for modeled relationships.
-- **NEVER extend a box-line diagram indefinitely in one direction.** Recompose after roughly three sequential nodes.
-- **NEVER turn emoji into confetti.** Repeated or semantically unstable symbols make a serious report harder to scan.
-- **NEVER bury every useful block inside plain paragraphs.** Substantive reports should visibly surface the original ask, key judgment, mechanism, and decisive evidence.
-- **NEVER make a separate document the price of understanding the answer.**
-- **NEVER spend the attention budget proving how much research was done.**
+These are warning signs, not a fixed checklist. Use judgment and the user's context.
+
+- **Lost context**: the reply answers only the latest message after a long task, even though earlier turns still shape the scope.
+- **Flat questions**: every question looks equally important, so the reader must find the main issue alone.
+- **False confidence**: partial, inferred, conflicting, or old evidence is written as a settled fact.
+- **Work-log first**: tool calls and reading history appear before the problem, current status, and decision.
+- **Pretty but shallow**: the Markdown looks polished, but no conflict, mechanism, or useful thought is visible.
+- **Dense or over-built**: long prose, deep headings, repeated arrows, or too many boxes make the page tiring.
+- **Template lock-in**: the report follows every suggested section even when a simpler shape would work better.
+- **Cold or performative voice**: the writing becomes either a status machine or empty praise.
+
+When one of these appears, simplify the structure and return to the user's real decision.
+
+## Truth and exactness boundaries
+
+These boundaries are firmer because crossing them can create a false answer:
+
+- preserve exact code, commands, paths, logs, schemas, quotations, and machine-readable output;
+- keep source claims traceable;
+- label pseudocode as recommended design rather than shipped API;
+- distinguish verified facts from inference, open questions, conflicts, and possibly stale evidence;
+- mention missing context instead of inventing continuity;
+- keep the main answer available in chat rather than using a separate file as a substitute.
 
 ## Preserve exact work
 
 Keep patches, code, commands, schemas, quotations, citations, logs, and machine-readable output exact. Add a short orientation label around them when useful; never distort exact material to satisfy the style.
 
-## Completion bar
+## Reflection prompts
 
-Before sending, verify that:
+Before sending, pause and ask:
 
-- the user's ask is reproduced or faithfully reconstructed before the verdict;
-- the deeper decision and problem geometry are explicit rather than implied;
-- the answer, main contradiction, and recommendation are unmistakable;
-- at least one grounded insight deepens the reader's mental model when the material supports it;
-- diagrams each remove prose or expose a different relationship;
-- diagrams use balanced spatial composition rather than long one-axis chains;
-- Markdown blocks are actively interleaved and each has a clear semantic job;
-- heading levels expose the argument and `-` bullets expose parallel information without deep nesting;
-- emoji, when used, has a stable semantic role and does not corrupt exact content or box alignment;
-- every code block has truthful provenance or a pseudocode label;
-- pseudocode uses an appropriate syntax-highlighted fence, while `text` remains reserved for diagrams and exact text;
-- sentences and paragraphs stay short enough to scan without rereading;
-- the voice stays warm and natural without becoming chatty, vague, or performative;
-- emphasis is intermittent, parser-safe, and limited to short plain-text phrases;
-- English wording stays simple and developer-familiar while exact technical names remain unchanged;
-- the response is self-contained, table-free, and understandable in roughly three minutes;
-- no dense paragraph, long list, vendor catalog, or repeated conclusion blocks the main reading path;
-- removing any remaining paragraph would lose understanding, confidence, risk, choice, or action.
+- Does the user need help returning to the earlier context, or is the current message enough?
+- What is the one main question, and which earlier questions still change it?
+- Which parts are clear, partial, inferred, conflicting, old, or still open?
+- Is the current verdict supported, or would one more check materially change it?
+- Can the reader see the core conflict and mechanism without reading the work log?
+- Would a diagram, quote, code block, or short list make this easier—or would it only add decoration?
+- Does the tone feel like a thoughtful teammate rather than a template or status machine?
+- Does the user finish with a clearer mental model and a practical next step?
+
+These prompts are aids to judgment. Use the ones that matter for the task.
