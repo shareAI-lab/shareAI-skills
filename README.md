@@ -1,5 +1,7 @@
 # Lab Skills
 
+English | [简体中文](./README.zh-CN.md) | [日本語](./README.ja.md)
+
 Skills distilled from the Lab's real engineering, research, publishing, and collaboration work.
 
 The reusable parts are shared for reference, discussion, adaptation, and continued improvement.
@@ -76,24 +78,6 @@ npx skills add shareai-lab/lab-skills \
 
 ## Skill Catalog
 
-### Content and publishing
-
-#### [media-writer](./content-publishing/media-writer/)
-
-Adapt technical content to the culture and expectations of supported publishing platforms.
-
-**Recommended scenarios**
-
-- Rewrite one technical idea for WeChat, Hacker News, Reddit, Medium, X/Twitter, Dev.to, or LinkedIn.
-- Preserve the community's tone instead of applying one generic social-media format.
-
-**Example**
-
-```text
-/media-writer turn this architecture note into a Hacker News
-launch post without marketing language.
-```
-
 ### Research and analysis
 
 #### [deep-architecture-research](./research-analysis/deep-architecture-research/)
@@ -126,7 +110,7 @@ Turn complex technical work into a verdict-first brief with truthful diagrams, c
 
 ```text
 /understanding-first-report explain this research to a human
-architect in under 3,000 Chinese characters.
+architect with one clear model and one actionable recommendation.
 ```
 
 The two Skills work well together, but each remains independently usable.
@@ -237,6 +221,24 @@ Review and synthesize recent human-visible conversations from supported Claude C
 ```text
 /extract-agent-sessions review my recent Codex and Claude Code
 conversations, summarize my work, and surface new insights.
+```
+
+### Content and publishing
+
+#### [media-writer](./content-publishing/media-writer/)
+
+Adapt technical content to the culture and expectations of supported publishing platforms.
+
+**Recommended scenarios**
+
+- Rewrite one technical idea for WeChat, Hacker News, Reddit, Medium, X/Twitter, Dev.to, or LinkedIn.
+- Preserve the community's tone instead of applying one generic social-media format.
+
+**Example**
+
+```text
+/media-writer turn this architecture note into a Hacker News
+launch post without marketing language.
 ```
 
 ## Team Collaboration Guidance
