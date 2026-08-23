@@ -37,8 +37,18 @@ When local stores must be read, load only the matching source file:
 - Grok Build: `references/sources/grok-build.md`
 - Cursor: `references/sources/cursor.md`
 
+Each source reference defines four required facts: the storage root, the recent/time
+index and its units, root/child or fork identity, and the fields that contain the
+user's question and visible AI reply. Preserve those facts when adapting to schema
+changes.
+
 For a request spanning several products, process each source independently, then merge
 the clean human/assistant conversations at the analysis stage.
+
+Freeze one UTC `[start, end]` window for the review. Use the product's documented
+recent index to find candidates, then prefer the maximum accepted human-message or
+visible AI-message timestamp as the conversation's real activity time. File mtime is
+only a fallback when the store has no message or session clock.
 
 ## Read the conversation body
 

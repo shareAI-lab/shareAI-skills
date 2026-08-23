@@ -4,7 +4,21 @@ Use this file only for opencode's relational store.
 
 ## Typical location
 
-- Database: `${XDG_DATA_HOME:-~/.local/share}/opencode/opencode.db`
+- Data root: `${XDG_DATA_HOME:-~/.local/share}/opencode`
+- Database: `<data-root>/opencode.db`
+
+## Time index
+
+The `session` table is the discovery index. Important fields are:
+
+```text
+id, parent_id, project_id
+time_created, time_updated, time_archived    Unix milliseconds
+revert
+```
+
+Use `session.time_updated` to discover recent candidates. For a selected conversation,
+prefer accepted `message.time_created` values as the discussion clock.
 
 ## Conversation reconstruction
 
@@ -17,6 +31,23 @@ session -> message -> part
 Root conversations normally have no `parent_id`; task-tool subagents have a parent.
 Read messages and parts in stored order. Keep user and assistant text parts that are
 not synthetic, ignored, compaction output, or tool data.
+
+Observed human relationship:
+
+```text
+message.data.role == user
+part.data.type == text
+part.data.synthetic != true
+part.data.ignored != true
+```
+
+Observed visible AI relationship:
+
+```text
+message.data.role == assistant
+message.data.summary != true
+part.data.type == text
+```
 
 Respect session revert markers by excluding or clearly labeling reverted messages.
 Use the session's update time for recency. Treat event or projection tables as derived
