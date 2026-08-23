@@ -34,79 +34,209 @@ Install one Skill:
 npx skills add shareai-lab/lab-skills --skill deep-architecture-research
 ```
 
+Generate a prompt for one Skill without installing it:
+
+```bash
+npx skills use shareai-lab/lab-skills@understanding-first-report
+```
+
+## Keeping Skills Updated
+
+Update every installed Skill in the current scope from its recorded upstream source:
+
+```bash
+npx skills update
+```
+
+Update one Skill only:
+
+```bash
+npx skills update deep-architecture-research
+```
+
+Update project-level Skills without prompting:
+
+```bash
+npx skills update --project -y
+```
+
+Update global Skills without prompting:
+
+```bash
+npx skills update --global -y
+```
+
+If you installed the meeting Skills before they were renamed, remove the old names and install the replacements once:
+
+```bash
+npx skills remove boss-meet meet-work -y
+npx skills add shareai-lab/lab-skills \
+  --skill meeting-coach-leader meeting-coach-worker -y
+```
+
 ## Skill Catalog
 
 ### Agent development
 
-- **[agent-builder](./agent-development/agent-builder/)**
-  - Design and build AI agents. The bundled starter code currently uses the Anthropic Python SDK, while the architectural guidance is intended to remain provider-neutral.
-  - **Typical use:** Define an agent's purpose, tools, knowledge, context, trust boundary, and subagent structure.
-  - **Example:** `Use $agent-builder to design a customer-support agent that can search policy, inspect orders, and escalate refunds.`
+#### [agent-builder](./agent-development/agent-builder/)
 
-- **[skill-judge](./agent-development/skill-judge/)**
-  - Evaluate and improve Agent Skill packages with a practice-derived diagnostic rubric.
-  - **Typical use:** Review whether a `SKILL.md` triggers correctly, adds real expert knowledge, loads references predictably, and avoids instruction sprawl.
-  - **Example:** `Use $skill-judge to review this Skill package and give me the three highest-impact improvements.`
+Design and build AI agents. The bundled starter code currently uses the Anthropic Python SDK, while the architectural guidance is intended to remain provider-neutral.
+
+**Recommended scenarios**
+
+- Define an agent's purpose, capabilities, knowledge, context, and trust boundary.
+- Decide whether planning, subagents, skills, or additional tools are actually needed.
+
+**Example**
+
+```text
+Use $agent-builder to design a customer-support agent that can
+search policy, inspect orders, and escalate refunds.
+```
+
+#### [skill-judge](./agent-development/skill-judge/)
+
+Evaluate and improve Agent Skill packages with a practice-derived diagnostic rubric.
+
+**Recommended scenarios**
+
+- Check whether a `SKILL.md` triggers at the right time and adds real expert knowledge.
+- Diagnose instruction sprawl, weak references, poor freedom calibration, or unclear completion criteria.
+
+**Example**
+
+```text
+Use $skill-judge to review this Skill package and give me the
+three highest-impact improvements.
+```
 
 ### Agent operations
 
-- **[extract-agent-sessions](./agent-operations/extract-agent-sessions/)**
-  - Recover clean human-visible conversations from supported Claude Code, Codex, opencode, and Grok Build session stores.
-  - **Typical use:** Reconstruct recent user/assistant conversations while excluding tool calls, reasoning, system injection, copied history, and subagent noise.
-  - **Example:** `Use $extract-agent-sessions to summarize my root Codex and Claude Code conversations from the last three days.`
+#### [extract-agent-sessions](./agent-operations/extract-agent-sessions/)
+
+Recover clean human-visible conversations from supported Claude Code, Codex, opencode, and Grok Build session stores.
+
+**Recommended scenarios**
+
+- Reconstruct recent root conversations from local session stores.
+- Exclude tool calls, reasoning, system injection, copied history, and subagent noise before summarizing.
+
+**Example**
+
+```text
+Use $extract-agent-sessions to summarize my root Codex and
+Claude Code conversations from the last three days.
+```
 
 ### Content and publishing
 
-- **[media-writer](./content-publishing/media-writer/)**
-  - Adapt technical content to the culture and expectations of supported publishing platforms.
-  - **Typical use:** Turn one technical idea into a platform-native WeChat, Hacker News, Reddit, Medium, X/Twitter, Dev.to, or LinkedIn post.
-  - **Example:** `Use $media-writer to turn this architecture note into a Hacker News launch post without marketing language.`
+#### [media-writer](./content-publishing/media-writer/)
+
+Adapt technical content to the culture and expectations of supported publishing platforms.
+
+**Recommended scenarios**
+
+- Rewrite one technical idea for WeChat, Hacker News, Reddit, Medium, X/Twitter, Dev.to, or LinkedIn.
+- Preserve the community's tone instead of applying one generic social-media format.
+
+**Example**
+
+```text
+Use $media-writer to turn this architecture note into a
+Hacker News launch post without marketing language.
+```
 
 ### Research and analysis
 
+#### [deep-architecture-research](./research-analysis/deep-architecture-research/)
+
+Clarify broad system questions before investigating architecture through source, history, official documentation, and calibrated community evidence.
+
+**Recommended scenarios**
+
+- Compare frameworks, runtimes, SDKs, or technical projects at source level.
+- Trace important architectural changes, breaking updates, hard boundaries, and disputed scenarios.
+- Gather evidence before designing a new system or selecting an implementation path.
+
+**Example**
+
 ```text
-Broad question
-      │
-      ▼
-deep-architecture-research
-      │ clarify → confirm → investigate
-      ▼
-understanding-first-report
-      │ verdict → mechanism → action
-      ▼
-Clear human understanding
+Use $deep-architecture-research to clarify and compare how these
+agent runtimes own sessions, memory, workspaces, and deployment.
 ```
 
-- **[deep-architecture-research](./research-analysis/deep-architecture-research/)**
-  - Clarify broad system questions before investigating architecture through source, history, official documentation, and calibrated community evidence.
-  - **Typical use:** Compare frameworks or SDKs, understand a source-level mechanism, trace breaking architectural changes, or gather evidence before designing a system.
-  - **Example:** `Use $deep-architecture-research to clarify and compare how these agent runtimes own sessions, memory, workspaces, and deployment.`
+#### [understanding-first-report](./research-analysis/understanding-first-report/)
 
-- **[understanding-first-report](./research-analysis/understanding-first-report/)**
-  - Turn complex technical work into a verdict-first brief with truthful diagrams, code provenance, and low cognitive load.
-  - **Typical use:** Compress a large research artifact, architecture review, decision, or status update into the main contradiction, decisive evidence, and one recommendation.
-  - **Example:** `Use $understanding-first-report to explain this research to a human architect in under 3,000 Chinese characters.`
+Turn complex technical work into a verdict-first brief with truthful diagrams, code provenance, and low cognitive load.
+
+**Recommended scenarios**
+
+- Compress a large research artifact or architecture review into its main contradiction and decisive evidence.
+- Explain a technical decision to a human architect without hiding uncertainty or forcing them through all research notes.
+
+**Example**
+
+```text
+Use $understanding-first-report to explain this research to a
+human architect in under 3,000 Chinese characters.
+```
 
 The two Skills work well together, but each remains independently usable.
 
 ### Software engineering
 
-- **[vibe-coding](./software-engineering/vibe-coding/)**
-  - Turn an AI agent into a disciplined software development partner with transparent decisions and proportionate verification.
-  - **Typical use:** Build a feature, fix a bug, refactor code, improve performance, or perform a migration while respecting the existing codebase.
-  - **Example:** `Use $vibe-coding to add this feature to the existing service, follow its conventions, and verify the real integration path.`
+#### [vibe-coding](./software-engineering/vibe-coding/)
+
+Turn an AI agent into a disciplined software development partner with transparent decisions and proportionate verification.
+
+**Recommended scenarios**
+
+- Add a feature to an existing codebase without ignoring its conventions.
+- Diagnose and fix a bug from the real failure path.
+- Refactor, optimize, or migrate software with proportionate verification.
+
+**Example**
+
+```text
+Use $vibe-coding to add this feature to the existing service,
+follow its conventions, and verify the real integration path.
+```
 
 ### Team collaboration and communication
 
-- **[meeting-coach-leader](./team-collaboration/meeting-coach-leader/)**
-  - Help leaders and managers prepare, run, and review high-bandwidth meetings that advance real work and decisions.
-  - **Typical use:** Prepare a work review, diagnose repeated low-value meetings, give direct feedback, or close a decision with clear ownership.
-  - **Example:** `Use $meeting-coach-leader to review this meeting transcript and design a shorter follow-up that reaches a decision.`
+#### [meeting-coach-leader](./team-collaboration/meeting-coach-leader/)
 
-- **[meeting-coach-worker](./team-collaboration/meeting-coach-worker/)**
-  - Help workers turn meetings, feedback, and work notes into better execution and stronger updates.
-  - **Typical use:** Infer leader expectations, review whether current work is ready, identify the highest-value next action, and prepare for the next meeting.
-  - **Example:** `Use $meeting-coach-worker to tell me what my manager expects, what is missing from my work, and how to report it next time.`
+Help leaders and managers prepare, run, and review high-bandwidth meetings that advance real work and decisions.
+
+**Recommended scenarios**
+
+- Prepare or review an employee work-review meeting.
+- Diagnose repeated low-value discussions and missing decision prerequisites.
+- Give direct, specific feedback without taking over the worker's responsibility.
+
+**Example**
+
+```text
+Use $meeting-coach-leader to review this meeting transcript and
+design a shorter follow-up that reaches a decision.
+```
+
+#### [meeting-coach-worker](./team-collaboration/meeting-coach-worker/)
+
+Help workers turn meetings, feedback, and work notes into better execution and stronger updates.
+
+**Recommended scenarios**
+
+- Infer what a leader actually expects from recent meeting evidence.
+- Review whether current work is ready to report and what is still missing.
+- Identify the highest-value next action and prepare a concise update.
+
+**Example**
+
+```text
+Use $meeting-coach-worker to tell me what my manager expects,
+what is missing from my work, and how to report it next time.
+```
 
 ## Team Collaboration Guidance
 
