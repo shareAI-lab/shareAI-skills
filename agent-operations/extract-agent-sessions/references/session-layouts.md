@@ -647,6 +647,7 @@ Human, require all of:
 type == 1
 text or richText is a nonempty string
 prefer text; richText is a formatted sibling, not a second message
+text is not a Cursor synthetic human (see below)
 ```
 
 Assistant, require all of:
@@ -679,9 +680,22 @@ Observed records:
 ```
 
 Human: `role == user` and ordered `message.content[]` blocks with
-`type == text`. Assistant: `role == assistant` and `type == text` blocks.
-Exclude `tool_use`. Use `turn_ended` only as lifecycle (`success` /
-`error` / missing). Records have been observed without timestamps.
+`type == text`, after dropping synthetic humans. Assistant: `role ==
+assistant` and `type == text` blocks. Exclude `tool_use`. Use
+`turn_ended` only as lifecycle (`success` / `error` / missing). Records
+have been observed without timestamps.
+
+**Synthetic humans** (not owner-typed; observed 2026-08):
+
+```text
+starts with "Perform any necessary follow-up actions in response to the subagent completion above"
+first markup tag is <mcp_server_catalog>
+```
+
+Count and exclude these. After the drop, a root with zero accepted human
+turns is machinery-only. Compare first accepted human text across
+in-window roots to detect fork clusters; keep one and report the
+duplicate.
 
 Prefer this projection for a recent agent-mode chat when the file exists and
 is not a failed-empty stub (only `turn_ended` / `error`; observed stubs were

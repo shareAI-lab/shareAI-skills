@@ -1050,11 +1050,15 @@ when composer headers and `bubbleId` rows are empty):
 
 ```bash
 jq -c '
+  def is_synthetic:
+    (. | join("\n")) as $t
+    | ($t | startswith("Perform any necessary follow-up actions in response to the subagent completion above"))
+      or ($t | test("<mcp_server_catalog>"; "m"));
   if .role? == "user" then
     [.message.content[]?
       | select(.type? == "text" and (.text? | type) == "string")
       | .text] as $text
-    | select($text | length > 0)
+    | select(($text | length) > 0 and ($text | is_synthetic | not))
     | {role: "human", text_blocks: $text}
   elif .role? == "assistant" then
     [.message.content[]?
@@ -1099,7 +1103,9 @@ for (const h of headers) {
   }
   const type = bubble.type;
   const text = typeof bubble.text === "string" ? bubble.text : "";
-  if (type === 1 && text) {
+  const synthetic = text.startsWith("Perform any necessary follow-up actions in response to the subagent completion above")
+    || /<mcp_server_catalog>/.test(text);
+  if (type === 1 && text && !synthetic) {
     console.log(JSON.stringify({role: "human", text}));
   } else if (type === 2 && text) {
     console.log(JSON.stringify({role: "assistant", text}));

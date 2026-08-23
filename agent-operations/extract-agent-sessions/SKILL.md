@@ -1,6 +1,6 @@
 ---
 name: extract-agent-sessions
-description: Recover, export, or summarize recent human and assistant conversations from local agent session stores while excluding tool calls, reasoning, system injection, copied parent history, and subagent noise. Use for recent-session inventories, clean conversation recovery, or topic summaries from tree-shaped `.claude` JSONL stores, rollout-shaped `.codex` JSONL stores, relational-shaped opencode SQLite stores, ACP-stream-shaped Grok Build `~/.grok/sessions` (or `$GROK_HOME/sessions`) stores, and Cursor-shaped composer/agent stores (`state.vscdb` + `conversation-search.db` + `agent-transcripts`) on Linux or macOS. When the user mentions Cursor chats, composers, agent transcripts, or "what did we discuss in Cursor", use this skill.
+description: Recover, export, or summarize recent human and assistant conversations from local agent session stores while excluding tool calls, reasoning, system injection, copied parent history, and subagent noise. Use whenever the user wants to review, summarize, or extract insights from chats they had on Claude Code, Codex, opencode, Grok Build, or Cursor — including "what did we discuss", "回顾问题", "分析本地会话", and topic summaries. Also use for recent-session inventories and clean conversation recovery from tree-shaped `.claude` JSONL stores, rollout-shaped `.codex` JSONL stores, relational-shaped opencode SQLite stores, ACP-stream-shaped Grok Build `~/.grok/sessions` (or `$GROK_HOME/sessions`) stores, and Cursor-shaped composer/agent stores (`state.vscdb` + `conversation-search.db` + `agent-transcripts`) on Linux or macOS.
 ---
 
 # Extract Agent Sessions
@@ -23,7 +23,10 @@ from the current filesystem and shell capabilities.
   previews, project names, working directories, complete IDs, or absolute paths by
   default. Truncation is not redaction.
 - Read message bodies only after the requested scope identifies the relevant
-  session or the user selects an alias. If content would be sent to another service
+  session or the user selects an alias. Implicit scope counts: "analyze my
+  local Cursor/Claude/Codex data", "回顾最近聊天", "总结 / insights", or
+  "最近两天聊了什么" selects every in-window root for that family — do not
+  wait for a second alias pick. If content would be sent to another service
   or person, disclose that boundary and obtain confirmation.
 - Write private intermediate artifacts only under an owner-restricted temporary
   directory. Remove them on normal exit and interruption unless the user explicitly
@@ -52,11 +55,19 @@ from the current filesystem and shell capabilities.
 Choose one mode before reading conversation bodies:
 
 - **Inventory**: aliases, store family, UTC activity time, transcript availability,
-  state, and warnings. This is the default discovery mode.
+  state, and warnings. Use this when the user is mapping a store, adding a
+  family, or verifying a parser. Counts-only is a gate, not a deliverable.
 - **Private full**: every persisted human message and visible assistant text block
   in order. Keep this owner-only and do not claim to redact it.
-- **Shareable summary**: themes and outcomes with paths, stable IDs, attachment
-  references, secrets, and unnecessary verbatim text removed.
+- **Shareable summary**: themes, outcomes, open questions, and insights, with
+  paths, stable IDs, attachment references, secrets, and unnecessary verbatim
+  text removed. This is the default when the user wants to review, summarize,
+  or learn from chats.
+
+If the user asked for review / 回顾 / 总结 / insights / "分析本地数据" and
+did not ask to author or verify the extractor, run a short inventory then
+**continue into Shareable summary**. Do not stop at schema fingerprints or
+message counts.
 
 “Lossless” means lossless relative to persisted visible text. Preserve a stored
 placeholder such as `[Pasted Content ...]` or `[Image #1]` in private-full mode, but
@@ -155,6 +166,21 @@ command-only or failed-empty; exclude them from human-conversation summaries
 and report the exclusion count. `subComposerIds` / `subagentComposerIds` on a
 parent are child edges, not extra roots.
 
+**Cursor synthetic humans** (observed 2026-08): the client injects
+`role=user` rows that are not typed by the owner. Treat as machinery and
+exclude from human-conversation summaries (count them):
+
+- text that starts with `Perform any necessary follow-up actions in response
+  to the subagent completion above`
+- text whose first non-empty tag is `<mcp_server_catalog>`
+- after these drops, a root with zero remaining human turns is
+  machinery-only; exclude it and report the count
+
+**Cursor fork clusters**: two in-window roots that share the same first
+accepted human text (compare after stripping skill-attachment wrappers) are
+a fork, not two independent discussions. Keep the longer or later root for
+the summary and report the duplicate instead of merging.
+
 ### 4. Fingerprint the schema without content
 
 Project only key names, column names, value types, role/type enums,
@@ -204,9 +230,11 @@ agent-mode chat; also prefer it when `fullConversationHeadersOnly` and
 Otherwise use `composerData` (legacy `conversation[]`, or modern `_v` +
 `fullConversationHeadersOnly` joined to `bubbleId:<composerId>:<bubbleId>`).
 Keep only human `type==1` text and assistant `type==2` nonempty `text` from
-bubbles, or JSONL `role==user|assistant` blocks whose `content[].type==text`.
-Exclude `tool_use`, `toolFormerData`, thinking, composer-root draft
-`text`/`richText`, `latestConversationSummary`, and `conversation_fts` body.
+bubbles, or JSONL `role==user|assistant` blocks whose `content[].type==text`,
+after dropping Cursor synthetic humans (follow-up template and
+`<mcp_server_catalog>` dumps). Exclude `tool_use`, `toolFormerData`, thinking,
+composer-root draft `text`/`richText`, `latestConversationSummary`, and
+`conversation_fts` body.
 JSONL records have been observed without timestamps; use header/`updated_at`
 for recency and label that limitation. Human counts should match across
 channels when both exist; assistant counts may differ because JSONL keeps
@@ -218,9 +246,12 @@ data only when the user explicitly requests a private full export.
 
 ### 6. Minimize model context
 
-Inspect counts first. For a topic summary, load every selected human message and
-the final answer for each completed turn. Add visible progress only when a turn has
-no final answer, is open/aborted, or the store does not label final answers.
+Inspect counts first. For a topic summary, load every selected **accepted**
+human message (after synthetic-human filters) and the final answer for each
+completed turn. Add visible progress only when a turn has no final answer, is
+open/aborted, or the store does not label final answers. If a "13 human
+turns" count collapses to three accepted prompts, say so — the raw count is
+not the discussion.
 
 Keep the complete filtered timeline on disk for private-full mode; do not load all
 of it into model context merely to produce themes.
@@ -241,8 +272,10 @@ open — verify `composerHeaders.lastUpdatedAt` or bubble counts for the
 selected composer, not the WAL file mtime.
 
 Report aliases, exact UTC window, root-session count, command-only exclusions,
-subagent exclusions, state, schema warnings, branch/compact ambiguity, and missing
-externalized content. Keep original paths and stable IDs only in a private manifest
-when needed for local traceability.
+subagent exclusions, synthetic-human exclusions, fork-cluster duplicates, state,
+schema warnings, branch/compact ambiguity, and missing externalized content.
+Keep original paths and stable IDs only in a private manifest when needed for
+local traceability. A review request is unfinished if this report is all the
+user received and no summary of accepted human turns exists.
 
 Remove temporary artifacts unless the user explicitly chose a private export path.
