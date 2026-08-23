@@ -2,17 +2,433 @@
 
 Load this file for technical, architectural, or research reporting.
 
-## Choose the smallest useful visual
+## Use several small visuals, not one overloaded picture
 
-| Need | Use |
-|---|---|
-| Ownership or layer boundary | Box hierarchy with named owners |
-| Request, event, or data movement | Left-to-right or top-to-bottom flow |
-| Pause, retry, resume, migration | State/lifecycle diagram |
-| Exact mappings across several systems | Compact table |
-| One definition serving several modes | One-to-many relationship tree |
+For a substantive report, prefer two or three compact diagrams that answer different questions:
 
-One visual should answer one question. Keep labels short, arrows directional, and the main path obvious. Prefer a width that fits an ordinary code block without horizontal scrolling.
+- **Problem geometry**: What objects, questions, axes, and conflicts make up the ask?
+- **Ownership or mechanism**: Who owns identity, state, lifecycle, authority, and effects? How does the main path run?
+- **Lifecycle or choice**: Where does the system pause, retry, resume, fail, migrate, or branch into alternatives?
+
+Use only one when another diagram would repeat the same edge. One visual should answer one question. Keep labels short, arrows directional, and width suitable for an ordinary code block.
+
+Avoid more than three consecutive nodes on one axis. For larger relationships, use a two-dimensional map, grouped regions, hub-and-spoke layout, parallel lanes, or multiple diagrams.
+
+Do not put a separate fenced `↓` between ordinary report blocks. Markdown already reads downward. Arrows belong inside one semantic diagram.
+
+Do not use Markdown tables. For exact mappings, use an aligned text block, paired bullets, or a mapping diagram.
+
+## Markdown block palette
+
+Treat Markdown blocks as a small visual language. Interleave them with short prose instead of reserving blocks only for executable code.
+
+### Original-question block
+
+> **User's original ask**
+> Preserve a short question verbatim here. Compress it faithfully when it is too long.
+
+### Key-judgment callout
+
+> **Key judgment**
+> State the choice in one sentence. Follow with the boundary or reason that makes it true.
+
+Use a more visually emphatic fenced block when the verdict is the report's anchor:
+
+```text
+╔═══════════════ VERDICT ═══════════════╗
+║ Keep the runtime as source of truth. ║
+║ Add the protocol as a thin adapter.  ║
+╚═══════════════════════════════════════╝
+```
+
+### Constraint or invariant block
+
+```text
+INVARIANT
+  one thread  -> one authoritative session
+  one action  -> one idempotency key
+  one diagram -> one relationship
+```
+
+### Source capsule
+
+Keep links clickable by using a blockquote rather than a code fence:
+
+> **Verified source**
+> [Official specification](https://example.com/spec) · `path/to/source.ts` · tag or commit when known
+
+### Exact-output block
+
+Use a fence when spacing, bytes, commands, logs, schemas, or machine-readable output must remain literal:
+
+```text
+RUN_STARTED -> MESSAGE_DELTA* -> RUN_FINISHED
+```
+
+### Code and pseudocode pair
+
+Use neighboring blocks to distinguish present fact from proposed design. Keep provenance labels directly above both blocks.
+
+Visual variety is useful only when block semantics stay stable. Do not use five different callout styles for the same kind of claim.
+
+## Syntax-highlighted pseudocode palette
+
+Pseudocode should usually use a real language tag for color and structure. The provenance label must still say that it is pseudocode.
+
+Use TypeScript for interfaces, adapters, event flows, and async relationships.
+
+`Pseudocode: recommended interface, not an existing API`
+
+```ts
+// PSEUDOCODE
+type SessionBinding = {
+  threadId: string;
+  nativeSessionId: string;
+};
+
+for await (const event of nativeRun) {
+  yield projectToProtocol(event, binding);
+}
+```
+
+Use Python for short algorithms, branching, retries, and orchestration.
+
+`Pseudocode: recommended control flow, not executable framework code`
+
+```python
+# PSEUDOCODE
+if output.is_valid:
+    commit(output)
+elif retry_budget > 0:
+    retry(with_feedback=output.errors)
+else:
+    fall_back_to_text()
+```
+
+Use YAML for declarative ownership, policy, rollout stages, and configuration-shaped thinking.
+
+`Pseudocode: recommended ownership model`
+
+```yaml
+# PSEUDOCODE
+ownership:
+  runtime: [loop, session, checkpoint]
+  adapter: [translation, correlation]
+  product_ui: [renderer, interaction]
+  business_system: [authority, durable_facts]
+```
+
+Use JSON for payloads and schemas. Use `diff` for a visual before/after. Use `bash` for commands. Keep `text` for diagrams, mappings, logs, constraints, and exact output.
+
+Do not select a language merely because its colors look attractive. The grammar must help the reader understand the construct.
+
+## Emoji as semantic navigation
+
+Use emoji to help the eye locate a section's purpose before reading it. A stable heading sequence might be:
+
+````markdown
+## 🧭 Question review
+
+## 🎯 Verdict
+
+## ⚙️ Mechanism
+
+## 🔎 Decisive evidence
+
+### ⚠️ Main risk
+
+## ✅ Recommendation and next step
+```
+
+Useful recurring meanings include:
+
+- 🧭 orientation and problem framing;
+- 🎯 judgment and decision;
+- ⚙️ mechanism and execution;
+- 🔎 evidence and source inspection;
+- 💡 insight and implication;
+- ⚠️ contradiction, uncertainty, or risk;
+- ✅ action, acceptance, or completion;
+- 🧩 ownership boundary or composition.
+
+The symbol and nearby words should agree. Do not use the same emoji for several unrelated meanings in one report.
+
+Emoji also works in scannable bullets:
+
+- 🎯 **Decision**: Keep the existing session owner.
+- ⚙️ **Mechanism**: Translate native events at the adapter boundary.
+- ⚠️ **Risk**: Replaying full history can duplicate context.
+- ✅ **Next step**: Verify two turns on one thread.
+
+Keep emoji outside exact source material. Do not insert it into code, commands, paths, schemas, logs, quotations, or machine-readable output.
+
+Avoid emoji inside fixed-width diagrams unless the final rendering has been checked. Display widths differ across fonts and platforms:
+
+```text
+Safe:   🎯 Verdict
+        ┌───────────────┐
+        │ Clear borders │
+        └───────────────┘
+
+Risky:  ┌─🎯────────────┐  <- emoji width may shift the border
+        │ Verdict       │
+        └───────────────┘
+```
+
+Emoji is a navigation accent, not a substitute for words. Accessibility, exactness, and seriousness still come first.
+
+## Heading and `-` list palette
+
+Headings provide the report's visible skeleton:
+
+- `##` marks a major turn in the argument: question, verdict, mechanism, evidence, action.
+- `###` names a local decision, owner, contradiction, risk, or scenario inside that section.
+- `####` is reserved for dense technical detail that cannot be expressed more clearly with a short list or diagram.
+- Deeper levels usually signal that the report should be simplified.
+
+Hyphen bullets provide the local anatomy:
+
+- use `-` for sibling claims, facts, constraints, consequences, owners, and actions;
+- use a bold lead-in when the reader should be able to scan the list without reading every sentence;
+- keep normal lists to one level and use at most one nested level;
+- turn a third nesting level into a `###` subsection, a tree diagram, or a separate block;
+- use numbers only when order or rank is real;
+- keep a blank line before every list and after headings so CommonMark renders predictably.
+
+```markdown
+## Verdict
+
+The protocol belongs at the interaction boundary.
+
+### Why
+
+- **Runtime**: Owns the loop and durable session.
+- **Adapter**: Owns translation and correlation.
+- **Product UI**: Owns rendering and interaction.
+- **Business system**: Owns authoritative facts.
+
+### Main risk
+
+- Duplicating history creates two conflicting sources of truth.
+  - Prevent it by selecting one canonical session owner.
+```
+
+The report should be understandable from its heading outline and bold bullet leads, while the surrounding prose supplies reasoning and nuance.
+
+When relationships become more important than prose nesting, switch to a tree:
+
+```text
+## Mechanism
+   ├─ ### Input
+   │     ├─ identity
+   │     └─ context
+   ├─ ### Runtime
+   │     ├─ session
+   │     └─ effects
+   └─ ### Output
+         ├─ events
+         └─ UI projection
+```
+
+## Simple developer-word palette
+
+Use the smallest English word that preserves the technical meaning.
+
+Prefer:
+
+- `owner`, not `authority holder`;
+- `main`, not `canonical`, unless the source uses that term;
+- `input` and `output`, not `ingress` and `egress`;
+- `flow` or `steps`, not `orchestration`, unless naming a real framework feature;
+- `map`, not `projection`, when simple data conversion is meant;
+- `save`, `load`, `retry`, `fail`, and `fix`, not abstract process nouns;
+- `temp`, not `ephemeral`, unless lifecycle precision matters;
+- `file`, `report`, or `output`, not `artifact`, when one of those is exact.
+
+Use a color-rich `diff` block to clean up language during editing:
+
+```diff
+- The adapter performs semantic projection across the ingress boundary.
++ The adapter maps input events at the API boundary.
+
+- The orchestration layer materializes a canonical state artifact.
++ The run flow saves the main state file.
+
+- Idempotency guarantees effect-level deduplication.
++ Safe retry prevents the same effect from running twice.
+```
+
+Preserve exact source terms:
+
+- code symbol: `RunAgentInput`;
+- API field: `previous_response_id`;
+- protocol event: `RUN_FINISHED`;
+- official concept: `idempotency key`;
+- command, path, log, schema, and quotation text.
+
+Explain the exact term with simple words beside its first use:
+
+> **`idempotency key`**
+> A request ID used to stop the same write from running twice.
+
+The goal is not childish English. The goal is low-cost English that a working developer reads without translation.
+
+## Warm microcopy patterns
+
+Warmth should appear in transitions, judgments, caveats, and next steps. It should not be limited to a friendly first sentence.
+
+### Acknowledge the real tension
+
+```diff
+- There are two conflicting owners.
++ 你觉得这里拧巴是对的：现在确实有两个模块在争同一份 state。
+```
+
+### Give a firm choice without sounding harsh
+
+```diff
+- Do not do this. It is wrong.
++ 我不建议走这条路。它会产生两份 history，恢复时很难保证一致。
+```
+
+### State uncertainty with a useful path
+
+```diff
+- Unresolved. More research required.
++ 这里还没有足够证据。
++ 先跑一次断线恢复测试，就能判断是否需要新的 store。
+```
+
+### Turn status into help
+
+```diff
+- Update complete. Validation passed.
++ 已经改好，并通过校验。下一次技术汇报会直接使用这套规则。
+```
+
+### Keep short prose connected
+
+Avoid telegraph fragments:
+
+```text
+问题存在。
+原因明确。
+建议修改。
+```
+
+Prefer one warm, compact paragraph:
+
+```text
+这里的问题已经比较清楚：两个模块同时拥有 session。
+建议先收回到一个 owner，再让 adapter 只负责事件映射。
+```
+
+Useful transition phrases include:
+
+- `这里的关键是……`
+- `你担心的点是成立的……`
+- `好消息是……`
+- `真正需要小心的是……`
+- `更稳的做法是……`
+- `我们先把这两个问题拆开……`
+- `这一步做完后，后面的选择会简单很多。`
+
+Use them sparingly. Repetition turns natural warmth into a template.
+
+Warmth is not praise. It comes from accurate listening, fair criticism, honest uncertainty, and a useful next step.
+
+## Parser-safe emphasis rhythm
+
+Use bold as a light reading cue. Bold plain words only. Keep punctuation and emoji outside.
+
+```diff
+- **🎯 Decision:** Keep one owner.
+- **Decision:** Keep one owner.
+- **:**
+
++ 🎯 **Decision**: Keep one owner.
++ **Main owner**: Native runtime.
++ **主要风险**：重复写入 history。
+```
+
+Mix forms instead of bolding every line:
+
+```markdown
+这里的关键是先选出一个 session owner。
+
+> 两份 history 看起来更安全，实际会让恢复更难。
+
+- 🎯 **选择**：保留 runtime 作为 owner。
+- ⚠️ **风险**：adapter 再存一份 history。
+
+这样做后，恢复路径会简单很多。
+```
+
+Keep the syntax simple:
+
+- bold short plain-text phrases only;
+- put punctuation after the closing `**`;
+- keep emoji before the opening `**`;
+- keep code spans and links outside bold;
+- avoid bold plus italic plus links in one phrase;
+- close markers on the same line;
+- add blank lines around quotes, lists, and fenced blocks;
+- use a longer outer fence when demonstrating inner fences.
+
+Quotes add warmth and voice. Use them for the user's words, one short source statement, or a key human observation. Do not turn every paragraph into a quote.
+
+## Problem-geometry pattern
+
+Use this before the verdict when several surface questions point to one underlying decision:
+
+```text
+┌────────────────┐       ┌────────────────┐
+│ Objects        │──────>│ Relationships  │
+│ runtime, UI    │       │ carries, owns  │
+└───────┬────────┘       └───────┬────────┘
+        │                        │
+        ▼                        ▼
+┌────────────────┐       ┌────────────────┐
+│ Mixed axes     │──────>│ Real decision  │
+│ protocol/deploy│       │ where boundary?│
+└────────────────┘       └────────────────┘
+```
+
+Replace every label with the user's actual objects and axes. The geometry should show which questions are siblings, which are dependencies, and which only look related because two layers share vocabulary.
+
+The same geometry may use richer framing when the extra structure improves scanning:
+
+```text
+╔════════════ WHAT WAS ASKED ════════════╗
+║ SDKs · hosting · protocol · sessions  ║
+╚══════════════════╤═════════════════════╝
+                   │ appears as one topic
+                   ▼
+┌────────────────────────────────────────┐
+│ Actually four axes                    │
+│                                        │
+│ transport ─ deployment ─ state ─ UI   │
+└──────────────────┬─────────────────────┘
+                   │ must be separated
+                   ▼
+╔════════════ REAL DECISION ═════════════╗
+║ Which layer owns each responsibility? ║
+╚════════════════════════════════════════╝
+```
+
+For a deeper ownership question, expose the hidden center:
+
+```text
+surface questions
+   ├─ How is it called?
+   ├─ Where is it hosted?
+   └─ Which SDK exists?
+             │
+             ▼
+      deeper question
+   Who owns identity, state,
+   lifecycle, and effects?
+```
 
 ## Boundary pattern
 
@@ -32,45 +448,377 @@ One visual should answer one question. Keep labels short, arrows directional, an
 └──────────────────┘
 ```
 
-Use this when the main question is “which layer owns what?” Replace labels with verified project objects; do not force every system into this template.
+Use this when the main question is “which layer owns what?” Replace labels with verified project objects. Mark synthesized ownership as `recommended` or `application-owned`.
 
-## Mechanism flow pattern
+Use parallel lanes when several owners act at the same time:
+
+```text
+┌─ Product UI ───────┐   renders / collects input
+├─ Protocol adapter ─┤   translates / correlates
+├─ Agent runtime ────┤   reasons / checkpoints
+└─ Business system ──┘   authorizes / records truth
+```
+
+## Spatial composition and breathing room
+
+Use whitespace to make ownership and direction visible. Do not pack every node against its neighbor.
+
+Prefer separated blocks:
+
+```text
+┌──────────────────┐          ┌──────────────────┐
+│ Product UI       │          │ Agent Runtime    │
+│ renders          │          │ reasons          │
+└────────┬─────────┘          └────────▲─────────┘
+         │                             │
+         │ user action                 │ native run
+         ▼                             │
+┌───────────────────────────────────────────────┐
+│ Protocol Adapter                              │
+│                                               │
+│ identity mapping  ·  event projection         │
+└──────────────────────┬────────────────────────┘
+                       │ authorized effect
+                       ▼
+              ┌──────────────────┐
+              │ Business System  │
+              │ records truth    │
+              └──────────────────┘
+```
+
+Avoid cramped blocks:
+
+```text
+┌UI┐->┌Adapter┐->┌Runtime┐->┌DB┐
+```
+
+Use vertical space between phases. Use horizontal space between peers. Use nesting only for real containment. Use arrows only for a named relationship.
+
+Use two-dimensional composition when several report elements relate to one center:
+
+```text
+🧭 Question                          🎯 Verdict
+┌──────────────────┐                ┌──────────────────┐
+│ What is mixed?   │                │ Choose boundary. │
+└────────┬─────────┘                └────────┬─────────┘
+         │                                   │
+         └──────────────┬────────────────────┘
+                        ▼
+              ┌──────────────────┐
+              │ Mechanism        │
+              └───────┬──────────┘
+                      │
+          ┌───────────┴───────────┐
+          ▼                       ▼
+  🔎 Evidence                 ⚠ Risk
+  ┌──────────────┐            ┌──────────────┐
+  │ What proves? │            │ What breaks? │
+  └──────┬───────┘            └──────┬───────┘
+         └────────────┬───────────────┘
+                      ▼
+               ✅ Next action
+```
+
+A block-heavy report still needs short prose between blocks. One or two sentences should explain why the next visual matters.
+
+The page itself may interleave blocks, but do not draw arrows between every section. Use headings and whitespace to carry reading order.
+
+## Mechanism-flow pattern
 
 ```text
 input -> verify -> persist -> execute -> record -> deliver
 ```
 
-Expand only the stages that affect the decision. Show retry, approval, or failure branches when they are the main risk.
+Expand only the stages that affect the decision. When translation is the key seam, show both vocabularies:
+
+```text
+client input
+    │
+    ▼
+protocol adapter
+    │ maps identity + events
+    ▼
+native runtime
+```
+
+## Lifecycle pattern
+
+Use a lifecycle diagram only when time changes ownership or correctness:
+
+```text
+receive -> run -> pause
+                   │ human decision
+                   ▼
+             persist -> resume -> effect
+```
+
+Show retry or failure branches only when they change the recommendation:
+
+```text
+execute -> success -> record
+   │
+   ├-> retryable failure -> replay-safe retry
+   └-> terminal failure  -> explicit error
+```
+
+## Choice pattern
+
+Use a small branching diagram instead of a comparison table:
+
+```text
+Existing system?
+   ├─ yes -> embedded adapter
+   └─ no  -> standalone service
+
+Independent scale or security boundary later?
+   ├─ yes -> extract the same adapter boundary
+   └─ no  -> keep one deployment
+```
+
+Alternatives belong here only when they materially change cost, ownership, or risk.
+
+## Exact mappings without tables
+
+Use aligned text for protocol or event mappings:
+
+```text
+Native event                 Protocol projection
+message.delta             -> TEXT_MESSAGE_CONTENT
+tool.started              -> TOOL_CALL_START
+tool.completed            -> TOOL_CALL_RESULT
+approval.requested        -> RUN_FINISHED(interrupt)
+```
+
+Keep this for exact repeated mappings. If the list does not change the decision, move it out of the main report.
 
 ## Fact versus inference
 
 A diagram edge is a claim. Keep factual edges traceable to citations near the visual. Mark synthesized edges as `recommended`, `inferred`, or `application-owned` when the project does not ship them.
 
+Never mix current implementation, roadmap, and recommendation in one unlabeled flow.
+
+## Insight block
+
+Use an insight block when the report has enough evidence to teach one non-obvious relationship.
+
+```text
+🔎 Verified fact                    ⚠ Conflict
+┌────────────────────┐            ┌────────────────────┐
+│ Runtime saves state│            │ Adapter saves it too│
+└─────────┬──────────┘            └─────────┬──────────┘
+          └──────────────┬──────────────────┘
+                         │
+                  💡 Insight
+          ┌──────────────────────────┐
+          │ Two recovery truths exist│
+          └────────────┬─────────────┘
+                       │
+                  🎯 Decision
+          Keep one main state owner.
+```
+
+Write the surrounding prose in four short moves:
+
+- **Observation**: What did the source or code prove?
+- **Conflict**: Which facts, goals, or owners do not fit together?
+- 💡 **Insight**: What does that reveal about the real problem?
+- 🎯 **Decision**: What changes because of that insight?
+
+Good insight types include:
+
+- hidden owner;
+- mixed layers;
+- missing rule;
+- false symmetry;
+- impossible trade-off;
+- failure trigger;
+- condition that would reverse the recommendation.
+
+Do not force a surprising claim. A simple, well-supported answer is better than fake depth.
+
 ## Code provenance
 
 Use one of these labels immediately above a code block:
 
-- `Official usage (version/tag)`
-- `Minimal adaptation of official usage (source link/path)`
+- `Official usage (version/tag, source URL or path)`
+- `Minimal adaptation of official usage (source URL or path)`
 - `Source relationship excerpt (commit + path)`
 - `Pseudocode: recommended design, not an existing API`
 
-For exact official code, preserve names and call relationships. Elide unrelated setup with comments rather than silently changing semantics. Keep excerpts short enough that the architectural point is visible.
+For exact official code, preserve names and call relationships. Elide unrelated setup with comments rather than silently changing semantics.
+
+When architecture depends on both present fact and proposed seam, show them separately:
+
+`Minimal adaptation of official usage (source URL/path)`
+
+```ts
+const result = Runner.run_streamed(agent, input, { session });
+for await (const event of result.stream_events()) {
+  // Native events exposed by the official SDK.
+}
+```
+
+`Pseudocode: recommended design, not an existing API`
+
+```ts
+for await (const nativeEvent of nativeRun) {
+  yield mapNativeEventToProtocol(nativeEvent, sessionBinding);
+}
+```
+
+The first block establishes what exists. The second makes the recommended adapter boundary explicit. Never merge them into a fictional official API.
 
 ## Attention sequence
 
 Reveal complexity in this order:
 
 ```text
-answer -> one mental model -> decisive proof -> boundary -> action
+┌─────────────────┐      ┌─────────────────┐
+│ Original ask    │      │ Real decision   │
+└────────┬────────┘      └────────┬────────┘
+         └────────────┬───────────┘
+                      ▼
+             ┌─────────────────┐
+             │ Problem geometry│
+             └────────┬────────┘
+                      ▼
+             ┌─────────────────┐
+             │ Verdict + seam  │
+             └──────┬────┬─────┘
+                    │    │
+                    ▼    ▼
+               evidence  risk
+                    └─┬──┘
+                      ▼
+                    action
 ```
 
-Do not lead with methodology, a glossary, or a vendor catalog. If the reader must learn a new term, define it beside the first diagram edge that depends on it.
+Do not lead with methodology, a glossary, or a vendor catalog. Define a new term beside the first diagram edge or code relationship that depends on it.
+
+## Density and rhythm gate
+
+The report should feel like a sequence of decisions, not a page of compressed prose.
+
+Avoid this shape:
+
+```text
+long paragraph
+long paragraph
+long paragraph
+long seven-item bullet list
+large diagram explaining everything
+repeated conclusion
+```
+
+Prefer a compact composition instead of a long vertical chain:
+
+```text
+🧭 Question         🎯 Judgment
+     └──────┬──────┘
+            ▼
+       ⚙ Mechanism
+        ┌───┴───┐
+        ▼       ▼
+   🔎 Evidence  ⚠ Risk
+        └───┬───┘
+            ▼
+        ✅ Action
+```
+
+Use these editing heuristics:
+
+- split a paragraph when its second idea could have its own heading, bullet, or edge;
+- split a bullet when it contains more than one independent claim;
+- split a diagram when it answers both “who owns this?” and “what happens next?”;
+- shorten code to the call relationship that proves the point;
+- remove an example if the previous block already made the mechanism clear;
+- remove a source if it adds prestige but no new evidence;
+- remove the closing summary when it merely repeats the verdict—finish with action instead.
+
+Whitespace is part of the explanation. Leave visible breathing room around headings, lists, callouts, diagrams, and code.
+
+## Two-minute architecture-brief pattern
+
+```markdown
+## 🧭 Question review
+
+> Original ask or faithful compression.
+
+- **Real decision**: One sentence.
+- **Hidden geometry**: One sentence or small diagram.
+
+## 🎯 Verdict
+
+```text
+╔══ DECISION ══╗
+║ One choice.  ║
+╚══════════════╝
+```
+
+## ⚙️ Mechanism
+
+One diagram, followed by the minimum verified code and recommended pseudocode.
+
+## 🔎 Evidence and risk
+
+- **Verified**: Decisive fact.
+- **Inference**: What it means.
+- ⚠️ **Risk**: What could invalidate the choice.
+
+## ✅ Next step
+
+- One owner.
+- One test.
+- One acceptance condition.
+````
+
+When embedding fenced blocks inside this Markdown example, use a longer outer fence in the actual source so rendering remains valid.
+
+## Clean Markdown rules
+
+- Use short headings and generous blank lines.
+- Use `##` for the main report path, `###` for decision-bearing subsections, and `####` sparingly.
+- Use CommonMark `-` bullets actively for parallel information, with no more than one nested bullet level in normal chat.
+- Do not use Markdown tables.
+- Avoid deeply nested bullets and wall-to-wall bold text.
+- Keep diagrams in fenced `text` blocks and code in language-tagged fences.
+- Use syntax-highlighted `ts`, `python`, `yaml`, `json`, `diff`, or `bash` fences for pseudocode whenever the grammar truthfully fits; reserve `text` for visual and literal material.
+- Keep citations beside the exact factual claim they support.
+- Let the answer be readable without opening linked artifacts.
+- Actively alternate prose, callouts, diagrams, exact blocks, and code when each form improves comprehension.
+- Unicode single-line, double-line, rounded, and tree characters are allowed. Keep alignment correct in a monospace fence.
+- Use a small, consistent emoji vocabulary in headings and bullet leads when it improves navigation or warmth.
+- A visually elaborate frame must have a short interior. Dense prose inside a fancy box is harder to read than ordinary prose.
+- Give peer blocks horizontal space, phases vertical space, and the whole diagram enough room to breathe.
+- Keep one visual axis to roughly three sequential nodes; recompose longer structures into regions or another diagram.
+- Do not add standalone arrow fences between normal headings, prose, lists, and code blocks.
+- Preserve clickable links in normal Markdown or blockquotes; do not hide useful citations in code fences.
+- Keep paragraphs short, lists clustered, and sections visibly separated; the main path should fit a two- to three-minute read.
+- Prefer simple English from common code, issue, PR, log, and API vocabulary. Use plain Chinese around exact project terms.
+- Keep the voice calm and warm across the whole report. Connect short sentences into small natural paragraphs instead of writing in telegram fragments.
+- Bold only short plain-text phrases. Keep punctuation, emoji, links, and code outside the emphasis markers.
+- Use normal prose, intermittent bold, and occasional blockquotes together so the page feels human rather than mechanically highlighted.
+- Make the core conflict visible and add one grounded insight when it changes how the reader should think or act.
 
 ## Visual failure checks
 
 - A decorative box around prose adds weight without understanding.
-- A diagram with several unrelated flows should be split or reduced.
+- A decorative box around a one-line verdict can improve scanning; the failure is boxing content without giving the box a semantic role.
+- A diagram with unrelated flows should be split or reduced.
+- Repeating the same ownership edge in three diagrams wastes attention.
 - A dense ontology is not a senior brief; show only objects that change the choice.
-- A code block without provenance risks turning plausible synthesis into false API evidence.
-- A table with many nearly identical rows belongs in the artifact unless the differences decide the architecture.
+- A code block without provenance can turn plausible synthesis into false API evidence.
+- Plain gray pseudocode wastes a useful visual channel when an honest language tag could expose types, control flow, or declarative structure.
+- A cramped one-line architecture chain hides ownership and should be expanded into spatial blocks.
+- A long downward staircase of report elements wastes vertical space and repeats Markdown's natural reading direction.
+- Repeated standalone `↓` blocks are visual filler unless they are part of one modeled flow.
+- A flat wall under one heading hides the argument; a six-level outline hides it differently.
+- A bullet list where every item contains several unrelated claims should be split by headings or diagrams.
+- Emoji on every line, or the same emoji with shifting meanings, creates visual noise rather than hierarchy.
+- Three dense paragraphs in a row usually mean the content needs a heading, bullets, or a diagram.
+- Repeating the verdict as a final summary wastes the last screen; end with the next action when possible.
+- Academic or consultant English that can be replaced by a common developer word adds needless reading cost.
+- Cold commands, empty praise, and scripted empathy all weaken trust; use direct but kind engineering language.
+- Bold punctuation, emoji inside emphasis, unbalanced markers, and deep Markdown nesting can render differently across clients.
+- Attractive Markdown without a clear conflict, mechanism, or useful insight is decoration rather than a report.
+- A long mapping inventory belongs outside the three-minute path unless it decides the architecture.

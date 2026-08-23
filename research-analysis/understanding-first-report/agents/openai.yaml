@@ -1,0 +1,4 @@
+interface:
+  display_name: "Understanding-First Report"
+  short_description: "Question-first briefs with clear mechanisms and decisions"
+  default_prompt: "Use $understanding-first-report to reconstruct my real question, map its geometry, and give a self-contained three-minute technical brief."

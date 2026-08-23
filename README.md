@@ -119,18 +119,18 @@ runtimes own sessions, memory, workspaces, and deployment.
 
 #### [understanding-first-report](./research-analysis/understanding-first-report/)
 
-Turn complex technical work into a verdict-first brief with truthful diagrams, code provenance, and low cognitive load.
+Turn complex technical work into a warm, question-first, self-contained brief with clear Markdown, useful diagrams, sourced code, and one grounded insight.
 
 **Recommended scenarios**
 
-- Compress a large research artifact or architecture review into its main contradiction and decisive evidence.
-- Explain a technical decision to a human architect without hiding uncertainty or forcing them through all research notes.
+- Reconstruct a long or tangled request into the real decision, core conflict, and problem shape.
+- Explain research or architecture with short prose, simple developer words, useful diagrams, sourced code, clear risk, and one practical next step.
 
 **Example**
 
 ```text
-/understanding-first-report explain this research to a human
-architect with one clear model and one actionable recommendation.
+/understanding-first-report restate the real question, show the
+core conflict and mechanism, then give one grounded insight and next step.
 ```
 
 The two Skills work well together, but each remains independently usable.
