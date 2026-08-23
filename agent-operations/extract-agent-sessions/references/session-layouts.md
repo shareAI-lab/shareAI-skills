@@ -15,19 +15,20 @@ different account inferred from `sudo`, a service, or a scheduled task.
 - [Tree-shaped transcripts](#tree-shaped-transcripts)
 - [Rollout-shaped transcripts](#rollout-shaped-transcripts)
 - [Relational-shaped transcripts](#relational-shaped-transcripts)
+- [ACP-stream-shaped transcripts](#acp-stream-shaped-transcripts)
 - [Recency and low-context analysis](#recency-and-low-context-analysis)
 - [Externalized content and corruption](#externalized-content-and-corruption)
 
 ## Storage map
 
-| Purpose | Tree-shaped store | Rollout-shaped store | Relational-shaped store |
-|---|---|---|---|
-| Observed product family | Claude Code | Codex CLI/Desktop | opencode CLI/TUI (observed at 1.18.x) |
-| Data root | `<home>/.claude` | `<home>/.codex` | `<home>/.local/share/opencode` (XDG data dir; honors `XDG_DATA_HOME`; dev channels suffix the name — probe `opencode*`) |
-| Recent-input index | `history.jsonl` | `history.jsonl` | `session` table inside `opencode.db` |
-| Root transcript | `projects/<encoded-workdir>/<session-id>.jsonl` | `sessions/YYYY/MM/DD/rollout-...-<thread-id>.jsonl` | `message` + `part` rows for sessions with NULL `parent_id` |
-| Child transcript | `<root-session>/subagents/**/*.jsonl` | Separate rollout whose first metadata record identifies a subagent | Sessions with non-NULL `parent_id` (task-tool subagents) |
-| Optional path index | None required | `state_*.sqlite`, if present and opened read-only | `project` table; `<home>/.local/state/opencode/prompt-history.jsonl` is raw typed input — avoid by default |
+| Purpose | Tree-shaped store | Rollout-shaped store | Relational-shaped store | ACP-stream-shaped store |
+|---|---|---|---|---|
+| Observed product family | Claude Code | Codex CLI/Desktop | opencode CLI/TUI (observed at 1.18.x) | Grok Build CLI/TUI (observed at `chat_format_version` 1) |
+| Data root | `<home>/.claude` | `<home>/.codex` | `<home>/.local/share/opencode` (XDG data dir; honors `XDG_DATA_HOME`; dev channels suffix the name — probe `opencode*`) | `$GROK_HOME` when set and non-empty (used verbatim), otherwise `<home>/.grok` |
+| Recent-input index | `history.jsonl` | `history.jsonl` | `session` table inside `opencode.db` | `summary.json` inside each session directory |
+| Root transcript | `projects/<encoded-workdir>/<session-id>.jsonl` | `sessions/YYYY/MM/DD/rollout-...-<thread-id>.jsonl` | `message` + `part` rows for sessions with NULL `parent_id` | `sessions/<encoded-cwd>/<session-id>/updates.jsonl` |
+| Child transcript | `<root-session>/subagents/**/*.jsonl` | Separate rollout whose first metadata record identifies a subagent | Sessions with non-NULL `parent_id` (task-tool subagents) | Sibling session directory whose `session_kind` starts with `subagent` |
+| Optional path index | None required | `state_*.sqlite`, if present and opened read-only | `project` table; `<home>/.local/state/opencode/prompt-history.jsonl` is raw typed input — avoid by default | `sessions/session_search.sqlite` FTS (`title`/`content` are conversation text — never select them); per-cwd-group `prompt_history.jsonl` is raw typed input — avoid by default |
 
 These relative layouts have been observed under Linux and macOS homes. Do not
 assume that a desktop app, CLI, container, WSL distribution, or remote host shares
@@ -65,10 +66,27 @@ share_url                       non-NULL when the session was shared
 agent, model
 ```
 
+Observed ACP-stream `summary.json` fields include:
+
+```text
+info.id, info.cwd               cwd is private, like project/directory above
+created_at, updated_at,
+last_active_at                  RFC3339 strings; last_active_at may be absent
+session_kind                    absent on ordinary roots; "subagent*" on children
+parent_session_id               set on forks; treat as an independent root
+hidden                          optional visibility override
+generated_title, session_summary,
+last_turn_summary, last_recap   private display text
+num_messages, num_chat_messages
+chat_format_version             observed 1
+```
+
 Use these indexes only to obtain candidate IDs and recent human-input times. Keep
-`project`, `display`, `text`, `title`, and `directory` private; do not show them
-in the default inventory. An entry with no transcript can be a command-only
-interaction.
+`project`, `display`, `text`, `title`, `directory`, `generated_title`,
+`session_summary`, and `info.cwd` private; do not show them in the default
+inventory. An entry with no transcript can be a command-only interaction. The
+ACP-stream FTS file `session_search.sqlite` duplicates titles and prompt text;
+do not use it as a discovery index.
 
 Before relying on the field names or units, inspect key sets and numeric ranges.
 
@@ -349,6 +367,151 @@ Older installs used JSON files under `<data-root>/storage/` (per-project
 exists, fingerprint that layout before use and expect migration marker files
 alongside it.
 
+## ACP-stream-shaped transcripts
+
+Observed in Grok Build (`grok`) under the grok home: `$GROK_HOME` when that
+environment variable is set and non-empty (the binary uses the value verbatim),
+otherwise `<home>/.grok`. Session directories live at:
+
+```text
+<grok-home>/sessions/<encoded-cwd>/<session-id>/
+```
+
+The cwd component is URL-encoded when the encoded name is at most 255 bytes.
+Longer paths use `{slug}-{blake3-hex16}` and store the original path in a `.cwd`
+file inside the group directory. Do not decode cwd names for inventory display.
+Session IDs are UUIDs (commonly UUIDv7). Adjacent files such as
+`auth.json`, `config.toml`, `system_prompt.txt`, and `rewind_points.jsonl`
+are outside the conversation allow-list.
+
+`updates.jsonl` is the authoritative conversation log (ACP session updates plus
+xAI extension updates). `chat_history.jsonl` is the model-facing snapshot: it
+is rewritten on compact and rewind, and it mixes real user turns with synthetic
+rows (`synthetic_reason` values such as `system_reminder`,
+`project_instructions`, `compaction_meta`). Extract visible text from
+`updates.jsonl`. If that file is missing or empty, report the ACP stream as
+unavailable rather than falling through to `chat_history.jsonl`.
+
+### Store files
+
+```text
+summary.json              discovery index; one JSON object
+updates.jsonl             canonical transcript; append-only JSONL
+chat_history.jsonl        model context; rewritten; includes synthetics
+events.jsonl              lifecycle telemetry (phase_changed, tool_started, ...)
+prompt_context.json
+system_prompt.txt         system injection — never extract as conversation
+rewind_points.jsonl       file snapshots (source); never dump
+signals.json, plan.json, announcement_state.json
+compaction_checkpoints/   compacted model-view blobs, not the ACP stream
+subagents/<child-id>/     metadata only (meta.json includes the child prompt)
+terminal/, web_fetch/     tool sidecars
+```
+
+The cwd group may also contain `prompt_history.jsonl` (typed prompts, including
+bash). Treat it like the relational family's prompt-history file: avoid by
+default.
+
+### Envelope
+
+Each `updates.jsonl` line is:
+
+```text
+timestamp     Unix seconds (int)
+method        "session/update" | "_x.ai/session/update"
+params        { sessionId, update, _meta? }
+```
+
+Legacy lines without the envelope wrapper are raw ACP notifications. Fingerprint
+`method` and `params.update.sessionUpdate` before reading text. Observed ACP
+`sessionUpdate` values include `user_message_chunk`, `agent_message_chunk`,
+`agent_thought_chunk`, `tool_call`, `tool_call_update`, `plan`. Observed xAI
+extension values include `turn_completed`, `rewind_marker`, `retry_state`,
+`session_recap`, `subagent_spawned`, `subagent_finished`,
+`auto_compact_started`, `auto_compact_completed`, `compaction_checkpoint`.
+Collapse any other discriminant to `unknown-string`.
+
+### Root and child identity
+
+- Accept a directory that contains `summary.json` whose `info.id` equals the
+  directory basename.
+- Reject any path whose components include `subagents`: that tree holds child
+  metadata (`meta.json`, `output.json`), while the child transcript is a
+  sibling session directory in the same cwd group.
+- Child: `summary.session_kind` starts with `subagent` (observed
+  `subagent`, `subagent_fork`, `subagent_resume`). `Summary::is_hidden`
+  defaults to that prefix unless `hidden` is an explicit boolean.
+- Ordinary roots omit `session_kind`. Forks of a parent conversation may set
+  `session_kind` to `fork` and `parent_session_id`; treat them as independent
+  roots and report possible duplication instead of merging.
+- Worktree sessions may set `session_kind` to `worktree` and
+  `source_workspace_dir`; they are roots.
+- Keep `info.cwd`, titles, recaps, and `grok_home` private.
+
+### Human allow-list
+
+Require all of:
+
+```text
+method == "session/update"
+params.update.sessionUpdate == "user_message_chunk"
+params.update.content.type == "text"
+params.update.content.text is a string
+params.update._meta.hostTurn is not true
+params.update.content._meta.bash_command is absent
+```
+
+Then reconstruct counted user runs, matching the store's resume collector:
+
+1. Concatenate consecutive matching chunks until a non-user event or a
+   `promptIndex` change opens a new run.
+2. Until the first `_meta.promptIndex` appears, every user run counts. After
+   that, drop unmarked runs (mid-turn phantoms omit the marker).
+3. On `_x.ai/session/update` with `sessionUpdate == "rewind_marker"`, flush the
+   current run, then truncate the surviving stream at the start of counted
+   prompt `target_prompt_index` (keep the first N counted user runs and the
+   non-user events that preceded the discarded runs). `updates.jsonl` is
+   append-only; rewind records a branch rather than deleting earlier lines.
+4. Skip empty trimmed runs.
+
+`user_message_chunk` with a non-text content block (for example an image) ends
+the current run; count it as an attachment rather than a human text message.
+
+### Assistant allow-list
+
+Require:
+
+```text
+method == "session/update"
+params.update.sessionUpdate == "agent_message_chunk"
+params.update.content.type == "text"
+```
+
+Concatenate consecutive matching chunks in order with no added separator (ACP
+chunks are contiguous fragments). Flush the buffer on any other ACP update or
+any `_x.ai/session/update`. Exclude `agent_thought_chunk`, tool calls, plan
+entries, recaps, compaction machinery, retry state, and subagent spawn/finish
+events.
+
+### Turn state
+
+```text
+_x.ai/session/update + sessionUpdate == "turn_completed"
+  stop_reason == "end_turn"     completed
+  stop_reason == "cancelled"    aborted
+EOF without turn_completed      open or stale-incomplete
+```
+
+Use `turn_completed` only for state. Compaction checkpoints rewrite
+`chat_history.jsonl`; they leave historical `user_message_chunk` rows in
+`updates.jsonl`.
+
+### Recency
+
+Prefer the last accepted human or visible-assistant envelope `timestamp` (Unix
+seconds). Fall back to `summary.last_active_at`, then `summary.updated_at`
+(RFC3339). Ignore `events.jsonl` and FTS `updated_at` as discussion recency.
+
 ## Recency and low-context analysis
 
 Use the maximum accepted human or visible-assistant timestamp for transcript
@@ -360,8 +523,8 @@ For topic analysis:
 1. Read every selected human message.
 2. Read final answers for completed turns.
 3. Add visible progress when no final answer exists or the turn is open/aborted.
-4. For tree-shaped and relational stores without phase labels, use the last
-   assistant text before the next human message as a compact view while
+4. For tree-shaped, relational, and ACP-stream stores without phase labels, use
+   the last assistant text before the next human message as a compact view while
    retaining the complete private artifact.
 
 ## Externalized content and corruption
@@ -369,7 +532,9 @@ For topic analysis:
 - Preserve placeholders such as `[Pasted Content ...]` and `[Image #1]` in private
   full exports, but do not claim to recover content the store did not persist.
 - Parse JSONL one record at a time. A record can itself be large, so streaming memory
-  is bounded by the largest record, not zero.
+  is bounded by the largest record, not zero. Read physical `\n`-delimited lines from
+  the file object; `str.splitlines()` splits on Unicode separators that can appear
+  inside JSON strings.
 - Treat a malformed middle line as corruption.
 - Retry a malformed final line only when file identity, size, or mtime shows an
   active write.

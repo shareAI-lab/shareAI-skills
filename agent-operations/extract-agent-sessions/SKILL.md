@@ -1,6 +1,6 @@
 ---
 name: extract-agent-sessions
-description: Recover, export, or summarize recent human and assistant conversations from local agent session stores while excluding tool calls, reasoning, system injection, copied parent history, and subagent noise. Use for recent-session inventories, clean conversation recovery, or topic summaries from tree-shaped `.claude` JSONL stores, rollout-shaped `.codex` JSONL stores, and relational-shaped opencode SQLite stores on Linux or macOS.
+description: Recover, export, or summarize recent human and assistant conversations from local agent session stores while excluding tool calls, reasoning, system injection, copied parent history, and subagent noise. Use for recent-session inventories, clean conversation recovery, or topic summaries from tree-shaped `.claude` JSONL stores, rollout-shaped `.codex` JSONL stores, relational-shaped opencode SQLite stores, and ACP-stream-shaped Grok Build `~/.grok/sessions` (or `$GROK_HOME/sessions`) stores on Linux or macOS.
 ---
 
 # Extract Agent Sessions
@@ -36,6 +36,10 @@ from the current filesystem and shell capabilities.
   metadata; never read credential-bearing tables such as `account`,
   `account_state`, `control_account`, or `credential`, and never `SELECT *`
   from a table you have not fingerprinted.
+- An ACP-stream home can mix transcripts with `auth.json` and an FTS index
+  (`sessions/session_search.sqlite`) whose `title` and `content` columns are
+  conversation text. Never open `auth.json`. Do not query those FTS columns.
+  Skip `prompt_history.jsonl`, `system_prompt.txt`, and `rewind_points.jsonl`.
 
 ## Output modes
 
@@ -59,10 +63,12 @@ This version supports Linux and macOS hosts:
 
 - Read [references/posix-shell.md](references/posix-shell.md) and compose commands
   for the shell and utilities actually present.
-- JSONL families need a streaming JSON tool such as `jq`. The relational family
-  needs a read-only SQLite client instead (`node:sqlite` on Node 22+, or
-  `sqlite3` opened with a `mode=ro` URI); open read-only and expect WAL churn
-  from a live client.
+- JSONL families (tree, rollout, ACP-stream) need a streaming JSON tool such as
+  `jq`. The relational family needs a read-only SQLite client instead
+  (`node:sqlite` on Node 22+, or `sqlite3` opened with a `mode=ro` URI); open
+  read-only and expect WAL churn from a live client. ACP-stream rewind
+  reconstruction also needs `python3` for the one-off coalescer in
+  `posix-shell.md`.
 - Under WSL, treat the Linux distribution as a separate environment and inspect it
   only when the agent client ran there. Native Windows session stores are outside
   this version's supported scope.
@@ -96,6 +102,12 @@ identity, lineage, timestamp, and state columns only, and keep `title` and
 `directory` private. Its state directory keeps a raw typed-input history file;
 avoid it, because it holds prompt text without reliable session mapping.
 
+For the ACP-stream family, each session directory's `summary.json` is the
+discovery index: read identity, `session_kind`, `hidden`, and timestamp fields
+only, and keep `info.cwd`, `generated_title`, `session_summary`, and recaps
+private. Per-cwd-group `prompt_history.jsonl` holds prompt text; avoid it. Do
+not use `session_search.sqlite` as a discovery index.
+
 ### 3. Resolve and prove root identity
 
 Resolve transcripts only for selected candidates. Constrain every path to an
@@ -112,6 +124,13 @@ recursively. Forked sessions duplicate an ancestor's messages under fresh IDs
 with lineage recorded only in a naming convention; treat them as independent
 roots and report possible duplication instead of merging.
 
+For ACP-stream stores, accept a directory whose basename equals
+`summary.info.id`. Exclude sessions whose `session_kind` starts with
+`subagent`, unless `hidden` is an explicit `false`. Reject any path containing
+a `subagents` component (child metadata only; the child transcript is a sibling
+directory). Forks may set `parent_session_id` while remaining roots; report
+possible duplication instead of merging.
+
 ### 4. Fingerprint the schema without content
 
 Project only key names, column names, value types, role/type enums,
@@ -122,7 +141,10 @@ in the reference.
 
 If required identity, parent-link, human, or assistant fields are absent or have an
 unknown combination, stop content extraction and report schema drift. Do not guess
-which channel contains human-visible text.
+which channel contains human-visible text. For ACP-stream files, fingerprint
+`method` and `params.update.sessionUpdate` plus `content.type`; stop if the
+human/assistant pair is not `session/update` + `user_message_chunk` /
+`agent_message_chunk` with `content.type == text`.
 
 ### 5. Extract only the selected visible timeline
 
@@ -139,6 +161,13 @@ For a relational transcript, join messages to parts in stored order and keep
 only allow-listed visible text parts. Honor the revert marker by labeling rows
 at or beyond it as reverted, and read only the canonical message and part
 tables; event logs and projection tables duplicate the same content.
+
+For an ACP-stream transcript, read `updates.jsonl` only. Apply `rewind_marker`
+truncation, drop host-turn and bash-command user chunks, coalesce counted
+`user_message_chunk` runs and `agent_message_chunk` fragments, and treat
+`turn_completed` as lifecycle state. Do not extract `chat_history.jsonl`
+(model-facing, rewritten on compact) or `events.jsonl`. If `updates.jsonl` is
+missing, report the stream as unavailable.
 
 Store attachment presence and counts by default. Preserve local attachment paths or
 data only when the user explicitly requests a private full export.

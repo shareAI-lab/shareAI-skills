@@ -11,11 +11,14 @@ JSONL or install software without permission.
 
 - [Safe setup](#safe-setup)
 - [Discover candidates](#stream-a-history-index-into-a-private-candidate-file)
+- [Discover ACP-stream sessions](#discover-acp-stream-sessions-from-summaryjson)
 - [Resolve one session](#resolve-a-selected-id-without-wildcard-expansion)
 - [Prove rollout identity](#prove-rollout-identity-without-exposing-values)
+- [Prove ACP-stream identity](#prove-acp-stream-identity-without-exposing-values)
 - [Fingerprint the schema](#fingerprint-structure-without-content)
 - [Recover a tree branch](#build-a-tree-ancestry-without-bodies)
 - [Project visible text](#project-visible-text-privately)
+- [Project an ACP stream](#project-an-acp-stream-privately)
 - [Query a relational SQLite store](#query-a-relational-sqlite-store-read-only)
 - [Detect concurrent writes](#detect-an-active-write)
 
@@ -133,7 +136,8 @@ seconds, sort, and assign `S1`, `S2`, ... aliases. Keep the alias-to-ID map priv
 ```bash
 candidate_files=()
 for candidate_file in "$extract_dir"/tree-candidates.jsonl \
-                      "$extract_dir"/rollout-candidates.jsonl; do
+                      "$extract_dir"/rollout-candidates.jsonl \
+                      "$extract_dir"/acp-stream-candidates.jsonl; do
   [ -s "$candidate_file" ] && candidate_files+=("$candidate_file")
 done
 ((${#candidate_files[@]} > 0)) || {
@@ -153,16 +157,137 @@ jq -sc '
       alias: ("S" + ((.key + 1) | tostring)),
       source: .value.source,
       recent_input_s: .value.recent_input_s,
-      private_id: .value.private_id
+      private_id: .value.private_id,
+      child: (.value.child // false),
+      has_updates: .value.has_updates
     }
 ' "${candidate_files[@]}" >"$extract_dir/candidate-map.jsonl"
 
-jq -r '[.alias, .source, (.recent_input_s | todateiso8601)] | @tsv' \
+jq -r '[.alias, .source, (.recent_input_s | todateiso8601),
+        (if .child then "child" else "root" end),
+        (if .has_updates == true then "transcript"
+         elif .has_updates == false then "no-transcript"
+         else "-" end)] | @tsv' \
   "$extract_dir/candidate-map.jsonl"
 ```
 
 The private map remains one compact JSON object per line. Never print `private_id`,
 history prompt text, `project`, or cwd.
+
+## Discover ACP-stream sessions from summary.json
+
+Grok Build has no `history.jsonl`. Walk `summary.json` files one level under each
+cwd group. Resolve the grok home the same way the binary does: `$GROK_HOME`
+verbatim when set and non-empty, otherwise `<home>/.grok`. Do not read
+`prompt_history.jsonl`, `.cwd`, `session_search.sqlite` content columns, or
+`auth.json`. Keep `info.cwd`, titles, and recaps private:
+
+```bash
+if [ -n "${GROK_HOME:-}" ]; then
+  grok_home=$GROK_HOME
+else
+  grok_home="$agent_home/.grok"
+fi
+case "$grok_home" in
+  /*) ;;
+  *) printf 'GROK_HOME must be an absolute path\n' >&2; exit 2 ;;
+esac
+[ -d "$grok_home" ] && [ ! -L "$grok_home" ] || {
+  printf 'Grok home is absent, linked, or unsupported\n' >&2
+  exit 2
+}
+grok_home=$(cd -P -- "$grok_home" 2>/dev/null && pwd -P) || exit 2
+sessions_root="$grok_home/sessions"
+[ -d "$sessions_root" ] && [ ! -L "$sessions_root" ] || {
+  printf 'ACP-stream session root is absent or unsupported\n' >&2
+  exit 2
+}
+
+python3 - "$sessions_root" "$window_start_s" "$window_end_s" \
+  "$extract_dir/acp-stream-candidates.jsonl" <<'EOF'
+import json, sys
+from datetime import datetime
+from pathlib import Path
+
+root = Path(sys.argv[1])
+start_s, end_s = int(sys.argv[2]), int(sys.argv[3])
+out_path = Path(sys.argv[4])
+
+
+def parse_rfc3339(value):
+    if not isinstance(value, str) or not value:
+        return None
+    text = value.replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(text)
+    except ValueError:
+        if "." in text:
+            head, rest = text.split(".", 1)
+            frac = ""
+            tz = rest
+            for i, ch in enumerate(rest):
+                if ch.isdigit():
+                    frac += ch
+                else:
+                    tz = rest[i:]
+                    break
+            text = head + "." + frac[:6].ljust(6, "0") + tz
+            try:
+                return datetime.fromisoformat(text)
+            except ValueError:
+                return None
+        return None
+
+
+def is_child(summary):
+    hidden = summary.get("hidden")
+    if isinstance(hidden, bool):
+        return hidden
+    kind = summary.get("session_kind")
+    return isinstance(kind, str) and kind.startswith("subagent")
+
+
+with out_path.open("w", encoding="utf-8") as out:
+    for group in sorted(root.iterdir()):
+        if not group.is_dir() or group.is_symlink():
+            continue
+        for session_dir in sorted(group.iterdir()):
+            if not session_dir.is_dir() or session_dir.is_symlink():
+                continue
+            summary_path = session_dir / "summary.json"
+            if not summary_path.is_file() or summary_path.is_symlink():
+                continue
+            try:
+                summary = json.loads(summary_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError, UnicodeError):
+                continue
+            info = summary.get("info") if isinstance(summary.get("info"), dict) else {}
+            session_id = info.get("id")
+            if not isinstance(session_id, str) or session_id != session_dir.name:
+                continue
+            stamp = parse_rfc3339(summary.get("last_active_at")) or parse_rfc3339(
+                summary.get("updated_at")
+            )
+            if stamp is None:
+                continue
+            recent = int(stamp.timestamp())
+            if recent < start_s or recent > end_s:
+                continue
+            updates = session_dir / "updates.jsonl"
+            row = {
+                "source": "acp-stream",
+                "private_id": session_id,
+                "recent_input": recent,
+                "child": is_child(summary),
+                "has_updates": updates.is_file() and (not updates.is_symlink()) and updates.stat().st_size > 0,
+            }
+            out.write(json.dumps(row, separators=(",", ":")) + "\n")
+EOF
+```
+
+Inventory still prints only alias, source, and UTC time. Keep `child` and
+`has_updates` on the private map so root filtering and transcript availability
+can be reported without opening message bodies.
 
 ## Resolve a selected ID without wildcard expansion
 
@@ -217,8 +342,25 @@ while IFS= read -r candidate; do
 done < <(find "$rollout_root" -type f -name '*.jsonl' -print)
 ```
 
+For ACP-stream sessions, walk cwd groups under the grok sessions root and match
+the directory basename exactly. Skip `subagents` directories (metadata only):
+
+```bash
+while IFS= read -r candidate; do
+  base=${candidate##*/}
+  [ "$base" = "$session_id" ] || continue
+  case "$candidate" in
+    */subagents/*) continue ;;
+  esac
+  [ -f "$candidate/summary.json" ] && [ ! -L "$candidate/summary.json" ] &&
+    printf '%s\n' "$candidate" >>"$extract_dir/matches.txt"
+done < <(find "$sessions_root" -mindepth 2 -maxdepth 2 -type d -print)
+```
+
 Require exactly one match for the selected family. A missing tree transcript can be
 command-only. A rollout match is not root until its first metadata record proves it.
+An ACP-stream directory with `summary.json` but no `updates.jsonl` is a root
+candidate whose transcript is unavailable.
 
 ## Prove rollout identity without exposing values
 
@@ -246,6 +388,45 @@ jq -e '.id_matches == true and .explicit_subagent == false and .has_parent == fa
 ```
 
 Keep actual metadata values private.
+
+## Prove ACP-stream identity without exposing values
+
+```bash
+python3 - "$session_dir" "$session_id" "$extract_dir/identity.json" <<'EOF'
+import json, sys
+from pathlib import Path
+
+session_dir = Path(sys.argv[1])
+expected = sys.argv[2]
+out = Path(sys.argv[3])
+summary = json.loads((session_dir / "summary.json").read_text(encoding="utf-8"))
+info = summary.get("info") if isinstance(summary.get("info"), dict) else {}
+kind = summary.get("session_kind")
+hidden = summary.get("hidden")
+if isinstance(hidden, bool):
+    child = hidden
+else:
+    child = isinstance(kind, str) and kind.startswith("subagent")
+updates = session_dir / "updates.jsonl"
+identity = {
+    "id_matches": info.get("id") == expected and session_dir.name == expected,
+    "child": child,
+    "has_parent_session_id": isinstance(summary.get("parent_session_id"), str)
+        and len(summary.get("parent_session_id") or "") > 0,
+    "has_cwd": isinstance(info.get("cwd"), str),
+    "chat_format_version": summary.get("chat_format_version"),
+    "has_updates": updates.is_file() and (not updates.is_symlink()) and updates.stat().st_size > 0,
+}
+out.write_text(json.dumps(identity) + "\n", encoding="utf-8")
+EOF
+
+jq -e '.id_matches == true and .child == false' \
+  "$extract_dir/identity.json" >/dev/null
+```
+
+`has_parent_session_id` marks a fork, which remains a root. Stop if
+`chat_format_version` is present and not `1` until the fingerprint of
+`updates.jsonl` still matches the allow-list. Keep actual IDs and cwd private.
 
 ## Fingerprint structure without content
 
@@ -285,6 +466,36 @@ jq -c '
       if type == "array" then map((.type? // null) |
         safe_enum(["output_text", "input_text", "summary_text", "image"]))
       else [] end)
+  }
+' "$transcript" | sort | uniq -c | sort -nr | sed -n '1,100p'
+```
+
+For an ACP-stream `updates.jsonl`, fingerprint method and `sessionUpdate`
+discriminants instead of Codex/Claude envelopes:
+
+```bash
+jq -c '
+  def safe_enum($known):
+    . as $value
+    | if $value == null then null
+      elif ($value | type) != "string" then ($value | type)
+      elif ($known | index($value)) != null then $value
+      else "unknown-string" end;
+  {
+    method: ((.method? // null) |
+      safe_enum(["session/update", "_x.ai/session/update"])),
+    session_update: ((.params.update.sessionUpdate? // null) |
+      safe_enum(["user_message_chunk", "agent_message_chunk",
+                 "agent_thought_chunk", "tool_call", "tool_call_update",
+                 "plan", "turn_completed", "rewind_marker", "retry_state",
+                 "session_recap", "subagent_spawned", "subagent_finished",
+                 "auto_compact_started", "auto_compact_completed",
+                 "compaction_checkpoint"])),
+    content_type: ((.params.update.content.type? // null) |
+      safe_enum(["text", "image", "resource", "resource_link"])),
+    has_prompt_index: ((.params.update._meta.promptIndex? | type) == "number"),
+    has_host_turn: ((.params.update._meta.hostTurn? | type) == "boolean"),
+    timestamp_type: (.timestamp? | type)
   }
 ' "$transcript" | sort | uniq -c | sort -nr | sed -n '1,100p'
 ```
@@ -409,6 +620,196 @@ jq -c --slurpfile active "$extract_dir/active-ids.json" '
       | {role: "assistant", text_blocks: $text}
     else empty end
 ' "$transcript" >"$extract_dir/visible.jsonl"
+```
+
+For an ACP-stream transcript, apply rewind truncation first, then coalesce
+counted user runs and assistant chunks. The predicates match
+`session-layouts.md`. Concatenate assistant fragments with no added separator.
+Read with the file iterator (`for line in fh`); `str.splitlines()` splits on
+Unicode line separators that can appear inside JSON strings:
+
+```bash
+python3 - "$transcript" "$extract_dir/visible.jsonl" <<'EOF'
+import json, sys
+from pathlib import Path
+
+src, dest = Path(sys.argv[1]), Path(sys.argv[2])
+
+
+def parse_line(line):
+    obj = json.loads(line)
+    method = obj.get("method")
+    params = obj.get("params") if isinstance(obj.get("params"), dict) else obj
+    update = params.get("update") if isinstance(params, dict) else None
+    if not isinstance(update, dict):
+        return obj.get("timestamp"), method, None, update
+    return obj.get("timestamp"), method, update.get("sessionUpdate"), update
+
+
+def prompt_index(update):
+    meta = update.get("_meta") if isinstance(update, dict) else None
+    if not isinstance(meta, dict):
+        return None
+    value = meta.get("promptIndex")
+    return int(value) if isinstance(value, int) else None
+
+
+def is_host_turn(update):
+    meta = update.get("_meta") if isinstance(update, dict) else None
+    return isinstance(meta, dict) and meta.get("hostTurn") is True
+
+
+def is_bash_chunk(update):
+    content = update.get("content") if isinstance(update, dict) else None
+    if not isinstance(content, dict):
+        return False
+    meta = content.get("_meta")
+    return isinstance(meta, dict) and meta.get("bash_command") is not None
+
+
+def text_of(update):
+    content = update.get("content") if isinstance(update, dict) else None
+    if not isinstance(content, dict):
+        return None, None
+    if content.get("type") != "text":
+        return content.get("type"), None
+    text = content.get("text")
+    return "text", text if isinstance(text, str) else None
+
+
+lines = []
+with src.open(encoding="utf-8") as fh:
+    for raw in fh:
+        line = raw.strip()
+        if line:
+            lines.append(line)
+
+# Rewind: drop the branch after target_prompt_index counted user runs.
+prompt_starts = []
+seen_marker = False
+in_user = False
+current_pi = None
+kept = []
+for line in lines:
+    try:
+        ts, method, tag, update = parse_line(line)
+    except json.JSONDecodeError:
+        raise SystemExit("malformed middle record")
+    if method == "_x.ai/session/update" and tag == "rewind_marker":
+        target = update.get("target_prompt_index") if isinstance(update, dict) else None
+        if isinstance(target, int):
+            trunc = prompt_starts[target] if target < len(prompt_starts) else len(kept)
+            kept = kept[:trunc]
+            prompt_starts = prompt_starts[:target]
+            in_user = False
+            current_pi = None
+            continue
+    user = (
+        method == "session/update"
+        and tag == "user_message_chunk"
+        and not is_host_turn(update)
+        and not is_bash_chunk(update)
+    )
+    if user:
+        pi = prompt_index(update)
+        if pi is not None:
+            seen_marker = True
+        counts = (pi is not None) if seen_marker else True
+        new_run = (not in_user) or (
+            (seen_marker or pi is not None) and pi != current_pi
+        )
+        if new_run:
+            in_user = True
+            current_pi = pi
+            if counts:
+                prompt_starts.append(len(kept))
+        else:
+            if current_pi is None and pi is not None:
+                current_pi = pi
+    else:
+        in_user = False
+        current_pi = None
+    kept.append(line)
+
+# Coalesce visible text from the surviving stream.
+visible = []
+buf_role = None
+buf_ts = None
+buf_text = []
+buf_pi = None
+seen_marker = False
+counted = True
+attachments = 0
+
+
+def flush():
+    global buf_role, buf_ts, buf_text, buf_pi, counted, attachments
+    if buf_role == "human" and not counted:
+        buf_role = None
+        buf_text = []
+        attachments = 0
+        return
+    text = "".join(buf_text)
+    if buf_role and text:
+        row = {"role": buf_role, "timestamp": buf_ts, "text": text}
+        if attachments:
+            row["attachment_summary"] = {"non_text_blocks": attachments}
+        visible.append(row)
+    buf_role = None
+    buf_ts = None
+    buf_text = []
+    buf_pi = None
+    attachments = 0
+
+
+in_user = False
+current_pi = None
+for line in kept:
+    ts, method, tag, update = parse_line(line)
+    if method == "session/update" and tag == "user_message_chunk":
+        if is_host_turn(update) or is_bash_chunk(update):
+            flush()
+            continue
+        ctype, text = text_of(update)
+        pi = prompt_index(update)
+        if pi is not None:
+            seen_marker = True
+        counts = (pi is not None) if seen_marker else True
+        new_run = buf_role != "human" or (
+            (seen_marker or pi is not None) and pi != buf_pi
+        )
+        if new_run:
+            flush()
+            buf_role = "human"
+            buf_ts = ts
+            buf_pi = pi
+            counted = counts
+        elif buf_pi is None and pi is not None:
+            buf_pi = pi
+            counted = True
+        if ctype == "text" and text:
+            buf_text.append(text)
+        elif ctype not in (None, "text"):
+            attachments += 1
+            flush()
+        continue
+    if method == "session/update" and tag == "agent_message_chunk":
+        ctype, text = text_of(update)
+        if buf_role != "assistant":
+            flush()
+            buf_role = "assistant"
+            buf_ts = ts
+            counted = True
+        if ctype == "text" and text:
+            buf_text.append(text)
+        continue
+    flush()
+
+flush()
+with dest.open("w", encoding="utf-8") as out:
+    for row in visible:
+        out.write(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n")
+EOF
 ```
 
 Do not write UUIDs, cwd, or local attachment paths to the visible artifact unless
