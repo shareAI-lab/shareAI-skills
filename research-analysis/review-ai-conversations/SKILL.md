@@ -37,18 +37,57 @@ When local stores must be read, load only the matching source file:
 - Grok Build: `references/sources/grok-build.md`
 - Cursor: `references/sources/cursor.md`
 
-Each source reference defines four required facts: the storage root, the recent/time
+Each source reference records four last-known anchors: the storage root, the recent/time
 index and its units, root/child or fork identity, and the fields that contain the
-user's question and visible AI reply. Preserve those facts when adapting to schema
-changes.
+user's question and visible AI reply. Treat these as strong starting evidence, not as
+an immutable parser contract.
 
 For a request spanning several products, process each source independently, then merge
 the clean human/assistant conversations at the analysis stage.
 
-Freeze one UTC `[start, end]` window for the review. Use the product's documented
+Freeze one UTC `[start, end]` window for the review. Use the product's recorded
 recent index to find candidates, then prefer the maximum accepted human-message or
 visible AI-message timestamp as the conversation's real activity time. File mtime is
 only a fallback when the store has no message or session clock.
+
+## Exercise judgment when stores evolve
+
+Local clients may rename fields, add wrappers, change timestamp representations, or
+introduce a newer projection. Small schema drift is expected. Do not abandon the
+review merely because one known path no longer matches.
+
+```text
+known shape matches
+  -> use the source fast path
+
+small local drift
+  -> inspect a tiny representative sample
+  -> infer the new mapping from semantic invariants
+  -> adapt once and apply it to the whole selected batch
+
+competing or contradictory projections
+  -> compare continuity and visible human/assistant turns
+  -> choose one canonical projection
+  -> mention uncertainty only when it could change the review
+```
+
+Use semantic invariants to make the judgment: stable conversation identity, ordered
+records, plausible timestamps, root/parent relationships, human-authored prompts,
+visible assistant text, and continuity between adjacent turns. Field names alone are
+weaker evidence than the role and behavior of the records.
+
+Be autonomous but evidence-grounded. Tolerate renamed or nested fields and harmless
+extra event types. Do not reinterpret tool output, reasoning, copied context, or
+synthetic instructions as visible conversation merely to make a new schema fit. If
+the shape changed substantially, derive the narrowest mapping that recovers a coherent
+sample conversation, record that assumption internally, and continue. Ask the user
+only when two plausible mappings would materially change which human conversations or
+conclusions are included.
+
+Keep adaptation cheap: inspect a few neighboring records from one or two candidates,
+not the entire store; update the selector once; then return to the normal batched or
+streaming path. Do not build and maintain a version-by-version schema matrix during an
+ordinary review.
 
 ## Use the efficient retrieval path
 
