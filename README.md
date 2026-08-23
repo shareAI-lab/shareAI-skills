@@ -42,6 +42,8 @@ npx skills add shareai-lab/lab-skills --skill meet-work
 | Agent development | [skill-judge](./agent-development/skill-judge/) | Opinionated | Evaluate and improve Agent Skill design quality with a practice-derived rubric |
 | Agent operations | [extract-agent-sessions](./agent-operations/extract-agent-sessions/) | Tool-specific | Recover clean conversations from supported local agent session stores |
 | Content and publishing | [media-writer](./content-publishing/media-writer/) | Tool-specific | Adapt content to the culture and expectations of supported publishing platforms |
+| Research and analysis | [deep-architecture-research](./research-analysis/deep-architecture-research/) | Opinionated | Clarify broad system questions, then investigate architecture through source, history, official docs, and calibrated community evidence |
+| Research and analysis | [understanding-first-report](./research-analysis/understanding-first-report/) | Opinionated | Turn deep technical work into a verdict-first brief with truthful diagrams, code provenance, and low cognitive load |
 | Software engineering | [vibe-coding](./software-engineering/vibe-coding/) | Opinionated | Turn an AI agent into a disciplined software development partner |
 | Team collaboration and communication | [boss-meet](./team-collaboration/boss-meet/) | Lab-oriented | Help managers run decision-oriented meetings and give direct, constructive feedback |
 | Team collaboration and communication | [meet-work](./team-collaboration/meet-work/) | Lab-oriented | Turn recent meetings into better work, delivery reviews, decisions, and high-bandwidth updates |
@@ -59,6 +61,9 @@ lab-skills/
 │   └── extract-agent-sessions/
 ├── content-publishing/
 │   └── media-writer/
+├── research-analysis/
+│   ├── deep-architecture-research/
+│   └── understanding-first-report/
 ├── software-engineering/
 │   └── vibe-coding/
 └── team-collaboration/
