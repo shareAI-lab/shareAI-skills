@@ -10,7 +10,7 @@ Outsource the work, not the reader's understanding. Brief a human architect as a
 ## Attention contract
 
 - Lead with the direct answer or verdict.
-- Keep a normal chat report under 3,000 Chinese characters and preferably within five sections; use a sixth only when it prevents confusion. A requested artifact may be longer, but its chat handoff remains brief.
+- Keep a normal chat report concise and preferably within five sections; use a sixth only when it prevents confusion. A requested artifact may be longer, but its chat handoff remains brief.
 - Use at least one useful Markdown box-line diagram in a fenced `text` block. Use more only when each reveals a different important relationship.
 - Match the user's language. Explain unavoidable unfamiliar terms in plain language where they first appear.
 - Assume the reader can make high-level trade-offs but has limited biological attention. Spend it on the main contradiction, decisive evidence, risk, and action.
@@ -42,8 +42,8 @@ Use diagrams to show ownership, flow, lifecycle, state, or comparison. Keep them
 Code examples must reflect a verified official API or inspected source relationship:
 
 - cite the official URL/path and version/commit;
-- label a shortened example `官方用法的最小化改写`;
-- label synthesis `伪代码` or `推荐接口`;
+- label a shortened example `minimal adaptation of official usage`;
+- label synthesis `pseudocode` or `recommended interface`;
 - never invent a convenient API and imply the project ships it.
 
 When verified code communicates the real relationship more clearly than prose, use it proactively and keep only the lines needed to expose that relationship.

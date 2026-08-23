@@ -1,4 +1,0 @@
-interface:
-  display_name: "Meet Work"
-  short_description: "Review recent work, plan next steps, and prepare a strong update"
-  default_prompt: "Use $meet-work to review my recent meetings and previous work, identify what should change, and prepare a high-bandwidth next meeting."

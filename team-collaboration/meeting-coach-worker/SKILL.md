@@ -1,15 +1,11 @@
 ---
-name: meet-work
-description: "Turn recent meetings, transcripts, minutes, and work notes into a simple aid for Lab-oriented team collaboration and communication: review previous work, infer expectations, identify what to do next, improve work efficiency, judge delivery readiness, and prepare a high-bandwidth update that advances conclusions and decisions. Use after meetings, during work, before reviews, or when discussions feel repetitive or low-value. Perform semantic review from source evidence; never rely on keyword scripts or mandatory formats."
+name: meeting-coach-worker
+description: "Coach workers, employees, and individual contributors to turn meetings, transcripts, minutes, and work notes into better execution: infer leader expectations, diagnose previous work, identify next actions, judge delivery readiness, and prepare a high-bandwidth update. Use after meetings, during work, before reviews, or across repeated low-value discussions. Perform semantic review from source evidence."
 ---
 
-# Meet Work
+# Meeting Coach: Worker
 
-Help the user do the work, not maintain a process system. Keep the default interaction simple.
-
-## Applicability
-
-Use this as Lab-oriented work guidance for teams that value substantive progress, explicit expectations, delivery readiness, and decision-focused communication. It is not a universal model of employee performance or meeting culture. When applying it elsewhere, adapt the assumptions about reporting lines, work cadence, acceptable evidence, and what a meeting is expected to accomplish.
+Help the worker turn meetings into better work instead of maintaining a process system. Keep the default interaction simple.
 
 ## Choose the immediate need
 

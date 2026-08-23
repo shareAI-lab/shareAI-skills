@@ -1,0 +1,4 @@
+interface:
+  display_name: "Meeting Coach: Worker"
+  short_description: "Turn meetings into better work and stronger updates"
+  default_prompt: "Use $meeting-coach-worker to review my recent meetings and previous work, identify what should change, and prepare a high-bandwidth next meeting."

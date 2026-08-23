@@ -61,8 +61,8 @@ For each central mechanism, trace at least one happy path and the production fai
 ## Code and diagram truth
 
 - Exact code examples come from official docs, examples, or inspected source. Cite the URL/path and version/commit.
-- A shortened official example must preserve the actual API relationship and be labeled `官方用法的最小化改写`.
-- Synthesized code must be labeled `伪代码` or `推荐接口`; never present it as shipped API.
+- A shortened official example must preserve the actual API relationship and be labeled `minimal adaptation of official usage`.
+- Synthesized code must be labeled `pseudocode` or `recommended interface`; never present it as shipped API.
 - A diagram may synthesize relationships, but label inference and keep every factual edge traceable to evidence.
 
 ## Stop condition

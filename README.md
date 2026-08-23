@@ -1,94 +1,253 @@
 # Lab Skills
 
-Skills distilled from the Lab's real work and collaboration practices. Potentially reusable parts are shared for reference, discussion, adaptation, and continued improvement.
+English | [简体中文](./README.zh-CN.md) | [日本語](./README.ja.md)
 
-Designed for AI coding agents and other systems that support the [Agent Skills specification](https://agentskills.io/specification).
+Skills distilled from the Lab's real engineering, research, publishing, and collaboration work.
+
+The reusable parts are shared for reference, discussion, adaptation, and continued improvement.
+
+The repository is designed for AI coding agents and other systems that support the [Agent Skills specification](https://agentskills.io/specification).
 
 ## Scope
 
-This is a skills-only repository. It does not ship product-specific plugin manifests, runtime integration metadata, tutorials, or general articles.
+This is a skills-only repository. It does not ship plugins, general tutorials, or unrelated articles.
 
-The collection is practice-derived, not a universal standard. Each skill has a different portability boundary:
+Every Skill is intended to remain understandable and useful on its own. Some packages may include optional agent-facing metadata, but the core instructions do not depend on one specific product runtime.
 
-- **Opinionated**: broadly reusable while encoding strong assumptions about quality or method.
-- **Tool-specific**: reusable only where the named tools, storage formats, or platforms apply.
-- **Lab-oriented**: shaped by the Lab's work, collaboration style, and outcome-driven goals; adapt before using it as guidance for another organization.
+The collection is practice-derived, not a universal standard. Read each Skill's description and adapt assumptions that do not fit your tools, organization, or working context.
 
 ## Installation
 
-Preview the available skills without installing them:
+Preview the available Skills without installing them:
 
 ```bash
 npx skills add shareai-lab/lab-skills --list
 ```
 
-Install all skills non-interactively for the detected agent environment:
+Install all Skills non-interactively for the detected agent environment:
 
 ```bash
 npx skills add shareai-lab/lab-skills --skill '*' -y
 ```
 
-Install one skill:
+Install one Skill:
 
 ```bash
-npx skills add shareai-lab/lab-skills --skill meet-work
+npx skills add shareai-lab/lab-skills --skill deep-architecture-research
+```
+
+Generate a prompt for one Skill without installing it:
+
+```bash
+npx skills use shareai-lab/lab-skills@understanding-first-report
+```
+
+## Keeping Skills Updated
+
+Update every installed Skill in the current scope from its recorded upstream source:
+
+```bash
+npx skills update
+```
+
+Update one Skill only:
+
+```bash
+npx skills update deep-architecture-research
+```
+
+Update project-level Skills without prompting:
+
+```bash
+npx skills update --project -y
+```
+
+Update global Skills without prompting:
+
+```bash
+npx skills update --global -y
+```
+
+If you installed the meeting Skills before they were renamed, remove the old names and install the replacements once:
+
+```bash
+npx skills remove boss-meet meet-work -y
+npx skills add shareai-lab/lab-skills \
+  --skill meeting-coach-leader meeting-coach-worker -y
 ```
 
 ## Skill Catalog
 
-| Scenario | Skill | Applicability | Purpose |
-|----------|-------|---------------|---------|
-| Agent development | [agent-builder](./agent-development/agent-builder/) | Opinionated | Design and build AI agents; bundled starter code currently uses the Anthropic Python SDK |
-| Agent development | [skill-judge](./agent-development/skill-judge/) | Opinionated | Evaluate and improve Agent Skill design quality with a practice-derived rubric |
-| Agent operations | [extract-agent-sessions](./agent-operations/extract-agent-sessions/) | Tool-specific | Recover clean conversations from Claude Code, Codex, opencode, Grok Build, and Cursor local session stores |
-| Content and publishing | [media-writer](./content-publishing/media-writer/) | Tool-specific | Adapt content to the culture and expectations of supported publishing platforms |
-| Research and analysis | [deep-architecture-research](./research-analysis/deep-architecture-research/) | Opinionated | Clarify broad system questions, then investigate architecture through source, history, official docs, and calibrated community evidence |
-| Research and analysis | [understanding-first-report](./research-analysis/understanding-first-report/) | Opinionated | Turn deep technical work into a verdict-first brief with truthful diagrams, code provenance, and low cognitive load |
-| Software engineering | [vibe-coding](./software-engineering/vibe-coding/) | Opinionated | Turn an AI agent into a disciplined software development partner |
-| Team collaboration and communication | [boss-meet](./team-collaboration/boss-meet/) | Lab-oriented | Help managers run decision-oriented meetings and give direct, constructive feedback |
-| Team collaboration and communication | [meet-work](./team-collaboration/meet-work/) | Lab-oriented | Turn recent meetings into better work, delivery reviews, decisions, and high-bandwidth updates |
+### Research and analysis
 
-## Repository Structure
+#### [deep-architecture-research](./research-analysis/deep-architecture-research/)
 
-Scenario directories form the first level. Self-contained skill directories form the second level.
+Clarify broad system questions before investigating architecture through source, history, official documentation, and calibrated community evidence.
+
+**Recommended scenarios**
+
+- Compare frameworks, runtimes, SDKs, or technical projects at source level.
+- Trace important architectural changes, breaking updates, hard boundaries, and disputed scenarios.
+- Gather evidence before designing a new system or selecting an implementation path.
+
+**Example**
 
 ```text
-lab-skills/
-├── agent-development/
-│   ├── agent-builder/
-│   └── skill-judge/
-├── agent-operations/
-│   └── extract-agent-sessions/
-├── content-publishing/
-│   └── media-writer/
-├── research-analysis/
-│   ├── deep-architecture-research/
-│   └── understanding-first-report/
-├── software-engineering/
-│   └── vibe-coding/
-└── team-collaboration/
-    ├── boss-meet/
-    └── meet-work/
+/deep-architecture-research clarify and compare how these agent
+runtimes own sessions, memory, workspaces, and deployment.
 ```
 
-Scenario directories are navigation boundaries only and do not contain a `SKILL.md`. Every actual skill remains self-contained:
+#### [understanding-first-report](./research-analysis/understanding-first-report/)
+
+Turn complex technical work into a verdict-first brief with truthful diagrams, code provenance, and low cognitive load.
+
+**Recommended scenarios**
+
+- Compress a large research artifact or architecture review into its main contradiction and decisive evidence.
+- Explain a technical decision to a human architect without hiding uncertainty or forcing them through all research notes.
+
+**Example**
 
 ```text
-scenario/skill-name/
-├── SKILL.md              # Required instructions and trigger metadata
-├── references/           # Optional detailed knowledge
-├── scripts/              # Optional deterministic helpers
-├── assets/               # Optional output resources
-└── agents/               # Optional agent-facing metadata
+/understanding-first-report explain this research to a human
+architect with one clear model and one actionable recommendation.
 ```
 
-Use an existing scenario when its work context genuinely fits. Create a new scenario only when it represents a stable, reusable area of work rather than a temporary topic or ownership label.
+The two Skills work well together, but each remains independently usable.
 
-## Lab-Oriented Guidance
+### Software engineering
 
-The skills under `team-collaboration/` reflect the Lab's emphasis on substantive work, clear decisions, delivery readiness, high-bandwidth communication, and explicit ownership. They are intended to improve work through meetings, not to prescribe a universal management culture.
+#### [vibe-coding](./software-engineering/vibe-coding/)
 
-When applying them elsewhere, preserve the reasoning but reconsider assumptions about hierarchy, feedback style, meeting cadence, decision rights, and what counts as a ready deliverable.
+Turn an AI agent into a disciplined software development partner with transparent decisions and proportionate verification.
+
+**Recommended scenarios**
+
+- Add a feature to an existing codebase without ignoring its conventions.
+- Diagnose and fix a bug from the real failure path.
+- Refactor, optimize, or migrate software with proportionate verification.
+
+**Example**
+
+```text
+/vibe-coding add this feature to the existing service, follow
+its conventions, and verify the real integration path.
+```
+
+### Team collaboration and communication
+
+#### [meeting-coach-leader](./team-collaboration/meeting-coach-leader/)
+
+Help leaders and managers prepare, run, and review high-bandwidth meetings that advance real work and decisions.
+
+**Recommended scenarios**
+
+- Prepare or review an employee work-review meeting.
+- Diagnose repeated low-value discussions and missing decision prerequisites.
+- Give direct, specific feedback without taking over the worker's responsibility.
+
+**Example**
+
+```text
+/meeting-coach-leader review this meeting transcript and design
+a shorter follow-up that reaches a decision.
+```
+
+#### [meeting-coach-worker](./team-collaboration/meeting-coach-worker/)
+
+Help workers turn meetings, feedback, and work notes into better execution and stronger updates.
+
+**Recommended scenarios**
+
+- Infer what a leader actually expects from recent meeting evidence.
+- Review whether current work is ready to report and what is still missing.
+- Identify the highest-value next action and prepare a concise update.
+
+**Example**
+
+```text
+/meeting-coach-worker tell me what my manager expects, what is
+missing from my work, and how to report it next time.
+```
+
+### Agent development
+
+#### [agent-builder](./agent-development/agent-builder/)
+
+Design and build AI agents. The bundled starter code currently uses the Anthropic Python SDK, while the architectural guidance is intended to remain provider-neutral.
+
+**Recommended scenarios**
+
+- Define an agent's purpose, capabilities, knowledge, context, and trust boundary.
+- Decide whether planning, subagents, skills, or additional tools are actually needed.
+
+**Example**
+
+```text
+/agent-builder design a customer-support agent that can search
+policy, inspect orders, and escalate refunds.
+```
+
+#### [skill-judge](./agent-development/skill-judge/)
+
+Evaluate and improve Agent Skill packages with a practice-derived diagnostic rubric.
+
+**Recommended scenarios**
+
+- Check whether a `SKILL.md` triggers at the right time and adds real expert knowledge.
+- Diagnose instruction sprawl, weak references, poor freedom calibration, or unclear completion criteria.
+
+**Example**
+
+```text
+/skill-judge review this Skill package and give me the three
+highest-impact improvements.
+```
+
+### Agent operations
+
+#### [extract-agent-sessions](./agent-operations/extract-agent-sessions/)
+
+Review and synthesize recent human-visible conversations from supported Claude Code, Codex, opencode, and Grok Build session stores.
+
+**Recommended scenarios**
+
+- Review what you have been working on across recent conversations.
+- Summarize recurring questions, decisions, progress, and unresolved work.
+- Surface new cross-session patterns, insights, and high-value next actions.
+
+**Example**
+
+```text
+/extract-agent-sessions review my recent Codex and Claude Code
+conversations, summarize my work, and surface new insights.
+```
+
+### Content and publishing
+
+#### [media-writer](./content-publishing/media-writer/)
+
+Adapt technical content to the culture and expectations of supported publishing platforms.
+
+**Recommended scenarios**
+
+- Rewrite one technical idea for WeChat, Hacker News, Reddit, Medium, X/Twitter, Dev.to, or LinkedIn.
+- Preserve the community's tone instead of applying one generic social-media format.
+
+**Example**
+
+```text
+/media-writer turn this architecture note into a Hacker News
+launch post without marketing language.
+```
+
+## Team Collaboration Guidance
+
+The meeting-coach Skills emphasize substantive work, clear decisions, delivery readiness, high-bandwidth communication, and explicit ownership.
+
+They are intended to improve work through meetings, not to prescribe a universal management culture.
+
+When applying them elsewhere, reconsider assumptions about hierarchy, feedback style, meeting cadence, decision rights, and what counts as a ready deliverable.
 
 ## Maintenance
 
@@ -96,19 +255,19 @@ Skills are maintained working assets, not frozen snapshots:
 
 - Improve them when real usage exposes gaps, ambiguity, or inefficient behavior.
 - Keep guidance aligned with current tools, workflows, and quality standards.
-- Consolidate overlapping skills when a simpler boundary serves users better.
-- Reclassify a skill when its actual use no longer matches its scenario.
-- Replace or remove skills that no longer provide reliable value.
+- Consolidate overlapping Skills when a simpler boundary serves users better.
+- Reclassify a Skill when its actual use no longer matches its scenario.
+- Replace or retire Skills that no longer provide reliable value.
 
 ## Contributing
 
-Contributions may add, improve, move, consolidate, or retire skills.
+Contributions may add, improve, move, consolidate, or retire Skills.
 
 1. Start from a concrete use case or observed failure.
 2. Select the scenario that matches the work context rather than the author or implementation technology.
-3. Add a self-contained skill directory with a valid `SKILL.md` containing `name` and `description` frontmatter.
-4. Include only the references, scripts, assets, or agent metadata required by the skill.
-5. Validate default repository discovery as well as the individual skill.
+3. Add a self-contained Skill directory with valid `name` and `description` frontmatter.
+4. Include only the references, scripts, assets, or agent metadata required by the Skill.
+5. Validate both individual Skill structure and default repository discovery.
 6. Explain the practical evidence, intended applicability, and non-goals in the pull request.
 
 ## License

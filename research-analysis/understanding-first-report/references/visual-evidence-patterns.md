@@ -50,10 +50,10 @@ A diagram edge is a claim. Keep factual edges traceable to citations near the vi
 
 Use one of these labels immediately above a code block:
 
-- `官方原始用法（version/tag）`
-- `官方用法的最小化改写（source link/path）`
-- `源码关系摘录（commit + path）`
-- `伪代码：推荐设计，不是现有 API`
+- `Official usage (version/tag)`
+- `Minimal adaptation of official usage (source link/path)`
+- `Source relationship excerpt (commit + path)`
+- `Pseudocode: recommended design, not an existing API`
 
 For exact official code, preserve names and call relationships. Elide unrelated setup with comments rather than silently changing semantics. Keep excerpts short enough that the architectural point is visible.
 
