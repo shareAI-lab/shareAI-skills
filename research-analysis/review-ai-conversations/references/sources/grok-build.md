@@ -22,6 +22,13 @@ Each `updates.jsonl` envelope has a Unix-seconds `timestamp`. Prefer the last ac
 human or visible AI envelope timestamp. Fall back to `last_active_at`, then
 `updated_at` when the stream has no usable message time.
 
+## Fast path
+
+Read the relevant `summary.json` files once to select root sessions. Stream each
+selected `updates.jsonl` once, applying rewind state, coalescing adjacent visible
+chunks, recording activity time, and building the capsule together. Do not create an
+intermediate concatenated transcript.
+
 ## Conversation reconstruction
 
 Accept visible user text from `session/update` records tagged

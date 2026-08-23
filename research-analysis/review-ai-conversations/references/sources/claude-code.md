@@ -24,6 +24,13 @@ Use `history.jsonl` to discover in-window session IDs. Inside a selected transcr
 prefer the maximum accepted human or visible assistant timestamp. Do not use the
 date of the containing directory as conversation time.
 
+## Fast path
+
+Scan `history.jsonl` once to select in-window root session IDs. Stream each selected
+root transcript once: build the parent map, identify the accepted branch, extract
+visible turns, record the activity clock, and emit the conversation capsule during
+that same pass. Do not first export the tree and then rescan it for messages.
+
 ## Conversation reconstruction
 
 Claude transcripts form a tree. Use `uuid`, `parentUuid`, and when present

@@ -20,6 +20,13 @@ revert
 Use `session.time_updated` to discover recent candidates. For a selected conversation,
 prefer accepted `message.time_created` values as the discussion clock.
 
+## Fast path
+
+Use one read-only batch query to select in-window root sessions and fetch their ordered
+message and part rows. Filter roles and part types while iterating the result, emitting
+one capsule per root session. Avoid per-session and especially per-message SQL queries.
+Inspect the schema once only if the observed database differs from the fields below.
+
 ## Conversation reconstruction
 
 The canonical relationship is:

@@ -50,6 +50,55 @@ recent index to find candidates, then prefer the maximum accepted human-message 
 visible AI-message timestamp as the conversation's real activity time. File mtime is
 only a fallback when the store has no message or session clock.
 
+## Use the efficient retrieval path
+
+Do not build one giant transcript. Use three bounded passes:
+
+```text
+one index pass per product
+        │ select root conversations in the frozen time window
+        ▼
+one body pass per selected root
+        │ filter visible turns and emit one conversation capsule
+        ▼
+cluster capsules across conversations
+        │ reopen raw text only for decisive evidence or contradictions
+        ▼
+problem map + insights + next questions
+```
+
+Each conversation capsule should be compact and structured:
+
+```text
+{
+  agent, conversation_id, activity_time, workstream,
+  user_questions[], ai_conclusions[], decisions[],
+  artifacts[], open_loops[], candidate_insights[]
+}
+```
+
+Extract visible turns and build the capsule in the same streaming read or database
+query. Preserve references to conversation IDs and message positions so exact text can
+be reopened without retaining or concatenating every message.
+
+When several products are in scope and the environment permits it, process their
+independent stores concurrently. Keep one owner for each canonical conversation so
+branches are not summarized twice. Merge capsules, not raw transcripts.
+
+Avoid retrieval work that does not improve the review:
+
+- Do not walk every file when an index already identifies candidate conversations.
+- Do not probe schemas repeatedly; inspect once only when observed fields differ from
+  the matching source reference.
+- Do not run one command or SQL query per message, part, or bubble; batch by selected
+  conversation IDs.
+- Do not reread a conversation separately for metadata, questions, replies, and
+  artifacts; collect them in one pass.
+- Do not concatenate all conversation text before classification. Compress each
+  conversation first, then cluster the capsules.
+- Do not stop after creating an inventory or intermediate export unless the user
+  explicitly requested one.
+
 ## Read the conversation body
 
 Recover the user's actual messages and the visible AI replies in conversational order.
@@ -60,6 +109,10 @@ user or shown as an AI reply.
 Prefer complete root conversations. Avoid counting forks, retries, copied context, or
 subagents as independent lines of human thought. If a store has changed shape, inspect
 the current fields and adapt instead of forcing an old parser model.
+
+Keep the capsule faithful rather than exhaustive. Pull exact original passages only
+when they support a consequential decision, expose a contradiction, or explain why the
+user's thinking changed.
 
 ## Build the review
 

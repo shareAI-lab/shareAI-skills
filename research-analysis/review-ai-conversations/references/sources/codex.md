@@ -22,6 +22,13 @@ Use `history.jsonl` to discover recent IDs. For a selected rollout, prefer accep
 human or visible assistant record timestamps. Use the dated directory only to narrow
 the file search, not as the final conversation clock.
 
+## Fast path
+
+Scan `history.jsonl` once, resolve the selected rollout paths, then stream each rollout
+once. Read `session_meta` as it appears and extract visible human/assistant turns into
+the capsule in the same pass. Do not run separate scans for identity, timestamps,
+questions, and replies.
+
 ## Conversation reconstruction
 
 Read the first `session_meta` record to identify the root conversation and reject

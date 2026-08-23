@@ -22,6 +22,14 @@ fall back to `composerData.lastUpdatedAt`, `composerHeaders.lastUpdatedAt` or
 `recency`, then search-index `updated_at`. JSONL-only transcripts may have no message
 timestamp, so report that fallback explicitly.
 
+## Fast path
+
+Use one candidate query against `conversation-search.db`, then batch-read the selected
+`composerData:<id>` and related `bubbleId:<composerId>:<bubbleId>` records. Choose the
+composer store or `agent-transcripts` as the canonical visible channel after a quick
+completeness check; never merge both. Extract visible turns and build each capsule in
+that same read rather than querying bubble by bubble.
+
 ## Conversation reconstruction
 
 Use `conversation-search.db` and `composerHeaders` to discover recent composers. Read
