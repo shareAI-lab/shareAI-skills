@@ -68,17 +68,36 @@ npx skills update --project -y
 npx skills update --global -y
 ```
 
-如果曾安装旧名称的会议 Skill，请执行一次迁移：
+如果曾安装改名前的 Skill，请执行一次迁移：
 
 ```bash
-npx skills remove boss-meet meet-work -y
+npx skills remove boss-meet meet-work extract-agent-sessions -y
 npx skills add shareai-lab/lab-skills \
-  --skill meeting-coach-leader meeting-coach-worker -y
+  --skill meeting-coach-leader meeting-coach-worker \
+          review-ai-conversations -y
 ```
 
 ## Skill 目录
 
 ### 调研与分析
+
+#### [review-ai-conversations](./research-analysis/review-ai-conversations/)
+
+回顾不同 AI Worker 上的近期对话，将信息压缩到核心价值，梳理问题空间，并产生跨 Session 的新洞察。
+
+**推荐场景**
+
+- 回顾最近在 Claude Code、Codex、opencode、Grok Build 或 Cursor 中推进的工作。
+- 聚类反复出现的问题，并梳理维度、交集、依赖关系与未解决缺口。
+- 将近期文档、代码产物和 AI 结论作为参考资料，而不是未经验证的唯一事实。
+- 产生新的洞察、问题重构、头脑风暴方向和高价值下一步问题。
+
+**使用示例**
+
+```text
+/review-ai-conversations 回顾我最近和 AI Worker 的聊天，
+聚类核心问题，梳理问题空间，并产生新的洞察和下一步问题。
+```
 
 #### [deep-architecture-research](./research-analysis/deep-architecture-research/)
 
@@ -201,25 +220,6 @@ npx skills add shareai-lab/lab-skills \
 
 ```text
 /skill-judge 评审这个 Skill，并给出三个影响最大的改进建议。
-```
-
-### Agent 运维
-
-#### [extract-agent-sessions](./agent-operations/extract-agent-sessions/)
-
-从支持的 Claude Code、Codex、opencode 和 Grok Build Session Store 中回顾并综合最近的人类可见对话。
-
-**推荐场景**
-
-- 回顾最近多个对话中正在推进的工作。
-- 总结反复出现的问题、决策、进展和未完成事项。
-- 发现跨 Session 的新模式、洞察和高价值下一步。
-
-**使用示例**
-
-```text
-/extract-agent-sessions 回顾我最近的 Codex 和 Claude Code 对话，
-总结正在推进的工作，并找出新的洞察。
 ```
 
 ### 内容与发布

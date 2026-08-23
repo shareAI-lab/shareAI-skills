@@ -68,17 +68,36 @@ npx skills update --project -y
 npx skills update --global -y
 ```
 
-旧名称の Meeting Skill をインストールしている場合は、一度だけ移行してください：
+改名前の Skill をインストールしている場合は、一度だけ移行してください：
 
 ```bash
-npx skills remove boss-meet meet-work -y
+npx skills remove boss-meet meet-work extract-agent-sessions -y
 npx skills add shareai-lab/lab-skills \
-  --skill meeting-coach-leader meeting-coach-worker -y
+  --skill meeting-coach-leader meeting-coach-worker \
+          review-ai-conversations -y
 ```
 
 ## Skill カタログ
 
 ### 調査と分析
+
+#### [review-ai-conversations](./research-analysis/review-ai-conversations/)
+
+複数の AI Worker との最近の会話を振り返り、核心へ圧縮し、問題空間を整理して、Session をまたぐ新しい洞察を見つけます。
+
+**推奨シナリオ**
+
+- Claude Code、Codex、opencode、Grok Build、Cursor で最近進めていた作業を振り返る。
+- 繰り返される質問をクラスタリングし、次元、重なり、依存関係、未解決の空白を整理する。
+- 最近の文書、コード成果物、AI の結論を、唯一の真実ではなく参考資料として確認する。
+- 新しい洞察、問題の再構成、ブレインストーミングの方向、価値の高い次の問いを生み出す。
+
+**使用例**
+
+```text
+/review-ai-conversations 最近の AI Worker との会話を振り返り、
+核心的な問題を分類し、問題空間と新しい洞察を整理してください。
+```
 
 #### [deep-architecture-research](./research-analysis/deep-architecture-research/)
 
@@ -202,25 +221,6 @@ AI Agent を設計、構築します。付属のスターターコードは現�
 ```text
 /skill-judge この Skill をレビューし、最も影響の大きい
 3 つの改善案を提示してください。
-```
-
-### Agent 運用
-
-#### [extract-agent-sessions](./agent-operations/extract-agent-sessions/)
-
-対応する Claude Code、Codex、opencode、Grok Build の Session Store から、最近の人間向け会話を振り返り、統合します。
-
-**推奨シナリオ**
-
-- 最近の複数会話で取り組んでいた作業を振り返る。
-- 繰り返される質問、意思決定、進捗、未完了事項を要約する。
-- Session をまたぐ新しいパターン、洞察、価値の高い次の行動を見つける。
-
-**使用例**
-
-```text
-/extract-agent-sessions 最近の Codex と Claude Code の会話を振り返り、
-進めていた作業を要約し、新しい洞察を見つけてください。
 ```
 
 ### コンテンツと発信

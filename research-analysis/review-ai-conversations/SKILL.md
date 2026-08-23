@@ -1,9 +1,67 @@
 ---
-name: extract-agent-sessions
-description: Recover, export, or summarize recent human and assistant conversations from local agent session stores while excluding tool calls, reasoning, system injection, copied parent history, and subagent noise. Use whenever the user wants to review, summarize, or extract insights from chats they had on Claude Code, Codex, opencode, Grok Build, or Cursor — including "what did we discuss", "回顾问题", "分析本地会话", and topic summaries. Also use for recent-session inventories and clean conversation recovery from tree-shaped `.claude` JSONL stores, rollout-shaped `.codex` JSONL stores, relational-shaped opencode SQLite stores, ACP-stream-shaped Grok Build `~/.grok/sessions` (or `$GROK_HOME/sessions`) stores, and Cursor-shaped composer/agent stores (`state.vscdb` + `conversation-search.db` + `agent-transcripts`) on Linux or macOS.
+name: review-ai-conversations
+description: Review and synthesize recent human-AI conversations across Claude Code, Codex, opencode, Grok Build, and Cursor. Use when the user wants to revisit what they discussed with AI workers, summarize current work, cluster recurring questions, map problem dimensions and unresolved sets, review recent artifacts or AI conclusions as non-authoritative evidence, compress conversations to core value, brainstorm, deepen understanding, or surface new cross-session insights. The user may specify locations, agents, time ranges, topics, analysis types, content to extract, or content to find. Also supports private full export and storage-family diagnosis on Linux and macOS.
 ---
 
-# Extract Agent Sessions
+# Review AI Conversations
+
+The goal is not to dump session logs. The goal is to help the user understand what
+they have been exploring with AI workers, recover the important work, and discover
+new connections that were difficult to see one conversation at a time.
+
+## Accept natural-language scope
+
+The user may freely specify any combination of:
+
+- **Location**: one client, several agent products, a project, or explicit store paths.
+- **Time range**: recent hours, days, weeks, calendar dates, or named sessions.
+- **Focus**: work progress, architecture, decisions, repeated problems, or one topic.
+- **Analysis type**: review, summary, comparison, clustering, problem map, or insights.
+- **Content to extract**: prompts, visible replies, decisions, artifacts, open questions.
+- **Content to find**: a phrase, proposal, change of mind, conclusion, or missing answer.
+
+Do not force the user to know store names, file layouts, or session IDs. Resolve the
+smallest safe scope from their request, and ask only when different interpretations
+would materially change what private content is read.
+
+## Default review contract
+
+Unless the user requests a raw export or parser diagnosis, produce a review that:
+
+1. reconstructs the clean human-visible conversations in scope;
+2. groups them into meaningful workstreams and recurring question sets;
+3. maps the problem space: dimensions, dependencies, tensions, and missing quadrants;
+4. separates decisions, changed beliefs, assumptions, unknowns, and open loops;
+5. identifies recent documents, code artifacts, and AI conclusions mentioned in chats;
+6. derives cross-session insights, useful reframings, and high-value next questions;
+7. compresses the result around what changes understanding, choice, or action.
+
+## Analysis lenses
+
+Use only the lenses that help the user's request:
+
+- **Workstreams**: what distinct lines of work are active or converging.
+- **Question clusters**: repeated prompts that are different expressions of one problem.
+- **Problem space**: axes, quadrants, sets, overlaps, dependencies, and exclusions.
+- **Evolution**: what the user believed earlier, what changed, and why.
+- **Decisions**: accepted directions, rejected options, and decisions still missing.
+- **Artifacts**: recent documents, code, reports, plans, and their stated conclusions.
+- **Insights**: new connections or implications that emerge only across conversations.
+- **Open minds**: promising alternative frames, experiments, or questions worth exploring.
+
+## Evidence and truth
+
+Human messages are evidence of the user's questions, priorities, and stated intent.
+Visible AI replies and AI-generated artifacts are evidence of what was proposed or
+concluded in that conversation, not proof that the claims are correct.
+
+Use AI summaries, reports, and conclusions as reference material. Mark important
+claims as verified, inferred, proposed, contradicted, or unresolved. When a decision
+depends on an external fact, source-code behavior, benchmark, or current product
+state, recommend or perform separate verification rather than treating prior AI text
+as the only source of truth.
+
+## Extraction substrate
 
 Use this skill as a storage map and decision guide, not as a stable parser. Treat
 all local session layouts as unversioned implementation details. Inspect the files
@@ -24,8 +82,9 @@ from the current filesystem and shell capabilities.
   default. Truncation is not redaction.
 - Read message bodies only after the requested scope identifies the relevant
   session or the user selects an alias. Implicit scope counts: "analyze my
-  local Cursor/Claude/Codex data", "回顾最近聊天", "总结 / insights", or
-  "最近两天聊了什么" selects every in-window root for that family — do not
+  local Cursor/Claude/Codex data", "review recent chats", "summarize and find
+  insights", or "what did we discuss in the last two days" selects every
+  in-window root for that family — do not
   wait for a second alias pick. If content would be sent to another service
   or person, disclose that boundary and obtain confirmation.
 - Write private intermediate artifacts only under an owner-restricted temporary
@@ -64,7 +123,7 @@ Choose one mode before reading conversation bodies:
   text removed. This is the default when the user wants to review, summarize,
   or learn from chats.
 
-If the user asked for review / 回顾 / 总结 / insights / "分析本地数据" and
+If the user asked for review, summary, insights, or analysis of local data and
 did not ask to author or verify the extractor, run a short inventory then
 **continue into Shareable summary**. Do not stop at schema fingerprints or
 message counts.
@@ -279,3 +338,22 @@ local traceability. A review request is unfinished if this report is all the
 user received and no summary of accepted human turns exists.
 
 Remove temporary artifacts unless the user explicitly chose a private export path.
+
+## Default review output
+
+For an ordinary review or insight request, report in this order:
+
+1. **Current focus**: what the user has actually been working through.
+2. **Question clusters**: recurring problems grouped by shared underlying concern.
+3. **Problem map**: major dimensions, relationships, contradictions, and gaps.
+4. **Decisions and artifacts**: what changed, what was produced, and how reliable it is.
+5. **New insights**: cross-session connections, implications, and useful reframings.
+6. **Next questions or actions**: the smallest set that could materially advance the work.
+
+Use a compact Markdown outline, mapping, or box diagram when it makes the problem
+space easier to understand. Avoid chronological chat-by-chat narration unless the
+user specifically asks for a timeline.
+
+The review is complete only when the user can see the core value of the recent
+conversations, the shape of the problem space, what remains unresolved, and at
+least one insight or next question that was not obvious from reading one chat alone.

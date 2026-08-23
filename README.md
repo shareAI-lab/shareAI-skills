@@ -68,17 +68,37 @@ Update global Skills without prompting:
 npx skills update --global -y
 ```
 
-If you installed the meeting Skills before they were renamed, remove the old names and install the replacements once:
+If you installed Skills before they were renamed, remove the old names and install the replacements once:
 
 ```bash
-npx skills remove boss-meet meet-work -y
+npx skills remove boss-meet meet-work extract-agent-sessions -y
 npx skills add shareai-lab/lab-skills \
-  --skill meeting-coach-leader meeting-coach-worker -y
+  --skill meeting-coach-leader meeting-coach-worker \
+          review-ai-conversations -y
 ```
 
 ## Skill Catalog
 
 ### Research and analysis
+
+#### [review-ai-conversations](./research-analysis/review-ai-conversations/)
+
+Review recent conversations across AI workers, compress them to their core value, map the problem space, and surface new cross-session insights.
+
+**Recommended scenarios**
+
+- Review what you have been working on across Claude Code, Codex, opencode, Grok Build, or Cursor.
+- Cluster recurring questions and map their dimensions, overlaps, dependencies, and unresolved gaps.
+- Revisit recent documents, code artifacts, and AI conclusions as reference material rather than unquestioned truth.
+- Generate new insights, reframings, brainstorming directions, and high-value next questions.
+
+**Example**
+
+```text
+/review-ai-conversations review my recent AI worker chats,
+cluster the core problems, map the problem space, and surface
+new insights and next questions.
+```
 
 #### [deep-architecture-research](./research-analysis/deep-architecture-research/)
 
@@ -202,25 +222,6 @@ Evaluate and improve Agent Skill packages with a practice-derived diagnostic rub
 ```text
 /skill-judge review this Skill package and give me the three
 highest-impact improvements.
-```
-
-### Agent operations
-
-#### [extract-agent-sessions](./agent-operations/extract-agent-sessions/)
-
-Review and synthesize recent human-visible conversations from supported Claude Code, Codex, opencode, and Grok Build session stores.
-
-**Recommended scenarios**
-
-- Review what you have been working on across recent conversations.
-- Summarize recurring questions, decisions, progress, and unresolved work.
-- Surface new cross-session patterns, insights, and high-value next actions.
-
-**Example**
-
-```text
-/extract-agent-sessions review my recent Codex and Claude Code
-conversations, summarize my work, and surface new insights.
 ```
 
 ### Content and publishing
