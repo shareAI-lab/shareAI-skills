@@ -76,59 +76,6 @@ npx skills add shareai-lab/lab-skills \
 
 ## Skill Catalog
 
-### Agent development
-
-#### [agent-builder](./agent-development/agent-builder/)
-
-Design and build AI agents. The bundled starter code currently uses the Anthropic Python SDK, while the architectural guidance is intended to remain provider-neutral.
-
-**Recommended scenarios**
-
-- Define an agent's purpose, capabilities, knowledge, context, and trust boundary.
-- Decide whether planning, subagents, skills, or additional tools are actually needed.
-
-**Example**
-
-```text
-/agent-builder design a customer-support agent that can search
-policy, inspect orders, and escalate refunds.
-```
-
-#### [skill-judge](./agent-development/skill-judge/)
-
-Evaluate and improve Agent Skill packages with a practice-derived diagnostic rubric.
-
-**Recommended scenarios**
-
-- Check whether a `SKILL.md` triggers at the right time and adds real expert knowledge.
-- Diagnose instruction sprawl, weak references, poor freedom calibration, or unclear completion criteria.
-
-**Example**
-
-```text
-/skill-judge review this Skill package and give me the three
-highest-impact improvements.
-```
-
-### Agent operations
-
-#### [extract-agent-sessions](./agent-operations/extract-agent-sessions/)
-
-Review and synthesize recent human-visible conversations from supported Claude Code, Codex, opencode, and Grok Build session stores.
-
-**Recommended scenarios**
-
-- Review what you have been working on across recent conversations.
-- Summarize recurring questions, decisions, progress, and unresolved work.
-- Surface new cross-session patterns, insights, and high-value next actions.
-
-**Example**
-
-```text
-/extract-agent-sessions review my recent Codex and Claude Code
-conversations, summarize my work, and surface new insights.
-```
-
 ### Content and publishing
 
 #### [media-writer](./content-publishing/media-writer/)
@@ -237,6 +184,59 @@ Help workers turn meetings, feedback, and work notes into better execution and s
 ```text
 /meeting-coach-worker tell me what my manager expects, what is
 missing from my work, and how to report it next time.
+```
+
+### Agent development
+
+#### [agent-builder](./agent-development/agent-builder/)
+
+Design and build AI agents. The bundled starter code currently uses the Anthropic Python SDK, while the architectural guidance is intended to remain provider-neutral.
+
+**Recommended scenarios**
+
+- Define an agent's purpose, capabilities, knowledge, context, and trust boundary.
+- Decide whether planning, subagents, skills, or additional tools are actually needed.
+
+**Example**
+
+```text
+/agent-builder design a customer-support agent that can search
+policy, inspect orders, and escalate refunds.
+```
+
+#### [skill-judge](./agent-development/skill-judge/)
+
+Evaluate and improve Agent Skill packages with a practice-derived diagnostic rubric.
+
+**Recommended scenarios**
+
+- Check whether a `SKILL.md` triggers at the right time and adds real expert knowledge.
+- Diagnose instruction sprawl, weak references, poor freedom calibration, or unclear completion criteria.
+
+**Example**
+
+```text
+/skill-judge review this Skill package and give me the three
+highest-impact improvements.
+```
+
+### Agent operations
+
+#### [extract-agent-sessions](./agent-operations/extract-agent-sessions/)
+
+Review and synthesize recent human-visible conversations from supported Claude Code, Codex, opencode, and Grok Build session stores.
+
+**Recommended scenarios**
+
+- Review what you have been working on across recent conversations.
+- Summarize recurring questions, decisions, progress, and unresolved work.
+- Surface new cross-session patterns, insights, and high-value next actions.
+
+**Example**
+
+```text
+/extract-agent-sessions review my recent Codex and Claude Code
+conversations, summarize my work, and surface new insights.
 ```
 
 ## Team Collaboration Guidance
