@@ -1,57 +1,38 @@
-# Conversation Lineage and Intent Preservation
+# Conversation Lineage and Intent
 
-Read this file when selected records contain forks, subagents, copied prefixes,
-compaction summaries, context rollover, or signs that later work drifted from the
-user's original request.
+Read this file only when forks, child Agents, copied prefixes, compaction, rollover, or
+original-intent drift affects the requested review.
 
-## Reconstruct the conversation family
-
-A stored session is not necessarily one human conversation, and one human conversation
-is not necessarily one context window.
+## Reconstruct only proven relationships
 
 ```text
-root human conversation
-  ├─ fork: shared ancestors + branch-specific human continuation
-  ├─ subagent: derived task and evidence attached to its parent
-  └─ epoch 1 -> compaction -> epoch 2 -> compaction -> epoch 3
-                         one logical conversation
+root conversation
+  |- fork: shared prefix + distinct continuation
+  |- child Agent: delegated task and result attached to a parent
+  `- context epoch: continuity proven by Store-specific markers
 ```
 
-- **Root conversation**: human-authored messages are the primary record of intent.
-- **Fork**: count shared ancestors once. Preserve new human turns on each meaningful
-  branch; do not silently merge divergent answers.
-- **Subagent**: its delegated prompt is a derived agent task, not a new human request,
-  unless the Store proves human authorship. Attach useful results and artifacts to the
-  parent conversation.
-- **Compaction or rollover**: each segment is another context epoch of the same logical
-  conversation. A summary helps navigation but does not replace retained raw messages.
-- **Missing ancestors**: when only a summary survives, label recovered intent as
-  summary-derived rather than presenting it as verbatim.
+- Count a copied ancestor once and keep every relevant divergent suffix.
+- Do not classify repeated wording as a fork without stronger lineage evidence.
+- Treat a child Agent's user-role prompt as delegated work unless human authorship is
+  independently proven. Attach useful results to the parent.
+- Connect context epochs only through explicit lineage, stable identity, or a proven
+  copied-prefix relationship. Similar summaries alone do not prove continuity.
+- Use summaries to bridge missing history, never to replace retained original messages.
 
-Deduplicate by lineage and stable message identity when available. Text equality alone
-is insufficient: a user may intentionally repeat a question, while a fork may copy an
-ancestor under a new session ID.
+For an ordinary review, select the branch relevant to the request and label ambiguity.
+Preserve every branch only when comparing alternatives, recovering abandoned work, or
+auditing drift.
 
-## Preserve and audit the original question set
+## Audit intent only when needed
 
-Retain every accepted human request verbatim, or retain a stable address to the exact
-text when it is too large for working context. Build a normalized question set beside
-the original, never instead of it. Preserve constraints, exclusions, examples,
-uncertainties, and small details that could change the intended answer.
+When the user asks whether work drifted, retain the original human text or stable exact
+reference and normalize a question set beside it, never instead of it. Compare later AI
+interpretations, delegated tasks, summaries, artifacts, and conclusions as:
 
 ```text
-Q0: original user request set
-        │ compare coverage and meaning
-        ├─ AI interpretation
-        ├─ delegated subagent tasks
-        ├─ compaction summaries
-        ├─ intermediate plans and artifacts
-        └─ final answers and conclusions
-
-coverage(q) = preserved | narrowed | expanded | distorted | dropped | unresolved
+preserved | narrowed | expanded | distorted | dropped | unresolved
 ```
 
-Treat drift as a review finding. A polished later summary may be less trustworthy than
-an earlier raw message. When meaning changed, identify the original requirement, where
-the change appeared, and whether later work recovered it. Repeated summaries may copy
-the same misunderstanding rather than independently confirm it.
+Show where a material change first appeared and whether later work recovered it.
+Repeated AI summaries may share one misunderstanding and are not independent evidence.

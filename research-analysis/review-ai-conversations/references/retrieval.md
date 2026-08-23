@@ -1,73 +1,63 @@
 # Efficient Conversation Retrieval
 
-Read this file only when local Agent Stores must be searched. Product-specific paths
-and fields remain in `sources/`; this file defines the shared retrieval strategy.
+Read this file only when local Agent Stores must be searched. Product adapters own
+paths and fields; this file owns shared recovery behavior.
 
-## Treat Store schemas as observed anchors
+## Treat schemas as observed anchors
 
-Local clients may rename fields, add wrappers, change timestamp representations, or
-introduce a newer projection. Product references record the last-known storage root,
-time index, lineage markers, and visible message fields. Treat them as strong starting
-evidence, not immutable parser contracts.
+Client Stores are internal and may drift. Use the product adapter as a strong starting
+point, not an immutable parser. When fields differ, inspect a few neighboring records
+from one or two candidates. Infer the narrowest mapping from conversation identity,
+record order, timestamps, parent relationships, human input, visible AI text, and turn
+continuity; adapt once and apply it to the selected batch.
 
-For small schema drift, inspect a few neighboring records from one or two candidates.
-Infer the new mapping from stable conversation identity, record order, plausible
-timestamps, parent relationships, human-authored prompts, visible assistant text, and
-turn continuity. Adapt the selector once, then apply it to the whole batch.
-
-Do not force a new schema to fit by treating tool output, reasoning, copied context, or
-synthetic instructions as visible conversation. Ask the user only when two plausible
-mappings would materially change the included human conversations or conclusions.
+Never make a new schema fit by reclassifying tool output, reasoning, copied context,
+or synthetic instructions as visible conversation. Ask only when competing mappings
+would materially change the result.
 
 ## Use bounded passes
 
 ```text
-one index pass per product
-  -> select in-window conversation families
-one body pass per selected family
-  -> visible turns + lineage markers + activity time
-  -> one compact conversation capsule
-cross-session analysis
-  -> cluster capsules
-  -> reopen raw text only for decisive evidence or contradictions
+one candidate query or index scan per Store
+  -> one read per required conversation or lineage segment
+  -> emit accepted turns directly
+  -> perform the user's requested review
+  -> reopen raw text for decisive evidence or requested exact/full recovery
 ```
 
-Freeze one UTC `[start, end]` window. Prefer the maximum accepted human-message or
-visible AI-message timestamp as real activity time. File mtime is only a fallback when
-the Store exposes no message or session clock.
+Freeze one UTC `[start, end]` window only for relative or calendar-time requests.
+Prefer accepted message clocks for activity; use a trustworthy session clock next and
+file mtime only as fallback or candidate evidence.
 
-Use this capsule as a working shape, adapting it when the analysis needs less or more:
+Use the smallest sufficient recovered object:
 
 ```text
 {
-  agent, conversation_id, activity_time, workstream,
-  lineage: {root, parent, relation, context_epochs[]},
-  original_user_requests[{message_ref, exact_text}],
-  normalized_question_set[], derived_agent_tasks[],
-  ai_conclusions[], intent_coverage[], decisions[],
-  artifacts[], open_loops[], candidate_insights[]
+  source, conversation_id, activity_time, state,
+  lineage_ref,
+  turns[{message_ref, time, role, text_or_ref}]
 }
 ```
 
-Preserve message references so exact text can be reopened without concatenating every
-conversation into one giant transcript. When several products are in scope, process
-their independent Stores concurrently when practical, but keep one owner for each
-canonical conversation family.
+For exact or full recovery, retain every persisted visible message verbatim. Otherwise,
+short messages may remain verbatim; for unusually large messages, keep a stable exact
+address plus only the clauses needed for the requested analysis. Advanced lenses may
+add clusters, decisions, artifacts, or insights; retrieval should not precompute them.
 
-## Recover visible conversation, not execution noise
+## Read consistently
 
-Keep accepted human-authored messages and visible assistant replies in conversational
-order. Exclude tool calls, internal reasoning, system injection, copied parent history,
-host commands, and synthetic messages. Read child work only when its derived results
-materially inform the parent review.
-
-Avoid expensive or misleading retrieval patterns:
-
-- Do not walk every file when an index already identifies candidates.
-- Do not probe the same schema repeatedly.
-- Do not query once per message, part, or bubble; batch selected conversation IDs.
+- For JSONL, stream once. If the source is actively writing, ignore one malformed or
+  incomplete final line and retry that tail once; a malformed middle line is a gap.
+- For SQLite, use one read-only transaction or snapshot for the batch. If snapshot
+  reads are unavailable, compare a cheap row/version clock before and after once.
+- Batch selected IDs. Avoid one query per session, message, part, or bubble.
 - Do not reread a conversation separately for metadata, questions, replies, and
-  artifacts; collect them together.
-- Do not concatenate all raw text before classification; compress per conversation,
-  then cluster capsules.
-- Do not stop at an inventory or intermediate export unless requested.
+  artifacts when one pass can collect them.
+- Choose one canonical body projection. Search indexes and derived caches shortlist
+  candidates; they do not become transcript truth merely because they are convenient.
+
+Recover accepted human messages and visible assistant replies in order. Exclude tool
+calls, internal reasoning, system injection, synthetic input, and host-generated
+command output or expansion unless requested. Preserve human-typed command invocations
+and arguments when they carry intent. Do not discard a copied parent prefix until one
+canonical ancestor copy has been retained and branch lineage has been resolved.

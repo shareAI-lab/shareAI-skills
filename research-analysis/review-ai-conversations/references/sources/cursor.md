@@ -1,72 +1,49 @@
 # Cursor Conversations
 
-Use this file only for Cursor composer or agent conversations.
+Last verified: Cursor Agent CLI `2026.08.11-e8db854`; Cursor IDE Store evidence through
+3.15-era implementations, 2026-08-23. IDE and CLI state Stores are separate surfaces;
+the `agent-transcripts` projection can be written by either.
 
-## Typical locations
+## Detect and route
 
-- Global state: Cursor `User/globalStorage/state.vscdb`
-- Discovery index: `User/globalStorage/conversation-search.db`
-- Optional agent transcript projection: `~/.cursor/projects/**/agent-transcripts/`
-
-The application-support root is usually below `~/Library/Application Support/Cursor`
-on macOS and `~/.config/Cursor` on Linux.
-
-## Time index
-
-The `conversations` table in `conversation-search.db` provides candidate IDs and
-`updated_at` in Unix milliseconds. `composerHeaders` provides `createdAt`,
-`lastUpdatedAt`, `recency`, and `checkpointAt`, also in Unix milliseconds.
-
-For a selected composer, prefer the maximum accepted bubble `createdAt`; otherwise
-fall back to `composerData.lastUpdatedAt`, `composerHeaders.lastUpdatedAt` or
-`recency`, then search-index `updated_at`. JSONL-only transcripts may have no message
-timestamp, so report that fallback explicitly.
-
-## Fast path
-
-Use one candidate query against `conversation-search.db`, then batch-read the selected
-`composerData:<id>` and related `bubbleId:<composerId>:<bubbleId>` records. Choose the
-composer store or `agent-transcripts` as the canonical visible channel after a quick
-completeness check; never merge both. Extract visible turns and build each capsule in
-that same read rather than querying bubble by bubble.
-
-## Conversation reconstruction
-
-Use `conversation-search.db` and `composerHeaders` to discover recent composers. Read
-canonical bodies from `composerData:<id>` and `bubbleId:<composerId>:<bubbleId>`, or
-from a non-empty `agent-transcripts/<id>/<id>.jsonl` projection when that is the only
-complete visible channel.
-
-Composer bubble type `1` is the human side; type `2` contains the assistant side when
-text is present. Exclude tool payloads, internal reasoning, drafts, empty sessions,
-and synthetic user rows such as automatic follow-up instructions or MCP catalog
-injections from the primary timeline. Read subagent composers only for derived results
-that materially inform their parent work.
-
-Observed composer human fields:
+Cursor IDE global storage:
 
 ```text
-bubble.type == 1
-bubble.text OR bubble.richText
+Linux    ~/.config/Cursor/User/globalStorage/
+macOS    ~/Library/Application Support/Cursor/User/globalStorage/
+Windows  %APPDATA%\Cursor\User\globalStorage\
 ```
 
-Observed composer visible AI fields:
+If `state.vscdb`, `conversation-search.db`, or IDE `workspaceStorage` is the selected
+source, read [`cursor-ide.md`](cursor-ide.md) completely and do not load the CLI file.
+
+Shared transcript projection:
 
 ```text
-bubble.type == 2
-bubble.text is nonempty
+$CURSOR_DATA_DIR/projects/**/agent-transcripts/
+default ~/.cursor/projects/**/agent-transcripts/
 ```
 
-For `agent-transcripts`, keep `role == user|assistant` and ordered content blocks whose
-`type == text`. Do not merge composer and JSONL channels; choose the more complete
-canonical conversation after comparing accepted human-turn counts.
+Read [`cursor-cli.md`](cursor-cli.md) for this JSONL body shape even when Cursor Desktop
+created it. If adjacent IDE state exists and exact Side Chat lineage or copied-seed
+deduplication matters, also read `cursor-ide.md`.
 
-Cursor can retain forks or duplicate composer roots. When two roots begin with the
-same accepted human prompt, review the longer or newer continuation and mention that
-a duplicate branch existed rather than counting both as separate workstreams.
+Cursor Agent CLI-exclusive signals:
 
-Use composer parent/fork metadata when present before relying on prefix similarity.
-Treat subagent composers and generated follow-up instructions as derived work. If
-summaries or checkpoints bridge context rollover, preserve the original type-`1`
-human bubbles across the retained epochs and use the summary only when the earlier
-bubbles are no longer available.
+```text
+cursor-agent executable
+resumable state:
+  <config-root>/chats/<cwd-hash>/<session>/store.db
+  config root = $CURSOR_CONFIG_DIR
+             | $XDG_CONFIG_HOME/cursor
+             | ~/.cursor
+```
+
+If `cursor-agent` or `chats/**/store.db` is selected, read
+[`cursor-cli.md`](cursor-cli.md) completely and do not load the IDE file.
+
+If the user says only "Cursor," cheaply probe both IDE and CLI roots. Load only the
+subadapter whose Store has in-scope candidates; load both when both are relevant. When
+both state surfaces are selected, recover them independently before deduplicating
+proven relationships. Never choose only the longest or newest suspected fork: count a
+proven shared prefix once and retain each relevant divergent continuation.

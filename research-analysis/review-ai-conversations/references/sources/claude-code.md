@@ -1,64 +1,79 @@
 # Claude Code Conversations
 
-Use this file only for Claude Code stores.
+Last verified: Claude Code `2.1.215`, 2026-08-23. Transcript entries are internal,
+version-drifting data; validate a small local sample and adapt semantically.
 
-## Typical locations
+## Locations
 
-- Data root: `~/.claude`
-- Recent-input index: `~/.claude/history.jsonl`
-- Root conversations: `~/.claude/projects/<encoded-workdir>/<session-id>.jsonl`
-- Subagents: descendants below a root conversation's `subagents/` directory
+- Root: `${CLAUDE_CONFIG_DIR:-$HOME/.claude}`
+- Prompt history: `<root>/history.jsonl`
+- Root sessions: `<root>/projects/<encoded-project>/<session-id>.jsonl`
+- Child Agents: `<root>/projects/<encoded-project>/<session-id>/subagents/**/agent-*.jsonl`
+- Optional child metadata: matching `agent-*.meta.json`
 
-## Time index
+## Discovery and time
 
-Observed history fields are:
+`history.jsonl` commonly contains:
 
 ```text
 sessionId
 timestamp       Unix milliseconds
 project
 display
+pastedContents
 ```
 
-Use `history.jsonl` to discover in-window session IDs. Inside a selected transcript,
-prefer the maximum accepted human or visible assistant timestamp. Do not use the
-date of the containing directory as conversation time.
+Scan it once for interactive prompt candidates, but do not treat it as exhaustive:
+print-mode, SDK, disabled-persistence, or retained transcripts may be absent. Also stat
+root-level session JSONLs and parse only relevant candidates. A supplied session ID or
+file path skips discovery.
 
-## Fast path
+Transcript timestamps are normally RFC3339. Use the maximum accepted human or visible
+assistant timestamp as activity time. File mtime is candidate evidence only.
 
-Scan `history.jsonl` once to select in-window root session IDs. Stream each selected
-root transcript once: build the parent map, identify the accepted branch, extract
-visible turns, record the activity clock, and emit the conversation capsule during
-that same pass. Do not first export the tree and then rescan it for messages.
+`display` may contain paste placeholders. Prefer the expanded transcript user message;
+use `pastedContents[*].content` only as fallback. A `contentHash` cannot reconstruct the
+paste.
 
-## Conversation reconstruction
+## One-read reconstruction
 
-Claude transcripts form a tree. Use `uuid`, `parentUuid`, and when present
-`logicalParentUuid` to reconstruct the active root conversation path. Do not flatten
-sibling branches or count subagents as independent user conversations.
+Stream each selected root transcript once and retain:
 
-Treat descendants in `subagents/` and sidechain records as derived work attached to
-the parent turn. For a fork, keep the shared ancestor once and preserve only the new
-human-authored continuation on each relevant branch. Across repeated compaction,
-follow logical parents back to original user records; use compaction summaries only to
-bridge context epochs when raw ancestors are unavailable.
+```text
+uuid -> record
+parentUuid -> children
+last valid last-prompt.leafUuid
+system/compact_boundary + logicalParentUuid
+accepted human and visible assistant text
+maximum accepted timestamp
+```
 
-Keep human messages from user records whose source indicates typed or queued input.
-Keep visible text blocks from assistant records. Exclude tool calls, tool results,
-thinking, system records, and progress machinery from the visible root timeline.
-Read sidechains or subagent transcripts only to attach relevant evidence or artifacts;
-never reinterpret their delegated prompts as direct human input.
+Use `last-prompt.leafUuid` as the active user-branch anchor when present. Walk backward
+through `parentUuid` and retain its relevant visible descendants. At
+`system/subtype == compact_boundary`, bridge through `logicalParentUuid`; the following
+`user/isCompactSummary` record is a derived context summary, not human testimony.
 
-Observed human fields:
+If links are missing, cyclic, or yield several plausible visible tails, preserve the
+stable path and label divergent segments. Do not silently drop a sibling assistant
+reply merely because retry or buffered-error records orphaned it.
+
+## Human and assistant text
+
+Strong human signals:
 
 ```text
 type == user
 message.role == user
-origin.kind == human OR promptSource in {typed, queued}
-message.content string OR ordered text blocks
+origin.kind == human
+  OR promptSource in {typed, queued, sdk}
 ```
 
-Observed visible AI fields:
+Older or remote records may lack source fields. Accept their string or text-only input
+only when it is not `isMeta` or `isCompactSummary`, has no tool-source/result fields,
+is not task-notification/peer/system input, and is corroborated by prompt history or
+turn continuity.
+
+Visible AI text:
 
 ```text
 type == assistant
@@ -66,5 +81,18 @@ message.role == assistant
 message.content[].type == text
 ```
 
-If the active path is ambiguous, include the stable root portion and say that later
-branches diverged.
+Preserve text-block order on the selected path. Exclude thinking, tool records, API
+error placeholders, system records, and progress.
+
+## Branches and child Agents
+
+`/branch` or `--fork-session` creates another root transcript with copied ancestry.
+Deduplicate copied ancestors by shared message UUID and preserve every selected branch
+suffix; never fuzzy-deduplicate repeated human wording.
+
+A normal or forked child Agent lives below `subagents/`; current records commonly carry
+`agentId` and `isSidechain:true`. Metadata may carry `toolUseId`, `parentAgentId`,
+`spawnDepth`, and `isFork`; `toolUseId` attaches the child to its parent turn. Fork
+children may use `fork-context-ref` instead of copied messages. A child task prompt is
+not direct human intent. Read child bodies only when requested or when their evidence
+or artifact materially informs the parent review.

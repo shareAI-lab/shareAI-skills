@@ -1,67 +1,110 @@
 # Grok Build Conversations
 
-Use this file only for Grok Build's ACP-style stream store.
+Last verified: local Grok Build `1.0.5` and official source `1.0.8`, 2026-08-23.
 
-## Typical locations
+## Locations and authority
 
-- Root: `$GROK_HOME` when set, otherwise `~/.grok`
-- Conversation stream: `sessions/<encoded-cwd>/<session-id>/updates.jsonl`
-- Metadata: `summary.json` in the same session directory
+- Root: `$GROK_HOME`, otherwise `~/.grok`
+- Session: `<root>/sessions/<cwd-group>/<session-id>/`
+- Metadata: `summary.json`
+- Authoritative conversation: `updates.jsonl`
+- Human prompt index: `<root>/sessions/<cwd-group>/prompt_history.jsonl`
+- Child relation: `<parent-session>/subagents/<child-id>/meta.json`
 
-## Time index
+The cwd group is normally URL-encoded; long paths may use a slug/hash plus `.cwd`.
+`chat_history.jsonl` is derived model context and may be rewritten by compaction, so it
+cannot replace the original update stream.
 
-`summary.json` is the discovery index. Relevant fields include:
+## Discovery and activity time
+
+Read matching `summary.json` files once. Observed fields include:
 
 ```text
 info.id
-created_at, updated_at, last_active_at    RFC3339
-session_kind, parent_session_id, hidden
+created_at, updated_at, last_active_at       RFC3339
+session_kind, hidden
+parent_session_id, fork_parent_prompt_id, inherited_prefix_len  when present
 ```
 
-Each `updates.jsonl` envelope has a Unix-seconds `timestamp`. Prefer the last accepted
-human or visible AI envelope timestamp. Fall back to `last_active_at`, then
-`updated_at` when the stream has no usable message time.
+Treat a summary as hidden when `hidden == true`, or when `hidden` is absent and
+`session_kind` starts with `subagent`; explicit `hidden == false` overrides the kind.
 
-## Fast path
+For accepted human and visible AI events prefer
+`params._meta.agentTimestampMs` (Unix milliseconds), then envelope `timestamp` (Unix
+seconds). Fork copying can rewrite the envelope time while retaining the event clock.
+Fall back to `last_active_at`, then `updated_at`.
 
-Read the relevant `summary.json` files once to select root sessions. Stream each
-selected `updates.jsonl` once, applying rewind state, coalescing adjacent visible
-chunks, recording activity time, and building the capsule together. Do not create an
-intermediate concatenated transcript.
+## Preserve human prompts
 
-## Conversation reconstruction
+Read each selected cwd group's `prompt_history.jsonl` once and filter by `session_id`:
 
-Accept visible user text from `session/update` records tagged
-`user_message_chunk`. Accept visible AI text from `agent_message_chunk` records.
-Coalesce adjacent fragments into conversational turns.
+```text
+{timestamp, session_id, prompt, is_bash}
+```
 
-Observed human fields:
+It records human-authority prompts and excludes child/synthetic turns, but is capped and
+may retain a partial live tail. Exclude `is_bash == true` unless requested. Reconcile it
+with the rewind-aware update stream rather than forcing history-only rows into the
+active timeline.
+
+Accept update text only when:
 
 ```text
 method == session/update
 params.update.sessionUpdate == user_message_chunk
 params.update.content.type == text
-params.update.content.text
 ```
 
-Observed visible AI fields:
+Prefer the user-facing text in this order:
 
 ```text
-method == session/update
-params.update.sessionUpdate == agent_message_chunk
-params.update.content.type == text
-params.update.content.text
+content._meta.combinedDisplayTexts[]
+content._meta.displayText
+content.text
 ```
 
-Exclude host turns, shell-command injections, tools, and internal reasoning from the
-visible timeline. Do not count sessions whose kind identifies a subagent as new human
-conversations; read them only for derived results relevant to the parent. Apply
-`rewind_marker` before summarizing so abandoned branches do not survive into the review.
+Exclude `update._meta.hostTurn`, `update._meta.hideFromScrollback`, and
+`content._meta.bash_command`. Group fragments by `update._meta.promptIndex`.
 
-Use `parent_session_id` and `session_kind` to attach forks and subagents to the root
-conversation. A child session's prompt is a derived task unless direct human origin is
-shown. When rollover or summary updates bridge context epochs, keep earlier raw
-`user_message_chunk` text as canonical and treat the bridge summary as derived.
+## Visible AI replies and turns
 
-Use `turn_completed` as lifecycle state. If visible assistant text was emitted in
-chunks, concatenate it in stored order without inventing separators.
+Accept `agent_message_chunk` text from the same `session/update` shape. Exclude
+`agent_thought_chunk`, tools, results, and control updates. Group message chunks by
+`params._meta.promptId`; when absent, use the current user turn until:
+
+```text
+method == _x.ai/session/update
+params.update.sessionUpdate == turn_completed
+params.update.prompt_id
+```
+
+Tool or thought records may appear between visible chunks, so adjacency is not a turn
+boundary.
+
+## Forks, child Agents, rewind, and compaction
+
+Use summary fork fields when present. Root forks may copy ancestor updates while
+rewriting session and envelope time; deduplicate a proven copied prefix by lineage plus
+the retained `params._meta.eventId`. `inherited_prefix_len` counts derived chat items,
+not update turns, so it is not a direct prompt cutoff. For a child Agent, prefer the parent's
+`subagents/<child-id>/meta.json`, which can contain `parent_session_id`,
+`child_session_id`, `prompt`, `resumed_from`, and context-source fields. Fall back to
+the parent's `subagent_spawned` update. The child prompt is delegated work.
+
+Apply every append-only `_x.ai/session/update` `rewind_marker` by truncating accumulated
+live turns to the state before its target prompt index, then append the later branch.
+Do not derive chronology from `rewind_points.jsonl`.
+
+Only a committed `compaction_checkpoint` proves a new context epoch.
+`auto_compact_started/failed/cancelled` are lifecycle signals; `session_recap` and
+stored recap summaries are UI-derived reference material. None replaces earlier raw
+updates, which remain the canonical original conversation.
+
+## Fast path
+
+```text
+summary scan + one prompt-history scan per cwd group
+  -> root/child/fork classification
+  -> one forward, rewind-aware updates stream per selected session
+  -> prompt-index human turns + prompt-ID assistant turns
+```

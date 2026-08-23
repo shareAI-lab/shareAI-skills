@@ -1,185 +1,81 @@
 ---
 name: review-ai-conversations
-description: Review recent human-AI conversations across Claude Code, Codex, opencode, Grok Build, and Cursor according to the user's requested locations, time range, focus, extraction targets, and report type. Use when the user wants to revisit, recover, search, summarize, compare, or understand work spread across AI workers and sessions. Can optionally cluster questions, map the problem space, review documents and AI conclusions, detect intent drift, or derive insights; handles forks, subagents, compaction, and Store drift as extraction concerns.
+description: Recover and review local human-AI conversations from Claude Code, Codex, opencode, Grok Build, and Cursor. Use when the user wants to revisit, search, extract, summarize, or compare work across Agent session stores, time ranges, projects, or named conversations. Follow the user's requested output; question clustering, problem-space mapping, artifact review, drift analysis, and insights are optional lenses.
 ---
 
 # Review AI Conversations
 
-Help the user review the actual conversation bodies from long-running work with AI
-workers. Follow what the user asked to analyze, extract, find, or report. Deeper
-synthesis—question clustering, problem-space mapping, drift review, or new insights—is
-available when requested or clearly useful, but is not a mandatory pipeline.
-
-## Accept natural-language scope
-
-The user may freely specify any combination of:
-
-- **Agents or locations**: one client, several clients, a project, or explicit paths.
-- **Time range**: recent hours, days, weeks, calendar dates, or named conversations.
-- **Analysis focus**: architecture, progress, decisions, recurring problems, or one topic.
-- **Analysis type**: review, summary, comparison, clustering, problem map, or insights.
-- **Content to extract**: prompts, replies, conclusions, artifacts, or open questions.
-- **Content to find**: a phrase, proposal, changed belief, missing answer, or document.
-
-Do not require store schemas, session IDs, or a rigid command format. Infer reasonable
-scope from ordinary language. Ask only when two interpretations would materially
-change the conversations or conclusions included.
-
-## Start with the requested review
+Recover the actual conversation bodies, then perform only the review, search,
+extraction, summary, comparison, or synthesis the user requested.
 
 ```text
-conversation bodies
-        │
-        ▼
-faithful review, extraction, search, or summary requested by the user
-        │
-        ├─ optionally cluster questions and workstreams
-        ├─ optionally map dimensions, sets, dependencies, or tensions
-        ├─ optionally review documents, AI conclusions, decisions, or drift
-        └─ optionally derive insights, open questions, or alternative frames
+scope -> recover human + visible AI turns -> requested result
+                     |
+                     `-> optional deeper analysis only when requested
 ```
 
-The user's original messages are the authority for intent. AI replies, compaction
-summaries, and AI-generated reports are useful evidence of what was understood or
-proposed, but they are not independent proof that the interpretation or conclusion is
-correct.
+The user's original messages are authoritative for intent. AI replies, summaries,
+and generated artifacts are useful prior work, not automatic proof that an
+interpretation or factual claim is correct.
 
-## Load only the extraction guidance needed
+## Interpret ordinary-language scope
 
-When the user supplies conversation text directly, analyze it without loading Store
-references.
+Infer four things when supplied: Agent or location, time range or conversation IDs,
+content to find or analyze, and desired output. The user may specify any subset. Ask
+only when two plausible scopes would materially change the recovered conversations or
+answer. An explicit file, Store path, session ID, or named conversation does not need
+time-index discovery.
 
-When reading local stores:
+## Load only the required guidance
 
-1. Read [`references/retrieval.md`](references/retrieval.md) for the shared efficient
-   retrieval and schema-drift rules.
-2. Read only the matching product reference:
-   - Claude Code: `references/sources/claude-code.md`
-   - Codex: `references/sources/codex.md`
-   - opencode: `references/sources/opencode.md`
-   - Grok Build: `references/sources/grok-build.md`
-   - Cursor: `references/sources/cursor.md`
-3. If parent/fork/subagent/summary markers, copied prefixes, multiple context epochs,
-   or suspected intent drift appear, also read
-   [`references/lineage-and-intent.md`](references/lineage-and-intent.md).
+If the user supplied conversation text directly, analyze it without Store references.
 
-Do not load unrelated product references. For several products, recover each Store
-family independently and combine their conversation capsules only at analysis time.
+When local Stores must be read:
 
-## Optionally cluster the user's real questions
+1. Read [`references/retrieval.md`](references/retrieval.md) completely.
+2. Read only the matching product adapter completely:
+   - [Claude Code](references/sources/claude-code.md)
+   - [Codex](references/sources/codex.md)
+   - [opencode](references/sources/opencode.md)
+   - [Grok Build](references/sources/grok-build.md)
+   - [Cursor](references/sources/cursor.md)
+3. Read [`references/lineage-and-intent.md`](references/lineage-and-intent.md) only
+   when forks, child Agents, copied history, context rollover, or intent drift matter.
+4. Read [`references/analysis-lenses.md`](references/analysis-lenses.md) only when the
+   user requests question clustering, problem-space mapping, artifact/conclusion
+   review, brainstorming, open questions, or insights.
 
-Use this lens when the user requests clustering, recurring themes, a synthesis of
-long-running work, or when repeated questions obscure the main concerns. Recover each
-accepted human-authored request before trusting later summaries. Split a long prompt
-into question atoms only when that helps reveal structure. Preserve the original text
-or an exact message reference beside the normalized form.
+For several products, recover each Store independently. Combine recovered
+conversation families only after applying each product's identity and lineage rules.
+Do not load unrelated product adapters. Do not read
+[`adapter-maintenance-evidence.md`](references/adapter-maintenance-evidence.md) during
+ordinary review; read it only when maintaining or re-verifying adapters.
 
-Cluster by the underlying decision, unknown, or tension—not merely repeated words.
-Two differently worded prompts may be one problem; two prompts sharing vocabulary may
-belong to different workstreams. For each cluster, identify:
+## Preserve the requested truth
 
-- what the user is ultimately trying to understand, decide, or build;
-- the constraints, exclusions, assumptions, and examples that shape the answer;
-- which conversations extend, correct, fork, or repeat earlier work;
-- what is resolved, contradicted, partly answered, or still absent.
+- Keep accepted human-authored text and visible assistant replies in order.
+- Preserve an exact message reference with every important extracted passage.
+- Distinguish active conversation, abandoned branch, derived summary, delegated child
+  task, and missing history when the distinction affects the request.
+- Inspect an actual document or code artifact instead of relying only on an AI claim
+  when the user requested artifact, decision, implementation, or factual verification.
 
-Prefer the fewest clusters that preserve meaningful differences. Do not compress away
-a detail merely because later AI summaries ignored it.
+## Avoid low-value behavior
 
-## Optionally map the problem space
+- Do not stop at file discovery, session counts, or an intermediate transcript export.
+- Do not merge duplicate projections, copied fork prefixes, child prompts, or
+  compaction summaries into new human intent.
+- Do not force clustering, diagrams, insights, open minds, or next actions when the
+  user requested simple recovery, search, extraction, or summary.
+- Do not hide uncertainty when the Store cannot distinguish two plausible timelines.
 
-Use this lens when the user asks how questions relate, wants dimensions or quadrants,
-or needs a clearer system model. Make relationships explicit rather than producing a
-topic catalog. Choose the smallest useful representation:
+## Report to the requested depth
 
-- **Dimensions** for independent variables along which answers change.
-- **Quadrants** only when two genuinely independent axes create four meaningful cases.
-- **Sets** for membership, overlap, subset, exclusion, and uncovered cases.
-- **Layers** for abstraction, ownership, or implementation boundaries.
-- **Dependencies or sequence** when one question must be answered before another.
-- **Tensions** when satisfying one need weakens another.
+Follow the user's requested format first. For a substantial synthesis, lead with the
+answer, keep the structure compact, and use Markdown box-line diagrams only when they
+make relationships materially clearer. Roughly 3,000-5,000 Chinese characters may be
+useful for a requested deep review, but is never a target for ordinary recovery.
 
-Ask whether the chosen dimensions are independent, whether cases are missing, and
-whether two apparent dimensions are actually the same concern at different layers.
-The goal is a compact problem model the user can think with, not a decorative diagram.
-
-## Optionally review documents, AI replies, and decisions
-
-Use this lens when artifacts, prior conclusions, or work progress matter. Collect recent
-documents, code, reports, plans, and decisions mentioned or produced in the selected
-conversations. Inspect the actual artifact when available instead of relying only on
-an AI statement that it exists or says something.
-
-Attach each artifact or consequential AI conclusion to the question cluster it serves.
-Judge whether it supports, extends, contradicts, supersedes, or leaves the question
-unresolved. Distinguish clearly:
-
-```text
-truth about user intent   -> original human messages outrank AI summaries
-truth about produced work -> actual document or code outranks a chat claim
-truth about external facts -> primary evidence outranks an AI report
-```
-
-Treat AI replies as proposals and prior reasoning worth reviewing. Repetition across
-AI workers is not independent confirmation when they inherited the same summary or
-copied context.
-
-## Optionally derive insights and open minds
-
-Use this lens only when the user asks for insights, brainstorming, reframing, open
-questions, or a deeper synthesis—or when one genuinely decision-relevant connection is
-worth surfacing briefly. An insight should expose a useful relationship not obvious
-from one conversation: two clusters may share a hidden constraint, a rejected idea may
-solve a different quadrant, or repeated trouble may reveal a misplaced boundary.
-
-For each important insight, make the derivation inspectable:
-
-```text
-observations across conversations
-  -> relationship or contradiction
-  -> why it changes understanding
-  -> decision, experiment, or next question it enables
-```
-
-Use **open minds** to offer a small number of alternative frames, counterexamples, or
-experiments that could unlock the work. Do not generate a brainstorm dump disconnected
-from the recovered question space. Do not add this section merely to satisfy a template.
-
-## Avoid low-value review
-
-- Do not narrate every conversation chronologically unless a timeline is requested.
-- Do not stop at session counts, filenames, extraction mechanics, or a topic list.
-- Do not treat AI summaries or generated documents as the only trusted source.
-- Do not invent quadrants whose axes are not independent or whose cells add no value.
-- Do not flatten forks, subagents, and repeated compaction into duplicate human intent.
-- Do not repeat old AI conclusions without testing what they add, miss, or contradict.
-- Do not force clustering, diagrams, insights, open minds, or next actions when the user
-  requested a simpler recovery, extraction, search, or summary.
-- Unless exact recovery was requested, do not preserve every detail equally; retain
-  what changes understanding, decisions, risk, or the user's stated purpose.
-
-## Reporting contract
-
-Follow the user's requested output and level of depth first. For a substantial
-synthesis, lead with the conclusion and keep reading pressure low. Roughly 3,000–5,000
-Chinese characters is usually enough; use equivalent depth in another language.
-Prefer five or six coherent sections when that structure fits.
-
-Use Markdown box-line diagrams for problem relationships and compact pseudocode for
-review logic. Avoid Markdown tables unless exact repeated-field comparison genuinely
-needs one.
-
-A substantial synthesis may use the following structure, but include only sections
-that serve the user's request:
-
-1. **Original intent and current focus**
-2. **Question clusters and workstreams**
-3. **Problem-space map**
-4. **Documents, conclusions, decisions, and drift**
-5. **New insights and open minds**
-6. **The few next questions or actions that matter**
-
-The review is complete when it faithfully satisfies the requested scope and gives the
-user a clearer, evidence-aware account of the selected conversations. Question maps,
-drift analysis, insights, and next actions are completion criteria only when the user
-requested them or they are necessary to answer the stated purpose.
+The task is complete when the selected conversation text was recovered faithfully and
+the requested review or extraction was answered without silently promoting derived AI
+context into original human intent.
