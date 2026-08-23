@@ -1,4 +1,4 @@
 interface:
-  display_name: "Boss Meet"
-  short_description: "Run high-bandwidth meetings and advance real work and decisions"
-  default_prompt: "Use $boss-meet to prepare or review this meeting, improve its decision value, and give direct but constructive employee feedback."
+  display_name: "Meeting Coach: Leader"
+  short_description: "Help leaders run high-bandwidth meetings and work reviews"
+  default_prompt: "Use $meeting-coach-leader to prepare or review this meeting, improve its decision value, and give direct but constructive worker feedback."

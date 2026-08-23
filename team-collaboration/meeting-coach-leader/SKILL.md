@@ -1,15 +1,11 @@
 ---
-name: boss-meet
-description: "Help a manager prepare, run, and review high-bandwidth meetings that advance real work and decisions while maintaining direct standards and a workable employee experience. Use for Lab-oriented team collaboration and communication through meeting retrospectives, employee work reviews, decision meetings, agenda and question design, direct feedback, meeting-quality diagnosis, or repeated low-value discussions. This is outcome-driven operating guidance, not universal management doctrine."
+name: meeting-coach-leader
+description: "Coach leaders and managers to prepare, run, and review high-bandwidth meetings that advance real work and decisions. Use for meeting retrospectives, employee work reviews, decision meetings, agenda and question design, direct feedback, meeting-quality diagnosis, or repeated low-value discussions. Preserve direct standards without taking over the worker's work or degrading the truth signal."
 ---
 
-# Boss Meet
+# Meeting Coach: Leader
 
 Optimize meetings for truth, decisions, learning, and executable work. Do not confuse intensity, duration, or manager airtime with progress.
-
-## Applicability
-
-Use this as Lab-oriented operating guidance for outcome-driven team collaboration and communication. It assumes meetings should improve the underlying work, produce clearer decisions, and preserve explicit ownership. Do not treat it as universal management doctrine. When using it elsewhere, adapt its assumptions about hierarchy, feedback style, decision rights, and meeting cadence.
 
 ## Choose the immediate need
 
