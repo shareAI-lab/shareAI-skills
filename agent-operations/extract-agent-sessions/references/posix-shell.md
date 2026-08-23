@@ -20,6 +20,8 @@ JSONL or install software without permission.
 - [Project visible text](#project-visible-text-privately)
 - [Project an ACP stream](#project-an-acp-stream-privately)
 - [Query a relational SQLite store](#query-a-relational-sqlite-store-read-only)
+- [Discover a Cursor store](#discover-a-cursor-store)
+- [Project Cursor visible text](#project-cursor-visible-text)
 - [Detect concurrent writes](#detect-an-active-write)
 
 ## Safe setup
@@ -965,6 +967,158 @@ console.log(r.n + "\t" + (r.t ?? 0));
 db.close();
 EOF
 ```
+
+## Discover a Cursor store
+
+Probe application-support roots without guessing a username. Keep titles,
+workspace ids, and encoded project names out of stdout:
+
+```bash
+cursor_global=""
+for cand in \
+  "$agent_home/Library/Application Support/Cursor/User/globalStorage" \
+  "$agent_home/.config/Cursor/User/globalStorage"
+do
+  if [ -d "$cand" ] && [ ! -L "$cand" ]; then
+    cursor_global=$cand
+    break
+  fi
+done
+[ -n "$cursor_global" ] || { printf 'No Cursor globalStorage\n' >&2; exit 2; }
+
+state_db="$cursor_global/state.vscdb"
+search_db="$cursor_global/conversation-search.db"
+[ -f "$state_db" ] && [ ! -L "$state_db" ] || {
+  printf 'Cursor state.vscdb absent or linked\n' >&2
+  exit 2
+}
+```
+
+Inventory from the search index, then reconcile composer keys. Write IDs only
+to the private extract directory; do not cat those files:
+
+```bash
+sqlite3 -readonly "$search_db" \
+  ".mode tabs" \
+  "SELECT id, source, is_archived, updated_at FROM conversations
+   WHERE updated_at >= $window_start_ms AND updated_at <= $window_end_ms
+   ORDER BY updated_at DESC;" \
+  >"$extract_dir/cursor-search.tsv"
+
+sqlite3 -readonly "$state_db" \
+  "SELECT key FROM cursorDiskKV WHERE key LIKE 'composerData:%';" \
+  >"$extract_dir/cursor-composer-keys.txt"
+
+sqlite3 -readonly "$state_db" \
+  "SELECT composerId, COALESCE(isSubagent,0), COALESCE(isArchived,0),
+          lastUpdatedAt FROM composerHeaders;" \
+  >"$extract_dir/cursor-headers.tsv"
+```
+
+Fingerprint bubble `type` enums and composer `_v` without printing text:
+
+```bash
+sqlite3 -readonly "$state_db" \
+  "SELECT json_extract(value,'\$._v'), COUNT(*) FROM cursorDiskKV
+   WHERE key LIKE 'composerData:%' AND typeof(value)='text'
+   GROUP BY 1;"
+
+sqlite3 -readonly "$state_db" \
+  "SELECT json_extract(value,'\$.type'), COUNT(*) FROM cursorDiskKV
+   WHERE key LIKE 'bubbleId:%' AND typeof(value)='text'
+   GROUP BY 1;"
+```
+
+Stop unless composer blobs expose `_v` and/or `conversation`, and bubble
+types stay within `1|2` (collapse anything else to `unknown-string`). List
+JSONL projections by finding files, not by reading them:
+
+```bash
+find "$agent_home/.cursor/projects" -path '*/agent-transcripts/*/*.jsonl' \
+  ! -path '*/subagents/*' -print >"$extract_dir/cursor-transcript-roots.txt"
+find "$agent_home/.cursor/projects" \
+  -path '*/agent-transcripts/*/subagents/*.jsonl' -print \
+  >"$extract_dir/cursor-transcript-children.txt"
+```
+
+## Project Cursor visible text
+
+After the user selects an alias, pick one channel.
+
+Agent-transcript JSONL (prefer when the file is a non-stub agent chat, or
+when composer headers and `bubbleId` rows are empty):
+
+```bash
+jq -c '
+  if .role? == "user" then
+    [.message.content[]?
+      | select(.type? == "text" and (.text? | type) == "string")
+      | .text] as $text
+    | select($text | length > 0)
+    | {role: "human", text_blocks: $text}
+  elif .role? == "assistant" then
+    [.message.content[]?
+      | select(.type? == "text" and (.text? | type) == "string")
+      | .text] as $text
+    | select($text | length > 0)
+    | {role: "assistant", text_blocks: $text}
+  elif .type? == "turn_ended" then
+    {role: "lifecycle", status: (.status // null)}
+  else empty end
+' "$transcript" >"$extract_dir/visible.jsonl"
+```
+
+Modern composer (`_v` present): read header order from `composerData`, then
+load each `bubbleId:<composerId>:<bubbleId>`. Legacy composer: project the
+embedded `conversation` array with the same type predicates (`1` human,
+`2` + nonempty `text` assistant). Do not emit composer-root `text` /
+`richText`. Compose the join in a one-off read-only client; do not dump the
+whole `cursorDiskKV` table.
+
+```bash
+node - "$state_db" "$composer_id" <<'EOF' >"$extract_dir/visible.jsonl"
+const { DatabaseSync } = require("node:sqlite");
+const db = new DatabaseSync(process.argv[2], { readOnly: true });
+const id = process.argv[3];
+const row = db.prepare(
+  "SELECT value FROM cursorDiskKV WHERE key = ?"
+).get("composerData:" + id);
+if (!row || typeof row.value !== "string") process.exit(2);
+const composer = JSON.parse(row.value);
+const headers = Array.isArray(composer.fullConversationHeadersOnly)
+  ? composer.fullConversationHeadersOnly
+  : (Array.isArray(composer.conversation) ? composer.conversation : []);
+const q = db.prepare("SELECT value FROM cursorDiskKV WHERE key = ?");
+for (const h of headers) {
+  if (!h || typeof h !== "object") continue;
+  let bubble = h;
+  if (h.bubbleId && !h.text && !h.richText) {
+    const got = q.get("bubbleId:" + id + ":" + h.bubbleId);
+    if (!got || typeof got.value !== "string") continue;
+    try { bubble = JSON.parse(got.value); } catch { continue; }
+  }
+  const type = bubble.type;
+  const text = typeof bubble.text === "string" ? bubble.text : "";
+  if (type === 1 && text) {
+    console.log(JSON.stringify({role: "human", text}));
+  } else if (type === 2 && text) {
+    console.log(JSON.stringify({role: "assistant", text}));
+  }
+}
+db.close();
+EOF
+```
+
+Detect Cursor concurrent writes with a per-composer clock, not WAL mtime:
+
+```bash
+sqlite3 -readonly "$state_db" \
+  "SELECT COALESCE(lastUpdatedAt, recency, 0) FROM composerHeaders
+   WHERE composerId = '$composer_id';"
+```
+
+If that header row is missing, count `bubbleId:<composerId>:%` keys instead.
+Retry once if the clock or count moved.
 
 ## Detect an active write
 

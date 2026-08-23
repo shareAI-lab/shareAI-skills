@@ -16,19 +16,20 @@ different account inferred from `sudo`, a service, or a scheduled task.
 - [Rollout-shaped transcripts](#rollout-shaped-transcripts)
 - [Relational-shaped transcripts](#relational-shaped-transcripts)
 - [ACP-stream-shaped transcripts](#acp-stream-shaped-transcripts)
+- [Cursor-shaped transcripts](#cursor-shaped-transcripts)
 - [Recency and low-context analysis](#recency-and-low-context-analysis)
 - [Externalized content and corruption](#externalized-content-and-corruption)
 
 ## Storage map
 
-| Purpose | Tree-shaped store | Rollout-shaped store | Relational-shaped store | ACP-stream-shaped store |
-|---|---|---|---|---|
-| Observed product family | Claude Code | Codex CLI/Desktop | opencode CLI/TUI (observed at 1.18.x) | Grok Build CLI/TUI (observed at `chat_format_version` 1) |
-| Data root | `<home>/.claude` | `<home>/.codex` | `<home>/.local/share/opencode` (XDG data dir; honors `XDG_DATA_HOME`; dev channels suffix the name — probe `opencode*`) | `$GROK_HOME` when set and non-empty (used verbatim), otherwise `<home>/.grok` |
-| Recent-input index | `history.jsonl` | `history.jsonl` | `session` table inside `opencode.db` | `summary.json` inside each session directory |
-| Root transcript | `projects/<encoded-workdir>/<session-id>.jsonl` | `sessions/YYYY/MM/DD/rollout-...-<thread-id>.jsonl` | `message` + `part` rows for sessions with NULL `parent_id` | `sessions/<encoded-cwd>/<session-id>/updates.jsonl` |
-| Child transcript | `<root-session>/subagents/**/*.jsonl` | Separate rollout whose first metadata record identifies a subagent | Sessions with non-NULL `parent_id` (task-tool subagents) | Sibling session directory whose `session_kind` starts with `subagent` |
-| Optional path index | None required | `state_*.sqlite`, if present and opened read-only | `project` table; `<home>/.local/state/opencode/prompt-history.jsonl` is raw typed input — avoid by default | `sessions/session_search.sqlite` FTS (`title`/`content` are conversation text — never select them); per-cwd-group `prompt_history.jsonl` is raw typed input — avoid by default |
+| Purpose | Tree-shaped store | Rollout-shaped store | Relational-shaped store | ACP-stream-shaped store | Cursor-shaped store |
+|---|---|---|---|---|---|
+| Observed product family | Claude Code | Codex CLI/Desktop | opencode CLI/TUI (observed at 1.18.x) | Grok Build CLI/TUI (observed at `chat_format_version` 1) | Cursor Desktop composer/agent (observed 2026-08) |
+| Data root | `<home>/.claude` | `<home>/.codex` | `<home>/.local/share/opencode` (XDG data dir; honors `XDG_DATA_HOME`; dev channels suffix the name — probe `opencode*`) | `$GROK_HOME` when set and non-empty (used verbatim), otherwise `<home>/.grok` | App support `…/Cursor/User/globalStorage` plus `<home>/.cursor/projects` (macOS `Library/Application Support`; Linux probe `.config/Cursor`) |
+| Recent-input index | `history.jsonl` | `history.jsonl` | `session` table inside `opencode.db` | `summary.json` inside each session directory | `conversations` table in `conversation-search.db` |
+| Root transcript | `projects/<encoded-workdir>/<session-id>.jsonl` | `sessions/YYYY/MM/DD/rollout-...-<thread-id>.jsonl` | `message` + `part` rows for sessions with NULL `parent_id` | `sessions/<encoded-cwd>/<session-id>/updates.jsonl` | `state.vscdb` `cursorDiskKV` `composerData:<id>` + `bubbleId:<id>:<bubbleId>`; optional JSONL `agent-transcripts/<id>/<id>.jsonl` |
+| Child transcript | `<root-session>/subagents/**/*.jsonl` | Separate rollout whose first metadata record identifies a subagent | Sessions with non-NULL `parent_id` (task-tool subagents) | Sibling session directory whose `session_kind` starts with `subagent` | `composerHeaders.isSubagent=1`, `subagentInfo`, or `agent-transcripts/<id>/subagents/*.jsonl` |
+| Optional path index | None required | `state_*.sqlite`, if present and opened read-only | `project` table; `<home>/.local/state/opencode/prompt-history.jsonl` is raw typed input — avoid by default | `sessions/session_search.sqlite` FTS (`title`/`content` are conversation text — never select them); per-cwd-group `prompt_history.jsonl` is raw typed input — avoid by default | `composerHeaders` (partial recent overlay). Never `ItemTable`. Workspace `workspaceStorage/*/state.vscdb` is editor state, not canonical chat. |
 
 These relative layouts have been observed under Linux and macOS homes. Do not
 assume that a desktop app, CLI, container, WSL distribution, or remote host shares
@@ -81,10 +82,38 @@ num_messages, num_chat_messages
 chat_format_version             observed 1
 ```
 
+Observed Cursor-store `conversations` columns (in `conversation-search.db`) include:
+
+```text
+fts_rowid
+source                          'local' | 'cloud-cache'
+scope                           empty for local; private for cloud-cache
+id                              composer / conversation id
+title, branches                 private
+updated_at                      Unix milliseconds
+is_archived
+root_fingerprint                local only
+cache_fingerprint               cloud-cache only
+```
+
+`composerHeaders` (in `state.vscdb`) is a recent-only overlay, not a catalog:
+
+```text
+composerId
+workspaceId                     private
+createdAt, lastUpdatedAt,
+recency, checkpointAt           Unix milliseconds
+isArchived, isSubagent
+value                           header JSON; keep name/subtitle/workspace private
+```
+
 Use these indexes only to obtain candidate IDs and recent human-input times. Keep
 `project`, `display`, `text`, `title`, `directory`, `generated_title`,
-`session_summary`, and `info.cwd` private; do not show them in the default
-inventory. An entry with no transcript can be a command-only interaction. The
+`session_summary`, `info.cwd`, `name`, `subtitle`, `scope`, and `workspaceId`
+private; do not show them in the default inventory. An entry with no transcript
+can be a command-only interaction. Do not read `conversation_fts` `body` as
+conversation text.
+
 ACP-stream FTS file `session_search.sqlite` duplicates titles and prompt text;
 do not use it as a discovery index.
 
@@ -512,6 +541,179 @@ Prefer the last accepted human or visible-assistant envelope `timestamp` (Unix
 seconds). Fall back to `summary.last_active_at`, then `summary.updated_at`
 (RFC3339). Ignore `events.jsonl` and FTS `updated_at` as discussion recency.
 
+## Cursor-shaped transcripts
+
+Observed 2026-08 on macOS Cursor Desktop. The product keeps one live SQLite
+composer store, a separate FTS search index, and an optional per-project JSONL
+projection for recent agent-mode chats. These layers disagree; reconcile them
+before reading bodies.
+
+### Store access and safety
+
+- Application-support root, probe in order and keep the first that exists:
+  `<home>/Library/Application Support/Cursor/User/globalStorage` (macOS),
+  `<home>/.config/Cursor/User/globalStorage` (Linux).
+- Project projection root: `<home>/.cursor/projects/<encoded-workdir>/`.
+  The encoded directory name is a workspace path with `/` replaced by `-`.
+  Treat that name as private, like `cwd`.
+- Open `state.vscdb` and `conversation-search.db` read-only. Both run in WAL
+  mode while Cursor is open. Verify settlement with composer row counts or
+  `lastUpdatedAt`, not WAL mtime.
+- Allow-listed objects: `composerHeaders`; `cursorDiskKV` keys starting
+  `composerData:` or `bubbleId:`; `conversations` (identity and timestamps
+  only); `agent-transcripts/**/*.jsonl`.
+- Forbidden in the same tree: `ItemTable` (`secret://`, `mcpOAuth.*`,
+  admin-auth), `agentKv:blob` values, `Cookies`, `Local Storage`,
+  `Session Storage`, `mcp-oauth-attempts`, `ai-tracking/ai-code-tracking.db`
+  (not a conversation store). Drop `blobEncryptionKey` and
+  `speculativeSummarizationEncryptionKey` if a composer blob contains them.
+- `workspaceStorage/*/state.vscdb` is per-workspace editor state. Observed
+  copies were not the composer catalog; do not extract chats from them
+  unless a later fingerprint proves `composerData:` keys live there.
+- `composer.content.<hex>` leftovers have been observed beside modern keys.
+  Treat an unknown prefix as unsupported; do not guess it is a transcript.
+
+### Discovery vs canonical
+
+```text
+conversation-search.db          discovery index (local + cloud-cache FTS)
+composerHeaders                 recent overlay; far smaller than composerData
+cursorDiskKV composerData:<id>  canonical composer blob
+cursorDiskKV bubbleId:<id>:<b>  canonical modern messages
+agent-transcripts/<id>/<id>.jsonl   optional agent-mode projection
+```
+
+Observed local install: search local IDs were a subset of `composerData`
+keys; many older composers were composer-only; every project JSONL id was
+also in `composerData`. `source=cloud-cache` rows had no local composer
+blob. `composerHeaders` covered only the current glass/agent generation.
+
+When the user asks for all sessions in a window, union search IDs with
+`composerData` timestamps. Report `search-only` (usually cloud-cache),
+`composer-only` (legacy or unindexed), `header-only` (draft / in-flight),
+`transcript-only`, and matched counts. Never use search IDs as the exclusive
+allow-list.
+
+### Root and child identity
+
+- Root: no `composerHeaders.isSubagent`, no `composerData.subagentInfo`,
+  `isBestOfNSubcomposer != true`, and path is not under `subagents/`.
+- Child: any of the above, or a parent listing the id in
+  `subagentComposerIds` / `subComposerIds`.
+- Exclude from human summaries: `composerData:empty-state-draft`;
+  `isDraft=true` with no bubbles; `isEphemeral=true`; JSONL files whose only
+  records are `turn_ended` and/or `error` (failed-empty stubs).
+- `unifiedMode` / `isAgentic` distinguish agent vs chat vs edit. They are
+  state, not identity. A corrupted `unifiedMode` has been observed as a file
+  URI array — collapse that to `unknown-string` and keep extracting.
+- `status` on the composer blob is commonly `completed`, `none`, or
+  `aborted`. Use it as turn state, not as a filter that drops conversations.
+
+### Two composer blob generations
+
+Fingerprint `_v` before choosing a message channel.
+
+**Legacy (no `_v`; embedded `conversation` array)**
+
+The blob itself holds the bubble list. Each item uses the same `type` /
+`bubbleId` / `text` / `richText` shape as modern bubbles. Composer-root
+`text` and `richText` are the current input draft, not a transcript turn —
+ignore them.
+
+**Modern (`_v` observed at 3 and 18)**
+
+```text
+fullConversationHeadersOnly[]   ordered headers: bubbleId, type, createdAt
+conversationMap                 observed empty; do not require it
+bubbleId:<composerId>:<bubbleId>  separate cursorDiskKV values with body
+```
+
+Join headers to `bubbleId` rows in header order. A header without a matching
+KV row is a missing bubble; count it and continue. Do not walk every
+`bubbleId:*` key in the database.
+
+### Bubble allow-lists (composer channel)
+
+Observed bubble `type` values:
+
+```text
+1    human
+2    assistant or tool-only machinery
+```
+
+Human, require all of:
+
+```text
+type == 1
+text or richText is a nonempty string
+prefer text; richText is a formatted sibling, not a second message
+```
+
+Assistant, require all of:
+
+```text
+type == 2
+text is a nonempty string
+```
+
+Exclude thinking, `allThinkingBlocks`, nonempty `toolFormerData` /
+`toolResults` when `text` is empty (tool-only type-2 rows), `codeBlocks`,
+`intermediateChunks`, and `skipRendering` if that flag appears. Count
+tool-only type-2 rows as excluded tool calls. Images were absent in the
+observed install; if `images` is a nonempty array, store a count only.
+
+`toolFormerData` keys observed on tool rows: `tool`, `toolCallId`, `status`,
+`rawArgs`, `name`, `params`, `userDecision`, `result`, `additionalData`.
+Do not emit them in visible timelines.
+
+### JSONL projection allow-lists (agent-transcripts)
+
+Root file: `agent-transcripts/<composerId>/<composerId>.jsonl`.
+Child file: `agent-transcripts/<composerId>/subagents/<childId>.jsonl`.
+
+Observed records:
+
+```text
+{role: "user"|"assistant", message: {content: [{type, ...}]}}
+{type: "turn_ended", status: "success"|"error", error?}
+```
+
+Human: `role == user` and ordered `message.content[]` blocks with
+`type == text`. Assistant: `role == assistant` and `type == text` blocks.
+Exclude `tool_use`. Use `turn_ended` only as lifecycle (`success` /
+`error` / missing). Records have been observed without timestamps.
+
+Prefer this projection for a recent agent-mode chat when the file exists and
+is not a failed-empty stub (only `turn_ended` / `error`; observed stubs were
+tens to a few hundred bytes). Byte size alone is not a stub test: a JSONL
+with one large human message and empty composer headers is JSONL-only, not
+empty. Also prefer JSONL when `fullConversationHeadersOnly` and
+`conversation` are empty and no `bubbleId:<id>:` rows exist.
+
+Do not merge JSONL text with bubble text; pick one channel after
+fingerprinting. If both exist, human counts should match; assistant counts
+may differ (JSONL keeps in-progress text; composer skips tool-only type-2
+rows). Report the mismatch and keep the selected channel.
+
+### Turn state and recency
+
+Composer recency: max of accepted bubble `createdAt`, else
+`composerData.lastUpdatedAt`, else `composerHeaders.lastUpdatedAt` /
+`recency`, else search `updated_at`. All observed times are Unix
+milliseconds. JSONL-only stubs have no message time — label that and fall
+back to the header clock. Do not use file mtime as discussion time.
+
+Composer `status` plus JSONL `turn_ended.status` are completion evidence.
+`unfinishedRunAt` marks an open run.
+
+### Mega-threads and summaries
+
+Individual `composerData` blobs have been observed above 10 MB, with
+`fullConversationHeadersOnly` lengths in the hundreds. For topic summaries
+keep the filtered timeline on disk, sample head + every Nth + tail, and
+state the factor. Never load a multi-megabyte composer blob into model
+context to "see what it is about".
+
 ## Recency and low-context analysis
 
 Use the maximum accepted human or visible-assistant timestamp for transcript
@@ -523,9 +725,10 @@ For topic analysis:
 1. Read every selected human message.
 2. Read final answers for completed turns.
 3. Add visible progress when no final answer exists or the turn is open/aborted.
-4. For tree-shaped, relational, and ACP-stream stores without phase labels, use
-   the last assistant text before the next human message as a compact view while
-   retaining the complete private artifact.
+4. For tree-shaped, relational, ACP-stream, and Cursor stores without phase
+   labels, use the last assistant text before the next human message as a
+   compact view while retaining the complete private artifact. Cursor JSONL
+   records have been observed without timestamps; order is file order.
 
 ## Externalized content and corruption
 
