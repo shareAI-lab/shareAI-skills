@@ -31,9 +31,16 @@ questions, and replies.
 
 ## Conversation reconstruction
 
-Read the first `session_meta` record to identify the root conversation and reject
-explicit subagent rollouts. A fork can contain copied ancestor messages; keep its own
-new human turns and avoid counting copied history twice.
+Read the first `session_meta` record to identify the root conversation and distinguish
+explicit subagent rollouts. Do not count a subagent as a new human conversation; read
+it only when its results explain parent work. A fork can contain copied ancestor
+messages; keep its own new human turns and avoid counting copied history twice.
+
+Group root, fork, and subagent rollouts by their recorded source/parent lineage when
+available. A subagent's task prompt is derived from the parent agent even when stored
+with a user-like role. Treat compaction records and injected summaries as context
+bridges, then recover original `user_message` events across all retained epochs. If a
+fork copied ancestor events, deduplicate the copied prefix before comparing branches.
 
 Keep canonical human messages from `event_msg` records whose payload type is
 `user_message`. Keep visible assistant `output_text` blocks from assistant message

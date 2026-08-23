@@ -1,6 +1,6 @@
 ---
 name: review-ai-conversations
-description: Review and synthesize recent human-AI conversations across Claude Code, Codex, opencode, Grok Build, and Cursor. Use when the user wants to revisit work done with AI workers, summarize and cluster recurring questions, map the problem space, review prior AI replies and generated artifacts as reference material, compress long-running work across sessions, deepen understanding, brainstorm, or surface new insights and next questions. The user may specify agents, locations, time ranges, topics, analysis types, content to extract, or content to find.
+description: Review and synthesize recent human-AI conversations across Claude Code, Codex, opencode, Grok Build, and Cursor while preserving original user intent across forks, subagents, and repeated context compaction. Use when the user wants to revisit work done with AI workers, cluster recurring questions, map the problem space, detect drift from original requests, review prior replies and artifacts as reference material, compress long-running work across sessions, deepen understanding, brainstorm, or surface new insights and next questions.
 ---
 
 # Review AI Conversations
@@ -95,10 +95,11 @@ Do not build one giant transcript. Use three bounded passes:
 
 ```text
 one index pass per product
-        │ select root conversations in the frozen time window
+        │ select related root, fork, and child records in the frozen time window
         ▼
-one body pass per selected root
-        │ filter visible turns and emit one conversation capsule
+one body pass per conversation family
+        │ recover lineage + original human turns + visible replies
+        │ emit one lineage-aware conversation capsule
         ▼
 cluster capsules across conversations
         │ reopen raw text only for decisive evidence or contradictions
@@ -111,7 +112,10 @@ Each conversation capsule should be compact and structured:
 ```text
 {
   agent, conversation_id, activity_time, workstream,
-  user_questions[], ai_conclusions[], decisions[],
+  lineage: {root, parent, relation, context_epochs[]},
+  original_user_requests[{message_ref, exact_text}],
+  normalized_question_set[], derived_agent_tasks[],
+  ai_conclusions[], intent_coverage[], decisions[],
   artifacts[], open_loops[], candidate_insights[]
 }
 ```
@@ -138,6 +142,63 @@ Avoid retrieval work that does not improve the review:
 - Do not stop after creating an inventory or intermediate export unless the user
   explicitly requested one.
 
+## Reconstruct lineage before interpreting meaning
+
+A stored session is not necessarily one human conversation, and one human
+conversation is not necessarily one context window. Build a small lineage graph while
+reading instead of flattening every record into one timeline:
+
+```text
+root human conversation
+  ├─ fork: shared ancestors + branch-specific human continuation
+  ├─ subagent: derived task and evidence attached to its parent
+  └─ context epoch 1 -> compaction -> epoch 2 -> compaction -> epoch 3
+                         one logical conversation, not three sessions
+```
+
+Apply these rules:
+
+- **Root conversation**: human-authored messages are the primary record of intent.
+- **Fork**: count shared ancestors once. Preserve new human turns on each meaningful
+  branch, but do not duplicate the copied prefix or silently merge divergent answers.
+- **Subagent session**: treat its delegated prompt as a derived agent task, not a new
+  human request, unless the store proves that the user authored it. Attach useful
+  results, artifacts, and disagreements to the parent conversation.
+- **Compaction or context rollover**: treat each segment as another context epoch of
+  the same logical conversation. A compaction summary helps navigation but is never a
+  substitute for original human messages that still exist in the store.
+- **Missing ancestors**: if only a summary or copied projection survives, label the
+  recovered intent as summary-derived rather than silently presenting it as verbatim.
+
+Deduplicate by lineage and stable message identity when available. Text equality alone
+is not enough: a user may intentionally repeat a question, while a fork may copy the
+same ancestor under a new session ID.
+
+## Preserve the original question set and detect drift
+
+Retain each accepted human-authored request verbatim, or retain a stable address to the
+exact text when it is too large for working context. Build a normalized question set
+beside the original text, never instead of it. Preserve constraints, exclusions,
+examples, uncertainties, and small details that could change the intended result.
+
+```text
+Q0: original user request set
+        │ compare coverage and meaning at every derived stage
+        ├─ AI interpretation
+        ├─ delegated subagent tasks
+        ├─ compaction summaries
+        ├─ intermediate plans and artifacts
+        └─ final answers and conclusions
+
+coverage(q) = preserved | narrowed | expanded | distorted | dropped | unresolved
+```
+
+Treat semantic drift as a first-class review finding. A polished later summary may be
+less trustworthy than an earlier raw user message. When meaning changed, show the
+specific original requirement, where the change appeared, and whether later work
+recovered it. Do not assume that repeated AI summaries form independent confirmation;
+they may be copies of the same earlier misunderstanding.
+
 ## Read the conversation body
 
 Recover the user's actual messages and the visible AI replies in conversational order.
@@ -145,9 +206,10 @@ Exclude tool calls, internal reasoning, system injection, copied parent history,
 subagent chatter, host commands, and synthetic messages that were not typed by the
 user or shown as an AI reply.
 
-Prefer complete root conversations. Avoid counting forks, retries, copied context, or
-subagents as independent lines of human thought. If a store has changed shape, inspect
-the current fields and adapt instead of forcing an old parser model.
+Prefer complete conversation families. Do not count forks, retries, copied context,
+compaction epochs, or subagents as independent lines of human thought. If a store has
+changed shape, inspect the current fields and adapt instead of forcing an old parser
+model.
 
 Keep the capsule faithful rather than exhaustive. Pull exact original passages only
 when they support a consequential decision, expose a contradiction, or explain why the
@@ -162,6 +224,7 @@ Use these lenses selectively:
 - **Question clusters**: repeated prompts that are different forms of one deeper issue.
 - **Problem space**: dimensions, quadrants, sets, overlaps, dependencies, and exclusions.
 - **Evolution**: earlier beliefs, later corrections, and why the mental model changed.
+- **Intent coverage**: which original requirements survived, drifted, or disappeared.
 - **Decisions**: accepted directions, rejected options, and choices still missing.
 - **Artifacts**: documents, code, reports, and plans mentioned or produced recently.
 - **AI replies**: prior conclusions and proposals worth retaining, challenging, or revisiting.
@@ -179,6 +242,8 @@ conclusions as confirmed, inferred, proposed, contradicted, or unresolved when u
 - Do not produce a topic list without explaining the relationships between topics.
 - Do not treat repeated wording as separate problems when one underlying question fits.
 - Do not repeat prior AI summaries without evaluating what they add, miss, or contradict.
+- Do not use compaction summaries or subagent prompts as replacements for original user
+  text when the original records remain available.
 - Do not overwhelm the user with every branch; preserve only information that changes
   understanding, decisions, risk, or next action.
 
@@ -203,16 +268,21 @@ conversations
 
 Lead with the conclusion. A useful default report is:
 
-1. **Current focus**: the real work underway.
-2. **Question clusters**: the few underlying problems behind many conversations.
-3. **Problem map**: relationships, tensions, missing dimensions, and dependencies.
+1. **Original intent and current focus**: what the user asked and the real work underway.
+2. **Question clusters and problem map**: the few underlying problems and relationships.
+3. **Lineage and drift**: material changes across forks, subagents, and compaction.
 4. **Decisions and artifacts**: what changed and what should be retained.
 5. **New insights**: cross-session implications and reframings.
 6. **Next questions or actions**: the smallest set that could materially advance work.
+
+When drift matters, quote the decisive original clause or identify its exact message
+reference, then show the later interpretation beside it. Do not reproduce every prompt
+when a compact request set preserves the meaning.
 
 ## Completion criterion
 
 The review is complete when the user can see the core value of recent AI collaboration,
 understand the shape and evolution of the problem space, distinguish resolved from open
-questions, and gain at least one useful insight or next question that was not obvious
-from reading one conversation alone.
+questions, verify that the original request set was preserved or see exactly where it
+drifted, and gain at least one useful insight or next question that was not obvious from
+reading one conversation alone.

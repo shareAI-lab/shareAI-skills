@@ -38,9 +38,10 @@ from a non-empty `agent-transcripts/<id>/<id>.jsonl` projection when that is the
 complete visible channel.
 
 Composer bubble type `1` is the human side; type `2` contains the assistant side when
-text is present. Exclude tool payloads, internal reasoning, drafts, subagent composers,
-empty sessions, and synthetic user rows such as automatic follow-up instructions or
-MCP catalog injections.
+text is present. Exclude tool payloads, internal reasoning, drafts, empty sessions,
+and synthetic user rows such as automatic follow-up instructions or MCP catalog
+injections from the primary timeline. Read subagent composers only for derived results
+that materially inform their parent work.
 
 Observed composer human fields:
 
@@ -63,3 +64,9 @@ canonical conversation after comparing accepted human-turn counts.
 Cursor can retain forks or duplicate composer roots. When two roots begin with the
 same accepted human prompt, review the longer or newer continuation and mention that
 a duplicate branch existed rather than counting both as separate workstreams.
+
+Use composer parent/fork metadata when present before relying on prefix similarity.
+Treat subagent composers and generated follow-up instructions as derived work. If
+summaries or checkpoints bridge context rollover, preserve the original type-`1`
+human bubbles across the retained epochs and use the summary only when the earlier
+bubbles are no longer available.

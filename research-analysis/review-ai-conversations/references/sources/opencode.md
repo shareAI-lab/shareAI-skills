@@ -39,6 +39,11 @@ Root conversations normally have no `parent_id`; task-tool subagents have a pare
 Read messages and parts in stored order. Keep user and assistant text parts that are
 not synthetic, ignored, compaction output, or tool data.
 
+Use `parent_id` to attach task-tool sessions to their root rather than counting their
+user-role task prompt as human intent. Keep original non-synthetic user text across
+compaction boundaries; `message.data.summary == true` and compaction parts are derived
+context bridges. Respect revert state before comparing forks or resumed continuations.
+
 Observed human relationship:
 
 ```text

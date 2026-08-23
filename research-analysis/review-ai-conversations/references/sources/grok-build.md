@@ -53,9 +53,15 @@ params.update.content.type == text
 params.update.content.text
 ```
 
-Exclude host turns, shell-command injections, tools, internal reasoning, and sessions
-whose kind identifies a subagent. Apply `rewind_marker` before summarizing so abandoned
-branches do not survive into the review.
+Exclude host turns, shell-command injections, tools, and internal reasoning from the
+visible timeline. Do not count sessions whose kind identifies a subagent as new human
+conversations; read them only for derived results relevant to the parent. Apply
+`rewind_marker` before summarizing so abandoned branches do not survive into the review.
+
+Use `parent_session_id` and `session_kind` to attach forks and subagents to the root
+conversation. A child session's prompt is a derived task unless direct human origin is
+shown. When rollover or summary updates bridge context epochs, keep earlier raw
+`user_message_chunk` text as canonical and treat the bridge summary as derived.
 
 Use `turn_completed` as lifecycle state. If visible assistant text was emitted in
 chunks, concatenate it in stored order without inventing separators.
