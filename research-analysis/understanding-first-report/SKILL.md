@@ -1,6 +1,6 @@
 ---
 name: understanding-first-report
-description: Re-synthesize long-running or multi-turn research, agent work, architecture questions, reviews, decisions, and status into a clear problem space, deeper insight, and professional report. Before substantive analysis, quote the relevant original user wording, including relevant earlier turns when the question spans multiple rounds. Then find the core need and conflict, calibrate what is known or still open, and present the result in an attention-friendly order with warm language, clean Markdown, sourced code, and a practical next step.
+description: Re-synthesize long-running or multi-turn research, agent work, architecture questions, reviews, decisions, and status into a clear problem space, deeper insight, and professional report. Before substantive analysis, quote the relevant original user wording, including earlier turns when needed. Analyze related questions with spatial Markdown diagrams rather than flat lists, find the problem behind the problem and the unmet need, calibrate what is known or still open, then present the result in an attention-friendly order with warm language, sourced code, and a practical next step.
 ---
 
 # Understanding First Report
@@ -41,6 +41,24 @@ When choices compete, prefer this order:
 4. **Presentation style**: use warmth, headings, diagrams, emoji, code, and whitespace to support the thinking.
 
 A beautiful report cannot rescue weak problem understanding. A deep analysis that is badly ordered may never reach the reader. The skill should protect both, in that order.
+
+## Core movement
+
+The work moves through four connected states:
+
+```text
+┌────────────────────┐        ┌────────────────────┐
+│ Recall the problem │        │ Understand its     │
+│ original user words│───────>│ shape and conflict │
+└────────────────────┘        └──────────┬─────────┘
+                                        │
+┌────────────────────┐        ┌──────────▼─────────┐
+│ Report it clearly  │<───────│ Find deeper need   │
+│ visual and ordered │        │ and useful insight │
+└────────────────────┘        └────────────────────┘
+```
+
+The key move is from `what was asked?` to `what deeper need makes these questions matter?`. The final report makes that thinking easy to follow.
 
 ## Original-question anchor
 
@@ -123,6 +141,47 @@ refines · replaces · blocks · enables
 
 The goal is not to display every dimension. It is to find the few dimensions that reveal the real shape of the problem, then turn that shape into a deeper insight or clearer decision.
 
+### Spatial analysis before flat lists
+
+Use a short list when items are truly independent siblings. When questions have dependency, conflict, ownership, containment, timing, or cause, a spatial map usually reveals more.
+
+```text
+Background                     Explicit asks
+┌──────────────────┐          ┌──────────────────┐
+│ earlier context  │          │ Q1 · Q2 · Q3     │
+│ accepted choices │          │ current request  │
+└─────────┬────────┘          └─────────┬────────┘
+          └────────────┬────────────────┘
+                       ▼
+              ┌──────────────────┐
+              │ Core conflict    │
+              │ what cannot fit  │
+              └────────┬─────────┘
+                       │
+          ┌────────────┴────────────┐
+          ▼                         ▼
+  deeper question             unmet need
+  what is really wrong        what success requires
+```
+
+Ask what each edge means. Useful edge labels include `depends on`, `blocks`, `conflicts with`, `owns`, `changes`, and `evidence for`.
+
+The map does not need to contain every question. It should make the core relation visible faster than prose or a flat list.
+
+### Problem behind the problem
+
+After mapping the explicit questions, look one level deeper:
+
+```text
+surface question                 deeper question
+"Which SDK?"              ->    "Who owns the contract?"
+"Where should it run?"    ->    "Which state must survive?"
+"Which protocol?"         ->    "What boundary needs to stay stable?"
+"Why is this awkward?"    ->    "Which two owners are mixed?"
+```
+
+Then ask what the user actually needs: confidence to choose, a stable owner, a missing rule, a simpler model, proof that a path works, or clarity about what remains unknown.
+
 ### 2. Protect the decision-maker's attention
 
 A professional update helps the listener answer five questions with little effort:
@@ -158,7 +217,7 @@ Useful distinctions include verified fact, partial coverage, open question, infe
 - Prefer a self-contained chat answer so the user can understand the conclusion and mechanism without opening another file.
 - Aim for a two- to three-minute main path when the material allows it. Add length when accuracy or safety needs it.
 - Match the user's language. Use plain words first and define unavoidable technical terms at first use.
-- Prefer short bullets, aligned mappings, diagrams, or compact subsections over Markdown tables.
+- When items are independent, short bullets work well. When they have relationships, prefer a spatial diagram, aligned map, or compact subsection over a flat list or Markdown table.
 - Use heading levels and `-` bullets when they help the reader see the argument and sibling points.
 - In technical or research reports, consider a few small box-line diagrams when they reveal different relationships. One good diagram may be enough.
 - Use verified code and clearly labeled pseudocode when implementation relationships matter. Skip code when it would only decorate the answer.
@@ -221,6 +280,8 @@ A short **Question review** before the verdict is usually helpful, especially af
    - Map the important objects as nodes and their dependency, ownership, sequence, or conflict as edges.
    - Expose mixed axes such as protocol vs deployment, runtime vs product, identity vs state, or current implementation vs plan.
    - Identify the more basic issue behind the surface questions: main owner, source of truth, missing rule, broken boundary, or hard trade-off.
+
+The list is an inventory. The spatial map is the analysis. Use the list to avoid omissions, then use the map to expose relationships and the deeper need.
 
 Labels such as `explicit`, `inferred`, and `unresolved` can help when intent is not directly stated. Avoid inventing hidden motives. If an uncertain inference would change the answer, show the fork.
 

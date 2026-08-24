@@ -16,6 +16,64 @@ Visual style is not the main product. It supports a clear line of thought.
 
 When a visual choice competes with problem clarity or report order, prefer clarity and order. A plain diagram that reveals the real relation is more valuable than a beautiful diagram around weak thinking.
 
+## Problem-analysis canvas
+
+Use diagrams during analysis, not only after the answer is known. A useful canvas places the main conflict in the center and keeps context, questions, evidence, and need around it.
+
+```text
+Earlier context                  Current questions
+┌──────────────────┐           ┌──────────────────┐
+│ old asks         │           │ explicit asks    │
+│ accepted choices │           │ new constraints  │
+└─────────┬────────┘           └─────────┬────────┘
+          └────────────┬─────────────────┘
+                       ▼
+              ┌──────────────────┐
+              │ Main conflict    │
+              │ the key tension  │
+              └──────┬─────┬─────┘
+                     │     │
+                     ▼     ▼
+              deeper ask   unmet need
+                     │     │
+          ┌──────────┘     └──────────┐
+          ▼                           ▼
+   evidence ready                evidence missing
+```
+
+Use a flat list mainly as an inventory. Move to a spatial map when any of these relations matter:
+
+- one question depends on another;
+- two goals conflict;
+- one layer owns another object's state;
+- an earlier decision changes the current ask;
+- evidence supports or weakens a claim;
+- several surface questions point to one deeper need.
+
+The center of the canvas should answer `what is the key tension?`. The lower part should answer `what deeper problem or need does this tension reveal?`.
+
+## Problem-behind-the-problem pattern
+
+```text
+What the user asks              What may sit underneath
+
+┌──────────────────┐           ┌──────────────────┐
+│ choose SDK       │──────────>│ stable contract  │
+│ choose hosting   │──────────>│ state ownership  │
+│ compare protocol │──────────>│ durable boundary │
+│ fix awkward flow │──────────>│ mixed owners     │
+└──────────────────┘           └──────────────────┘
+
+                        ▼
+
+               What the user needs
+
+          confidence · proof · simpler model
+          clear owner · safe next decision
+```
+
+Treat the deeper issue as an inference until evidence supports it. The point is to help the user see a useful possibility, not to claim hidden intent with certainty.
+
 ## Use several small visuals, not one overloaded picture
 
 For a substantive report, prefer two or three compact diagrams that answer different questions:
@@ -1050,6 +1108,7 @@ When embedding fenced blocks inside this Markdown example, use a longer outer fe
 - Use normal prose, intermittent bold, and occasional blockquotes together so the page feels human rather than mechanically highlighted.
 - Make the core conflict visible and add one grounded insight when it changes how the reader should think or act.
 - Quote the relevant original user wording before analysis, then summarize, list, and rank the questions while keeping one main clue visible through verdict, evidence, and action.
+- Use lists to collect questions, then use spatial diagrams to show dependency, conflict, ownership, time, evidence, and the problem behind the problem.
 - After long-running work, restore the relevant multi-turn context and show research status before asking the reader to accept a verdict.
 
 ## Visual failure checks
@@ -1074,6 +1133,7 @@ When embedding fenced blocks inside this Markdown example, use a longer outer fe
 - Bold punctuation, emoji inside emphasis, unbalanced markers, and deep Markdown nesting can render differently across clients.
 - Attractive Markdown without a clear conflict, mechanism, or useful insight is decoration rather than a report.
 - A flat question list with no main question forces the reader to do the prioritization work.
+- A flat question list with hidden dependencies forces the reader to reconstruct the geometry alone.
 - Secondary detail that appears before the core need breaks the progressive reading path.
 - A long-running report that remembers only the latest message can answer the wrong scope with perfect confidence.
 - A smooth answer that hides open or stale evidence is less useful than a clear partial result.
