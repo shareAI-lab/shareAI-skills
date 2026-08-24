@@ -39,7 +39,32 @@ Treat Markdown blocks as a small visual language. Interleave them with short pro
 ### Original-question block
 
 > **User's original ask**
-> Preserve a short question verbatim here. Compress it faithfully when it is too long.
+> Preserve the relevant user wording here before analysis.
+
+When analysis depends on several turns, quote the related user messages in time order:
+
+```markdown
+> **Earlier ask**
+> 原始问题……
+>
+> **Added constraint**
+> 后续新增要求……
+>
+> **Current ask**
+> 当前问题……
+```
+
+Prefer the full relevant wording when the combined quote is at most about 1000 Chinese characters. For longer material, keep the decision-bearing passages and mark omitted text explicitly:
+
+```markdown
+> 原始问题的关键部分……
+>
+> […]（省略与当前分析无关的中间描述）
+>
+> 后续改变范围的原话……
+```
+
+Preserve the user's exact wording, code, links, and emphasis where practical. If an earlier turn is unavailable, say so rather than recreating it.
 
 ### Key-judgment callout
 
@@ -448,7 +473,9 @@ Use this short opening pattern:
 ```markdown
 ## 🧭 问题回顾
 
-> 用户原话，或超过 500 字后的忠实压缩。
+> 当前用户原话；如果分析依赖前文，也在这里引用相关多轮原话。
+>
+> 相关原文总量超过约 1000 字时，可对非关键部分做明确标记的省略。
 
 ### 用户的问题
 
@@ -1022,7 +1049,7 @@ When embedding fenced blocks inside this Markdown example, use a longer outer fe
 - Bold only short plain-text phrases. Keep punctuation, emoji, links, and code outside the emphasis markers.
 - Use normal prose, intermittent bold, and occasional blockquotes together so the page feels human rather than mechanically highlighted.
 - Make the core conflict visible and add one grounded insight when it changes how the reader should think or act.
-- Quote or compress the ask, list and rank the user's questions, then keep one main clue visible through verdict, evidence, and action.
+- Quote the relevant original user wording before analysis, then summarize, list, and rank the questions while keeping one main clue visible through verdict, evidence, and action.
 - After long-running work, restore the relevant multi-turn context and show research status before asking the reader to accept a verdict.
 
 ## Visual failure checks

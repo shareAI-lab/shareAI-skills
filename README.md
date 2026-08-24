@@ -124,13 +124,14 @@ Re-synthesize long-running or multi-turn technical work into a clear problem spa
 **Recommended scenarios**
 
 - Reconnect earlier questions, scope changes, and accepted choices after extended agent work.
+- Quote the relevant original user wording before analysis; include dependent earlier turns and mark omissions only when the combined text is long.
 - Map the question set, find the deeper need or conflict, calibrate answer readiness, and report the result in a clear decision order.
 
 **Example**
 
 ```text
-/understanding-first-report reconnect the earlier questions, map the
-problem space, show what is known or open, then give the insight and next step.
+/understanding-first-report quote the relevant original questions, reconnect
+the problem space, show what is known or open, then give the insight and next step.
 ```
 
 The two Skills work well together, but each remains independently usable.
