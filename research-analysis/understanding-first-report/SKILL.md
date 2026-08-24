@@ -1,6 +1,6 @@
 ---
 name: understanding-first-report
-description: Re-synthesize long-running or multi-turn research, agent work, architecture questions, reviews, decisions, and status into a clear problem space, deeper insight, and professional report. Use after extended work to reconnect earlier questions, find their core need and conflict, calibrate what is known or still open, then present the result in an attention-friendly order with warm language, clean Markdown, sourced code, and a practical next step.
+description: Re-synthesize long-running or multi-turn research, agent work, architecture questions, reviews, decisions, and status into a clear problem space, deeper insight, and professional report. Before substantive analysis, quote the relevant original user wording, including relevant earlier turns when the question spans multiple rounds. Then find the core need and conflict, calibrate what is known or still open, and present the result in an attention-friendly order with warm language, clean Markdown, sourced code, and a practical next step.
 ---
 
 # Understanding First Report
@@ -41,6 +41,36 @@ When choices compete, prefer this order:
 4. **Presentation style**: use warmth, headings, diagrams, emoji, code, and whitespace to support the thinking.
 
 A beautiful report cannot rescue weak problem understanding. A deep analysis that is badly ordered may never reach the reader. The skill should protect both, in that order.
+
+## Original-question anchor
+
+Before substantive analysis, quote the relevant user question in the user's own words. This gives the reader an immediate memory anchor before summary, interpretation, or judgment.
+
+Use these rules:
+
+- If the current question is self-contained, quote the current user message first.
+- If the answer depends on earlier turns, quote the relevant user wording from those turns as well.
+- Keep the relevant quotes in time order so scope changes remain visible.
+- Quote user messages, not the assistant's prior summaries.
+- Preserve wording, spelling, code, links, and emphasis as closely as the renderer allows.
+- When the total relevant user text is at most about 1000 Chinese characters, prefer quoting it in full.
+- When it exceeds about 1000 characters, omit only less relevant passages and mark every omission clearly with `[…]` or `[省略与当前问题无关的部分]`.
+- If earlier wording is unavailable because context was compacted or lost, say so rather than recreating it from memory.
+
+Use a compact quote block:
+
+```markdown
+> **Earlier ask**
+> 原始问题……
+>
+> **Added constraint**
+> 后续新增要求……
+>
+> **Current ask**
+> 当前问题……
+```
+
+After the quote block, continue with a short summary, the ranked question list, the core need, and the problem map. The quote preserves continuity; the summary provides synthesis.
 
 When the evidence supports it, a substantive report can create thinking value beyond summary. Useful moves include:
 
@@ -174,9 +204,9 @@ The target feel is a strong startup architecture brief: sharp context, visible m
 A short **Question review** before the verdict is usually helpful, especially after long or multi-turn work. A useful shape is:
 
 1. **Quote the original ask**
-   - If the user's question is 500 Chinese characters or fewer, reproduce it verbatim in a blockquote or compact quote block so it is visually distinct from the answer.
-   - If it is longer, say that the original is long and skip the full quote. Preserve the exact decision-bearing phrases in the next summary.
-   - For follow-up reports, quote only the current request, not the entire conversation.
+   - Follow the **Original-question anchor** above.
+   - Quote the current question and any earlier user turns that the analysis depends on.
+   - Keep relevant text up to about 1000 Chinese characters in full when practical; mark any later omission explicitly.
 2. **Give a faithful short summary**
    - Restate the request in one or two warm, plain sentences.
    - Preserve named systems, constraints, expected output, and the decision the user must make.
@@ -744,6 +774,7 @@ When one of these appears, simplify the structure and return to the user's real 
 
 These boundaries are firmer because crossing them can create a false answer:
 
+- place the relevant original user wording before substantive analysis, and mark any omission explicitly;
 - preserve exact code, commands, paths, logs, schemas, quotations, and machine-readable output;
 - keep source claims traceable;
 - label pseudocode as recommended design rather than shipped API;
@@ -759,6 +790,7 @@ Keep patches, code, commands, schemas, quotations, citations, logs, and machine-
 
 Before sending, pause and ask:
 
+- Did I quote the relevant original user wording before analysis, including earlier turns this answer depends on?
 - Does the user need help returning to the earlier context, or is the current message enough?
 - What is the one main question, and which earlier questions still change it?
 - Which parts are clear, partial, inferred, conflicting, old, or still open?
