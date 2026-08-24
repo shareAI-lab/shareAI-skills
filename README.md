@@ -125,6 +125,7 @@ Re-synthesize long-running or multi-turn technical work into a clear problem spa
 
 - Reconnect earlier questions, scope changes, and accepted choices after extended agent work.
 - Quote the relevant original user wording before analysis; include dependent earlier turns and mark omissions only when the combined text is long.
+- Use spatial Markdown diagrams during analysis to show dependencies, conflicts, ownership, and the problem behind the problem instead of leaving questions in a flat list.
 - Map the question set, find the deeper need or conflict, calibrate answer readiness, and report the result in a clear decision order.
 
 **Example**
