@@ -69,6 +69,22 @@ GPT-4.5 remembered strength             Opus 4.6 remembered strength
 
 `[INF]` People often say they miss warmth, personality, or prose. The more operational loss is that later models may require more instruction and editing to reach a usable answer.
 
+### Durable translation into report behavior
+
+The model memories become useful to `understanding-first-report` through this mapping:
+
+```text
+旧 checkpoint 被怀念的特征        对汇报 Skill 的真实要求
+
+懂潜台词                     →   少让用户纠正理解
+自然、会看场合               →   按当前阅读时刻选择详略
+清楚、简短、能完成           →   少让用户找结论和改稿
+温暖但不讨好                 →   有判断，也保留人的决定权
+文笔连贯、少模板味           →   一条主线，不机械套版式
+```
+
+This mapping is more durable than the model names. The left side records the remembered quality; the right side defines observable reporting success.
+
 ## GPT-4.5
 
 ### Official account
