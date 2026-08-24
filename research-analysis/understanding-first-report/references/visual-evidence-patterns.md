@@ -647,6 +647,24 @@ Open with a short human reminder:
 
 Keep earlier turns that change the current meaning, scope, owner, or success check. A short decision record is usually more useful than replaying the transcript.
 
+### Report-delta board
+
+When this is not the first report, show why the new report changes the reader's mental model. Use only the states that contain real information.
+
+```text
+┌─ STILL TRUE ─────────┐     ┌─ CHANGED ───────────┐
+│ accepted boundary   │     │ scope or mechanism  │
+│ verified fact       │     │ current judgment    │
+└─────────────────────┘     └─────────────────────┘
+
+┌─ INVALIDATED ───────┐     ┌─ NEW / STILL OPEN ──┐
+│ old assumption      │     │ decisive evidence   │
+│ rejected direction │     │ remaining blocker   │
+└─────────────────────┘     └─────────────────────┘
+```
+
+This board is not a changelog. Include a delta only when it changes context, confidence, choice, risk, or action. Keep the original user quote above it as the stable memory anchor.
+
 ## Research-status panel
 
 Stable status words can make different levels of certainty visible without making every item look equally complete.
@@ -703,6 +721,25 @@ A boss or decision group should see the state of the decision, not the diary of 
 ```
 
 For leader updates, starting with the problem and current decision state is usually stronger than starting with `I searched`, `I read`, or a tool timeline. Mention the work process when it affects trust, coverage, or a blocker.
+
+### Decision-handoff panel
+
+Use this when a report recommends a path but the human still owns a material trade-off.
+
+```text
+🔎 VERIFIED BASIS                 🎯 MY JUDGMENT
+┌────────────────────┐          ┌────────────────────┐
+│ source · code      │─────────>│ recommended path   │
+│ test · evidence gap│          │ reason + limit     │
+└────────────────────┘          └──────────┬─────────┘
+                                          │
+                           ┌──────────────┴──────────────┐
+                           ▼                             ▼
+                    YOUR DECISION                 WOULD CHANGE IF
+                    trade-off owned               reversal condition
+```
+
+Do not add `YOUR DECISION` when the evidence already settles the question or the user already authorized the choice. Do not add `WOULD CHANGE IF` when there is no material contingency. The panel exists to preserve decision clarity, not to weaken a supported recommendation.
 
 The same geometry may use richer framing when the extra structure improves scanning:
 
