@@ -1,4 +1,4 @@
 interface:
   display_name: "Understanding-First Report"
-  short_description: "Question-first briefs with clear mechanisms and decisions"
-  default_prompt: "Use $understanding-first-report to reconstruct my real question, map its geometry, and give a self-contained three-minute technical brief."
+  short_description: "Context-reentry briefs with evidence and decision boundaries"
+  default_prompt: "Use $understanding-first-report to quote the relevant asks, show what changed, map the real question, separate verified facts from judgment and open evidence, and give a self-contained decision brief that preserves my final choice."
