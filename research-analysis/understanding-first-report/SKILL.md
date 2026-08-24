@@ -33,6 +33,46 @@ SECOND
       known · open                easy to follow
 ```
 
+## Checkpoint-derived core translation
+
+Research into GPT-4.5, Claude Opus 4.6, official behavior guidance, and later community memories points to a common target: lower prompt tax and lower cleanup tax, not model cosplay.
+
+Keep this translation near the center of the Skill:
+
+```text
+旧 checkpoint 被怀念的特征        对汇报 Skill 的真实要求
+
+懂潜台词                     →   少让用户纠正理解
+自然、会看场合               →   按当前阅读时刻选择详略
+清楚、简短、能完成           →   少让用户找结论和改稿
+温暖但不讨好                 →   有判断，也保留人的决定权
+文笔连贯、少模板味           →   一条主线，不机械套版式
+```
+
+This is the causal chain behind the reporting guidance:
+
+```text
+remembered model quality
+          │
+          ▼
+observable report behavior
+          │
+          ▼
+lower reader friction
+```
+
+Treat the right-hand side as acceptance criteria, not as decorative prose:
+
+- **懂潜台词** means reconstructing the user's actual question accurately enough that the reader rarely has to repair the frame.
+- **自然、会看场合** means choosing depth, structure, and tone for the current reading moment rather than showing every available reporting feature.
+- **清楚、简短、能完成** means making the judgment and result easy to locate, trust, and use without another editing pass.
+- **温暖但不讨好** means giving a real, sometimes corrective judgment while keeping material trade-offs and final decision rights visible.
+- **文笔连贯、少模板味** means carrying one main line through context, insight, evidence, and action instead of mechanically filling sections.
+
+When these criteria conflict with richer Markdown or a preferred template, protect the criteria. A warm, visual report still fails if the user must correct its understanding, hunt for the judgment, or rewrite the answer.
+
+These qualities do not imply that current models reproduce a historical checkpoint. For the evidence, open-source materials, limitations, and behavior-evaluation cases, read [references/opus-4-6-gpt-4-5-style-research.md](references/opus-4-6-gpt-4-5-style-research.md) only when updating or auditing this skill's voice, layout, or collaboration quality. Ordinary reports do not need to load it.
+
 ## Human collaboration outcome
 
 A strong report lowers the cost of getting back into the work and deciding what to do with it. Treat these as six forms of reader friction:
@@ -49,6 +89,18 @@ A strong report lowers the cost of getting back into the work and deciding what 
 └──────────────────┘   └──────────────────┘   └──────────────────┘
 ```
 
+The checkpoint translation, reader costs, and final handoff form one system:
+
+```text
+five remembered qualities
+           │
+           ▼
+six reader costs to reduce
+           │
+           ▼
+memory · meaning · trust · control
+```
+
 The report should leave the reader with four things:
 
 - **Memory**: what they asked and which earlier context still matters;
@@ -57,35 +109,6 @@ The report should leave the reader with four things:
 - **Control**: what the evidence supports, what the agent recommends, and what remains the human's decision.
 
 Do not manufacture all four as fixed sections. Make them easy to recover from the report. For a substantial decision report, the first screen should usually show the question anchor, the current frame, and either the verdict or why a verdict is not ready.
-
-## Checkpoint-derived reporting qualities
-
-Research into GPT-4.5, Claude Opus 4.6, official behavior guidance, and later community memories points to a common target: lower prompt tax and lower cleanup tax, not model cosplay.
-
-```text
-GPT-4.5-like strength                 Opus 4.6-like strength
-┌────────────────────────┐           ┌────────────────────────┐
-│ infer the real intent  │           │ get to the point       │
-│ read the social moment │           │ stay within scope      │
-│ use natural restraint  │           │ finish coherently      │
-└────────────┬───────────┘           └────────────┬───────────┘
-             └────────────────┬───────────────────┘
-                              ▼
-                  warm · direct · rigorous
-                  minimal excess · real judgment
-```
-
-Translate those remembered qualities into observable reporting behavior:
-
-- infer implicit intent only when the conversation supports it, and expose consequential inference instead of silently treating it as fact;
-- match depth and format to the reader's current need rather than applying the richest template every time;
-- keep one coherent line of thought instead of emitting a checklist of everything discovered;
-- acknowledge difficulty or stakes precisely, without generic validation or therapy language;
-- give a real judgment, including constructive disagreement, without taking the final decision away from the user;
-- prefer natural prose and the minimum useful structure; use diagrams, headings, emoji, and lists because they reveal something;
-- finish once the decision, evidence boundary, and next useful action are clear.
-
-These qualities are not a claim that current models reproduce a historical checkpoint. For the evidence, open-source materials, limitations, and behavior-evaluation cases, read [references/opus-4-6-gpt-4-5-style-research.md](references/opus-4-6-gpt-4-5-style-research.md) only when updating or auditing this skill's voice, layout, or collaboration quality. Ordinary reports do not need to load it.
 
 ## Priority order
 
